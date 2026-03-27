@@ -104,6 +104,7 @@ export default function ProviderDirectory() {
             <thead>
               <tr className="bg-slate-50 border-b border-slate-100">
                 <th className="p-4 text-xs font-black uppercase tracking-wider text-slate-400">Provider</th>
+                <th className="p-4 text-xs font-black uppercase tracking-wider text-slate-400">Service</th>
                 <th className="p-4 text-xs font-black uppercase tracking-wider text-slate-400">Status</th>
                 <th className="p-4 text-xs font-black uppercase tracking-wider text-slate-400">Experience</th>
                 <th className="p-4 text-xs font-black uppercase tracking-wider text-slate-400">Rate</th>
@@ -136,6 +137,7 @@ export default function ProviderDirectory() {
                       </div>
                     </div>
                   </td>
+                  <td className="p-4 text-sm text-slate-600 font-medium">{p.services[0]}</td>
                   <td className="p-4">{getStatusBadge(p.status)}</td>
                   <td className="p-4 text-sm text-slate-600 font-medium">{p.experience} Years</td>
                   <td className="p-4 text-sm font-bold text-slate-900">₹{p.hourlyRate}/hr</td>

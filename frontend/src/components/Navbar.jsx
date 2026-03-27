@@ -45,7 +45,6 @@ export default function Navbar() {
     <header className="fixed top-0 left-0 right-0 z-[100] w-full h-16 bg-white/90 backdrop-blur-md border-b border-zinc-200">
       <div className="max-w-screen mx-auto h-full grid grid-cols-3 items-center px-4">
         
-        {/* LEFT SECTION: LOGO */}
         <div className="flex justify-start">
           <Link to="/" className="group flex items-center gap-2.5 outline-none">
             <div className="w-9 h-9 bg-zinc-900 group-hover:bg-blue-600 transition-colors duration-300 rounded-xl flex items-center justify-center shadow-md">
@@ -62,7 +61,6 @@ export default function Navbar() {
           </Link>
         </div>
 
-        {/* MIDDLE SECTION: NAVIGATION BUTTONS */}
         <nav className="hidden md:flex justify-center">
           <ul className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-wide">
             <li>
@@ -78,16 +76,15 @@ export default function Navbar() {
           </ul>
         </nav>
 
-        {/* RIGHT SECTION: ACTIONS */}
         <div className="flex items-center justify-end gap-3">
           {user ? (
             <div className="flex items-center bg-zinc-100/50 p-1 rounded-full border border-zinc-200 shadow-inner">
               <NavLink
                 to={
                   user.role === "admin"
-                    ? "/dashboard"
+                    ? "/dashboard/request"
                     : user.role === "provider"
-                    ? "/provider"
+                    ? "/provider/dashboardpro"
                     : `/userdashboard`
                 }
                 className={({ isActive }) =>

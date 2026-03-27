@@ -18,7 +18,6 @@ const AllUsers = () => {
   const currentUser = useSelector((state) => state.user.user);
   const accessToken = localStorage.getItem("accessToken");
 
-  // FIX 1: Access firstName and email directly on the user object
   const filtered = users.filter((u) =>
     u.firstName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     u.lastName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -64,15 +63,12 @@ const AllUsers = () => {
         toast.error("Failed to delete account");
         return;
       }
-
       setUsers((prev) => prev.filter((u) => u._id !== user._id));
       toast.success(`${user.firstName}'s account deleted successfully`);
-
       if (currentUser._id === user._id) {
         dispatch(setUser(null));
         localStorage.removeItem("accessToken");
       }
-
       setIsModalOpen(false);
     } catch (error) {
       toast.error(error.message || "Error deleting account");
@@ -177,7 +173,6 @@ const AllUsers = () => {
         </div>
 
         <div className="bg-transparent md:bg-white md:rounded-2xl md:shadow-xl md:shadow-slate-200/50 md:border md:border-slate-200 overflow-hidden">
-          {/* Mobile Grid */}
           <div className="grid grid-cols-1 gap-4 md:hidden">
             {filtered.map((user) => (
               <div key={user._id} className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
@@ -220,7 +215,6 @@ const AllUsers = () => {
             ))}
           </div>
 
-          {/* Desktop Table */}
           <div className="hidden md:block overflow-x-auto">
             <table className="min-w-full divide-y divide-slate-100">
               <thead className="bg-slate-50/50">
@@ -236,7 +230,6 @@ const AllUsers = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 bg-white">
-                {/* FIX 2: Used filtered.map() instead of users.map() */}
                 {filtered.map((user) => (
                   <tr key={user._id} className="group hover:bg-indigo-50/40 transition-all duration-300">
                     <td className="px-6 py-5">
@@ -294,7 +287,6 @@ const AllUsers = () => {
           </div>
         </div>
 
-        {/* Modal remains unchanged... */}
         {isModalOpen && (
           <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-50 p-2 sm:p-4">
             <div className="bg-white rounded-[2rem] shadow-2xl w-full max-w-2xl overflow-hidden max-h-[95vh] flex flex-col animate-in fade-in zoom-in duration-200">

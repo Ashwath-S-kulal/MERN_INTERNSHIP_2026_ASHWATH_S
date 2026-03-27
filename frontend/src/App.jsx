@@ -32,6 +32,8 @@ import UserBookings from "./pages/User/UserBookings"
 import UserOrders from "./pages/User/UserOrders";
 import UserReviews from "./pages/User/UserReviews";
 import UserMessage from "./pages/User/UserMessage";
+import ServiceDetails from "./pages/ServiceDetails";
+import BookingDetails from "./pages/BookingDetails";
 
 export default function App() {
   return (
@@ -46,6 +48,9 @@ export default function App() {
         <Route path="/service" element={<ProtectedRoute><Navbar /><Service /></ProtectedRoute>} />
         <Route path="/dummy" element={<ProtectedRoute><ServiceMateV2 /></ProtectedRoute>} />
         <Route path="/profile/:userId" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+        <Route path="/service/:id" element={<ProtectedRoute><ServiceDetails /></ProtectedRoute>} />
+        <Route path="/booking/:id" element={<ProtectedRoute><BookingDetails /></ProtectedRoute>} />
+
 
 
         <Route path="/userdashboard" element={<ProtectedRoute><Navbar /><UserDashboard /></ProtectedRoute>}>

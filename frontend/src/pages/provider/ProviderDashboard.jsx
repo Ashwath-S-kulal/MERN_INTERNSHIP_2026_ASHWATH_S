@@ -31,9 +31,7 @@ export default function DashboardLayout() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const accessToken = localStorage.getItem("accessToken");
   const dispatch = useDispatch();
-const { user } = useSelector(store => store.user) || {
-     user: { _id: '123', fullname: 'Ravi Kumar', role: 'Master Plumber' }
-   };
+const { user } = useSelector(store => store.user) 
 
   const navItems = [
     { name: 'Dashboard', path: '/provider/dashboardpro', icon: <LayoutGrid size={20} /> },
@@ -70,9 +68,7 @@ const { user } = useSelector(store => store.user) || {
 
   return (
     <div className="flex h-screen overflow-hidden bg-[#F8FAFC] font-sans text-slate-900 pt-16">
-      
-      {/* --- SIDEBAR --- */}
-      <aside
+            <aside
         className={`
           fixed inset-y-0 left-0 z-50 w-64 bg-white border-r border-slate-200 transition-all duration-300 ease-in-out transform
           lg:relative lg:translate-x-0 
@@ -80,10 +76,6 @@ const { user } = useSelector(store => store.user) || {
         `}
       >
         <div className="flex flex-col h-full">
-          {/* Brand Logo */}
-          
-
-          {/* Nav Links */}
           <nav className="flex-1 px-4 py-4 space-y-1.5 overflow-y-auto mt-10">
             <p className="px-3 mb-4 text-[11px] font-bold text-slate-400 uppercase tracking-widest">Main Menu</p>
             {navItems.map((item) => (
@@ -111,7 +103,6 @@ const { user } = useSelector(store => store.user) || {
             ))}
           </nav>
 
-          {/* Logout Section */}
           <div className="p-4 border-t border-slate-100">
             <button onClick={logoutHandler} className="flex items-center gap-3 px-4 py-3 w-full text-slate-500 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all font-medium">
               <LogOut size={18} />
@@ -121,21 +112,14 @@ const { user } = useSelector(store => store.user) || {
         </div>
       </aside>
 
-      {/* --- MAIN CONTENT AREA --- */}
       <div className="flex-1 flex flex-col min-w-0 h-full relative">
-        
-    
-
-        {/* --- SCROLLABLE CONTENT --- */}
         <main className="flex-1 overflow-y-auto p-6 md:p-10 scroll-smooth">
           <div className="max-w-7xl mx-auto">
-            {/* Content injected here */}
             <Outlet />
           </div>
         </main>
       </div>
 
-      {/* Mobile Overlay */}
       {isSidebarOpen && (
         <div
           className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-40 lg:hidden transition-opacity"

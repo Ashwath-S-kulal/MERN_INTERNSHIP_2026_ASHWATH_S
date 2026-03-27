@@ -114,7 +114,6 @@ export default function Profile() {
                 </div>
 
                 <Tabs defaultValue="profile" className="w-full">
-                    
                     <TabsContent value="profile" className="outline-none animate-in fade-in slide-in-from-bottom-2">
                         <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                             <div className="bg-white p-6 md:p-8 rounded-sm md:rounded-xl border border-slate-200/60 shadow-sm space-y-6">

@@ -13,12 +13,16 @@ import {
   Settings,
   ArrowUpRight
 } from 'lucide-react';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import axios from 'axios';
+import { setUser } from '@/redux/userSlice';
+import { toast } from 'sonner';
 
 export default function AsymmetricUserLayout() {
   const { user: authUser } = useSelector(store => store.user);
   const [userDetails, setUserDetails] = useState(null);
+   const accessToken = localStorage.getItem("accessToken");
+  const dispatch = useDispatch();
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -46,6 +50,31 @@ export default function AsymmetricUserLayout() {
     { name: 'Reviews', path: '/userdashboard/userreviews', icon: <Star size={18} /> },
   ];
 
+
+   const logoutHandler = async () => {
+    try {
+      const res = await axios.post(
+        `/api/user/logout`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        }
+      );
+
+      if (res.data.success) {
+        dispatch(setUser(null));
+        localStorage.removeItem("accessToken");
+        toast.success(res.data.message);
+      }
+    } catch (error) {
+      console.log(error);
+      toast.error("Logout failed");
+    }
+  };
+
+
   return (
     <div className="flex h-screen bg-[#F1F5F9] p-3 lg:p-5 font-sans overflow-hidden">
 
@@ -67,10 +96,10 @@ export default function AsymmetricUserLayout() {
 
           <div className="mt-8 w-full space-y-2">
             <NavLink to={`/userdashboard/profile/${displayUser?._id}`} className="flex items-center justify-between w-full px-4 py-3 bg-white/5 hover:bg-white/10 rounded-2xl transition-all group">
-              <span className="text-xs font-bold text-slate-300">Settings</span>
+              <span className="text-xs font-bold text-slate-300">Profile</span>
               <Settings size={14} className="text-slate-500 group-hover:rotate-90 transition-transform" />
             </NavLink>
-            <button className="flex items-center justify-between w-full px-4 py-3 text-slate-500 hover:text-red-400 transition-colors text-xs font-bold">
+            <button onClick={logoutHandler} className="flex items-center justify-between w-full px-4 py-3 text-slate-500 hover:text-red-400 transition-colors text-xs font-bold">
               <span>Logout</span>
               <LogOut size={14} />
             </button>
