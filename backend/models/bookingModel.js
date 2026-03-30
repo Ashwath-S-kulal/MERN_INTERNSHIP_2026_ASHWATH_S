@@ -8,37 +8,23 @@ const bookingSchema = new mongoose.Schema(
       required: true,
     },
 
-    // ✅ THIS IS THE MAIN FIX
     provider: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "ServiceProvider",
       required: true,
     },
 
-    date: {
-      type: String,
-      required: true,
+    assignedWorker: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Member",
+      default: null, 
     },
 
-    time: {
-      type: String,
-      required: true,
-    },
-
-    address: {
-      type: String,
-      required: true,
-    },
-
-    price: {
-      type: Number,
-      required: true,
-    },
-
-    // optional: store selected service type (plumbing, etc.)
-    serviceType: {
-      type: String,
-    },
+    date: { type: String, required: true },
+    time: { type: String, required: true },
+    address: { type: String, required: true },
+    price: { type: Number, required: true },
+    serviceType: { type: String },
 
     status: {
       type: String,
@@ -53,6 +39,22 @@ const bookingSchema = new mongoose.Schema(
       default: "pending",
     },
 
+    cancellationReason: {
+      type: String,
+      default: null,
+    },
+
+    cancelledBy: {
+      type: String,
+      enum: ["user", "provider", "admin", null],
+      default: null,
+    },
+
+    isWorkerAssigned: {
+      type: Boolean,
+      default: false,
+    },
+
     paymentStatus: {
       type: String,
       enum: ["pending", "paid"],
@@ -63,5 +65,4 @@ const bookingSchema = new mongoose.Schema(
 );
 
 const Booking = mongoose.model("Booking", bookingSchema);
-
 export default Booking;

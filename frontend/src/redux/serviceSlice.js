@@ -4,7 +4,7 @@ const serviceSlice = createSlice({
   name: "service",
   initialState: {
     provider: null,
-    providers: [], // 🔥 list of providers
+    providers: [],
     loading: false,
   },
   reducers: {

@@ -20,7 +20,9 @@ import {
   LayoutGrid,
   Briefcase,
   IndianRupee,
-  MessageSquare
+  MessageSquare,
+  User2Icon,
+  Users2Icon
 } from 'lucide-react';
 import axios from 'axios';
 import { setUser } from "../../redux/userSlice";
@@ -35,9 +37,10 @@ const { user } = useSelector(store => store.user)
 
   const navItems = [
     { name: 'Dashboard', path: '/provider/dashboardpro', icon: <LayoutGrid size={20} /> },
+    { name: 'Team Members', path: '/provider/addmember', icon: <Users2Icon size={20} /> },
     { name: 'Application', path: '/provider/applyforservice', icon: <LayoutGrid size={20} /> },
     { name: 'My Jobs', path: `/provider/myjob/${user?._id}`, icon: <Briefcase size={20} /> },
-    { name: 'Earnings', path: '/provider/earnings', icon: <IndianRupee size={20} /> },
+    { name: 'Bookings', path: '/provider/bookings', icon: <IndianRupee size={20} /> },
     { name: 'Messages', path: '/provider/messages', icon: <MessageSquare size={20} /> },
     { name: 'Reviews', path: '/provider/reviewspro', icon: <Star size={20} /> },
     { name: 'Profile', path: `/provider/profile/${user._id}`, icon: <User size={20} /> },
@@ -113,7 +116,7 @@ const { user } = useSelector(store => store.user)
       </aside>
 
       <div className="flex-1 flex flex-col min-w-0 h-full relative">
-        <main className="flex-1 overflow-y-auto p-6 md:p-10 scroll-smooth">
+        <main className="flex-1 overflow-y-auto p-6 scroll-smooth">
           <div className="max-w-7xl mx-auto">
             <Outlet />
           </div>

@@ -214,3 +214,31 @@ export const updateServiceProvider = async (req, res) => {
     res.status(500).json({ success: false, message: err.message });
   }
 };
+
+export const getSingleProvider = async (req, res) => {
+  try {
+    const { jobId } = req.params;
+    const provider = await ServiceProvider.findById(jobId).populate({
+      path: "user",
+      select: "firstName lastName email profilePic phoneNo",
+    });
+
+    if (!provider) {
+      return res.status(404).json({
+        success: false,
+        message: "Service profile not found",
+      });
+    }
+    res.status(200).json({
+      success: true,
+      provider,
+    });
+  } catch (error) {
+    console.error("Error fetching single provider:", error);
+    res.status(500).json({
+      success: false,
+      message: "Server error while fetching profile details",
+      error: error.message,
+    });
+  }
+};

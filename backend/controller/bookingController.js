@@ -1,7 +1,7 @@
 import Booking from "../models/bookingModel.js";
 import { ServiceProvider } from "../models/serviceProviderModel.js";
 
-// CREATE BOOKING
+
 export const createBooking = async (req, res) => {
   try {
     const { providerId, date, time, address } = req.body;
@@ -10,14 +10,12 @@ export const createBooking = async (req, res) => {
       return res.status(400).json({ message: "All fields required" });
     }
 
-    // 🔍 find provider
     const provider = await ServiceProvider.findById(providerId);
 
     if (!provider) {
       return res.status(404).json({ message: "Provider not found" });
     }
 
-    // ❗ SLOT CHECK
     const existingBooking = await Booking.findOne({
       provider: provider._id,
       date,
@@ -27,11 +25,10 @@ export const createBooking = async (req, res) => {
 
     if (existingBooking) {
       return res.status(400).json({
-        message: "❌ This slot is already booked",
+        message: " This slot is already booked",
       });
     }
 
-    // ✅ CREATE BOOKING
     const booking = await Booking.create({
       user: req.user.id,
       provider: provider._id,
@@ -43,7 +40,7 @@ export const createBooking = async (req, res) => {
     });
 
     res.status(201).json({
-      message: "✅ Booking created",
+      message: " Booking created",
       booking,
     });
 
@@ -52,7 +49,6 @@ export const createBooking = async (req, res) => {
     res.status(500).json({ message: "Error creating booking" });
   }
 };
-
 
 export const getUserBookings = async (req, res) => {
   try {
@@ -66,7 +62,7 @@ export const getUserBookings = async (req, res) => {
           path: "user",
           select: "firstName lastName profilePic",
         },
-      });
+      }).sort({ createdAt: -1 });
 
     res.status(200).json(bookings);
 
@@ -76,10 +72,8 @@ export const getUserBookings = async (req, res) => {
   }
 };
 
-
 export const getProviderBookings = async (req, res) => {
   try {
-    // ✅ 1. Get ALL providers for this user
     const providers = await ServiceProvider.find({
       user: req.user.id,
     });
@@ -88,11 +82,8 @@ export const getProviderBookings = async (req, res) => {
       return res.status(404).json({ message: "No providers found" });
     }
 
-    // ✅ 2. Extract all provider IDs
     const providerIds = providers.map((p) => p._id);
 
-
-    // ✅ 3. Fetch bookings for ALL provider IDs
     const bookings = await Booking.find({
       provider: { $in: providerIds },
     })
@@ -114,7 +105,6 @@ export const getProviderBookings = async (req, res) => {
   }
 };
 
-// UPDATE STATUS
 export const updateBookingStatus = async (req, res) => {
   try {
     const { status } = req.body;
@@ -131,18 +121,15 @@ export const updateBookingStatus = async (req, res) => {
   }
 };
 
-// GET SINGLE BOOKING
 export const getSingleBooking = async (req, res) => {
   try {
     const booking = await Booking.findById(req.params.id)
 
-      // ✅ Populate booking user (customer)
       .populate({
         path: "user",
         select: "firstName lastName email profilePic phoneNo",
       })
 
-      // ✅ Populate provider + nested user
       .populate({
         path: "provider",
         populate: {
@@ -163,7 +150,6 @@ export const getSingleBooking = async (req, res) => {
   }
 };
 
-// GET BOOKED SLOTS
 export const getBookedSlots = async (req, res) => {
   try {
     const { providerId, date } = req.query;
@@ -179,5 +165,55 @@ export const getBookedSlots = async (req, res) => {
     res.json(bookedTimes);
   } catch (err) {
     res.status(500).json({ message: "Error fetching slots" });
+  }
+};
+
+export const assignWorkerToBooking = async (req, res) => {
+  try {
+    const { bookingId, workerId } = req.body;
+
+    const updatedBooking = await Booking.findByIdAndUpdate(
+      bookingId,
+      { 
+        assignedWorker: workerId,
+        isWorkerAssigned: true,
+        status: "accepted" 
+      },
+      { new: true }
+    ).populate("assignedWorker"); 
+
+    res.status(200).json({ success: true, booking: updatedBooking });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// Get ALL bookings for Admin
+export const getAllBookingsAdmin = async (req, res) => {
+  try {
+    // 1. Fetch all bookings from the database
+    const bookings = await Booking.find({})
+      .populate({
+        path: "user",
+        select: "firstName lastName email profilePic",
+      })
+      .populate({
+        path: "provider",
+        select: "title services hourlyRate",
+        populate: {
+            path: "user", // To show the provider's name (the person offering the service)
+            select: "firstName lastName profilePic"
+        }
+      })
+      .sort({ createdAt: -1 }); // Newest bookings first
+
+    if (!bookings) {
+      return res.status(404).json({ message: "No bookings found" });
+    }
+
+    res.status(200).json(bookings);
+  } catch (error) {
+    console.error("Admin Bookings Error:", error);
+    res.status(500).json({ message: "Error fetching all bookings" });
   }
 };

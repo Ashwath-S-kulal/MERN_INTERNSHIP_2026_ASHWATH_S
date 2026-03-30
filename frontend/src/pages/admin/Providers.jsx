@@ -4,12 +4,15 @@ import {
   Search, Filter, MoreVertical, CheckCircle,
   XCircle, Clock, ExternalLink, User
 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 export default function ProviderDirectory() {
   const [providers, setProviders] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(true);
   const token = localStorage.getItem("accessToken");
+  const navigate = useNavigate();
+
 
   useEffect(() => {
     const fetchAll = async () => {
@@ -119,9 +122,10 @@ export default function ProviderDirectory() {
                       <div className="h-10 w-10 rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center font-bold overflow-hidden shrink-0">
                         {p.user?.profilePic ? (
                           <img
+                            onClick={() => navigate(`/servicedetails/${p._id}`)}
                             src={p.user.profilePic}
                             alt={`${p.user.firstName}'s profile`}
-                            className="h-full w-full object-cover"
+                            className="h-full w-full object-cover cursor-pointer"
                           />
                         ) : (
                           <span>{p.user?.firstName?.charAt(0)}</span>

@@ -44,9 +44,7 @@ export default function AsymmetricUserLayout() {
 
   const navItems = [
     { name: 'Overview', path: '/userdashboard', icon: <LayoutGrid size={18} /> },
-    { name: 'Tracking', path: '/userdashboard/userorders', icon: <MapPin size={18} /> },
     { name: 'Bookings', path: '/userdashboard/userbookings', icon: <Calendar size={18} /> },
-    { name: 'Messages', path: '/userdashboard/usermessages', icon: <MessageSquare size={18} /> },
     { name: 'Reviews', path: '/userdashboard/userreviews', icon: <Star size={18} /> },
   ];
 

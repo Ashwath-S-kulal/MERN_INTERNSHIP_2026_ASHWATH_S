@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { NavLink, useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 import {
   Calendar, Clock, MapPin, Star, ShieldCheck,
-  Briefcase, CheckCircle2, Globe, Wrench,
-  Navigation, Info, Check, Image as LucideImage
+  Briefcase, Wrench, Navigation, Info,
+  ChevronRight, ArrowRight, Globe,
+  CheckCircle, Hash, Zap, CalendarDays,
+  ArrowLeft
 } from "lucide-react";
 
 export default function ServiceDetails() {
@@ -15,10 +17,14 @@ export default function ServiceDetails() {
   const [address, setAddress] = useState("");
   const [loading, setLoading] = useState(false);
   const [bookedSlots, setBookedSlots] = useState([]);
-
-  // State for the interactive gallery
   const [activeImg, setActiveImg] = useState("");
 
+  const today = new Date().toISOString().split("T")[0];
+  const daysOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+  const navigate = useNavigate();
+
+
+  
   useEffect(() => {
     const fetchService = async () => {
       const token = localStorage.getItem("accessToken");
@@ -27,14 +33,13 @@ export default function ServiceDetails() {
           headers: { Authorization: `Bearer ${token}` },
         });
         setService(res.data);
-        // Set initial large image
-        if (res.data.images?.length > 0) {
-          setActiveImg(res.data.images[0].url);
-        }
+        if (res.data.images?.length > 0) setActiveImg(res.data.images[0].url);
       } catch (err) { console.error(err); }
     };
     fetchService();
   }, [id]);
+
+
 
   useEffect(() => {
     const fetchSlots = async () => {
@@ -50,11 +55,11 @@ export default function ServiceDetails() {
     fetchSlots();
   }, [date, id]);
 
+
+
   const handleBooking = async () => {
-    if (!date || !time || !address) {
-      alert("Please fill all fields (Date, Time, and Address)");
-      return;
-    }
+    if (!date || !time || !address) return alert("Please fill all details");
+
     const token = localStorage.getItem("accessToken");
     try {
       setLoading(true);
@@ -65,185 +70,207 @@ export default function ServiceDetails() {
       alert("✅ Booking Successful!");
       setDate(""); setTime(""); setAddress("");
     } catch (err) {
-      console.error(err);
+      console.log(err)
       alert("❌ Booking failed");
-    } finally { setLoading(false); }
+    }
+    finally { setLoading(false); }
   };
+
+
+
+  const isDayAvailable = (dateString) => {
+    if (!dateString || !service) return false;
+    const dayName = daysOfWeek[new Date(dateString).getDay()];
+    return service.availability.includes(dayName);
+  };
+
+
 
   if (!service) return (
     <div className="min-h-screen flex items-center justify-center bg-white">
-      <div className="w-10 h-10 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+      <div className="w-5 h-5 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
     </div>
   );
 
   const timeSlots = ["09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00"];
 
   return (
-    <div className="min-h-screen bg-white pb-32">
-      <div className="max-w-6xl mx-auto px-4 pt-24">
+    <div className="min-h-screen bg-[#FDFDFD] pb-12 font-sans text-slate-800">
 
-        {/* 1. INTERACTIVE GALLERY SECTION */}
-        <div className="space-y-4">
-          <div className="w-full aspect-video md:aspect-[21/9] rounded-2xl overflow-hidden bg-slate-100 border border-slate-200">
-            <img src={activeImg} className="w-full h-full object-cover" alt="Main" />
+      <nav className="sticky top-0 z-40 bg-white/90 backdrop-blur-sm border-b border-slate-100 px-4 py-3">
+        <div className="max-w-6xl mx-auto flex justify-between items-center">
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => navigate(-1)}
+              className="flex items-center gap-2 px-3 py-1.5 hover:bg-slate-100 rounded-xl transition-all text-slate-600 group"
+            >
+              <ArrowLeft size={16} className="group-hover:-translate-x-0.5 transition-transform" />
+              <span className="text-[10px] font-black uppercase tracking-widest">Back</span>
+            </button>
+
+            <div className="h-4 w-[1px] bg-slate-200 mx-2"></div>
+
+            <div className="flex items-center gap-1.5 text-[10px] font-bold text-slate-400 uppercase tracking-tight">
+              <NavLink to={"/service"} className="hover:text-slate-600 transition-colors underline-offset-4 hover:underline">
+                Services
+              </NavLink>
+              <ChevronRight size={10} className="text-slate-300" />
+              <span className="text-blue-600 font-black">{service.services?.[0]}</span>
+            </div>
           </div>
-          <div className="flex gap-3 overflow-x-auto pb-2 no-scrollbar">
-            {service.images?.map((img, i) => (
-              <button
-                key={i}
-                onClick={() => setActiveImg(img.url)}
-                className={`w-24 h-16 flex-shrink-0 rounded-lg overflow-hidden border-2 transition-all ${activeImg === img.url ? 'border-blue-600' : 'border-transparent opacity-60'}`}
-              >
-                <img src={img.url} className="w-full h-full object-cover" alt="thumb" />
-              </button>
-            ))}
+
+          <div className="flex items-center gap-2">
+            <div className={`w-1.5 h-1.5 rounded-full animate-pulse ${service.isActive ? 'bg-emerald-500' : 'bg-slate-300'}`}></div>
+            <span className={`text-[9px] font-black px-2 py-0.5 rounded-md uppercase tracking-wider ${service.isActive ? 'bg-emerald-50 text-emerald-600' : 'bg-slate-100 text-slate-400'}`}>
+              {service.isActive ? "Online" : "Offline"}
+            </span>
+          </div>
+        </div>
+      </nav>
+
+
+      <div className="max-w-6xl mx-auto px-4 grid grid-cols-1 lg:grid-cols-12 gap-8 pt-6">
+        <div className="lg:col-span-7 space-y-6">
+          <div className="bg-white p-3 rounded-3xl border border-slate-100 shadow-sm">
+            <div className="aspect-[16/9] rounded-2xl overflow-hidden bg-slate-50 mb-3">
+              <img src={activeImg} className="w-full h-full object-cover" alt="Main" />
+            </div>
+            <div className="flex gap-2 overflow-x-auto no-scrollbar">
+              {service.images?.map((img, i) => (
+                <button key={i} onClick={() => setActiveImg(img.url)} className={`w-14 h-14 flex-shrink-0 rounded-xl overflow-hidden border transition-all ${activeImg === img.url ? 'border-blue-500 ring-2 ring-blue-50' : 'border-transparent opacity-50'}`}>
+                  <img src={img.url} className="w-full h-full object-cover" alt="thumb" />
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm">
+            <h1 className="text-2xl font-black text-slate-900 mb-1">{service.title}</h1>
+            <div className="flex flex-wrap gap-4 text-[12px] text-slate-400 mb-6">
+              <span className="flex items-center gap-1"><MapPin size={13} /> {service.city}, {service.address}</span>
+              <span className="flex items-center gap-1 font-bold text-amber-500"><Star size={13} className="fill-amber-500" /> {service.rating} ({service.totalReviews})</span>
+            </div>
+
+            <div className="grid grid-cols-4 gap-2 mb-6">
+              {[
+                { label: "Exp.", value: `${service.experience}y`, icon: Briefcase },
+                { label: "Radius", value: `${service.serviceRadius}km`, icon: Navigation },
+                { label: "Tools", value: service.hasTools ? "Yes" : "No", icon: Wrench },
+                { label: "Zip", value: service.zipCode, icon: Hash }
+              ].map((stat, i) => (
+                <div key={i} className="bg-slate-50/50 p-2.5 rounded-xl border border-slate-100">
+                  <p className="text-[8px] font-black text-slate-300 uppercase mb-0.5">{stat.label}</p>
+                  <p className="text-[11px] font-bold text-slate-700">{stat.value}</p>
+                </div>
+              ))}
+            </div>
+
+            <div className="pt-4 border-t border-slate-50">
+              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3 flex items-center gap-2">
+                <Calendar size={12} /> Weekly Schedule
+              </p>
+              <div className="flex flex-wrap gap-1.5">
+                {daysOfWeek.map((day) => {
+                  const isAvailable = service.availability.includes(day);
+                  return (
+                    <div key={day} className={`px-2.5 py-1 rounded-lg text-[10px] font-bold border transition-all 
+                      ${isAvailable ? 'bg-blue-50 border-blue-100 text-blue-600' : 'bg-slate-50 border-transparent text-slate-300'}`}>
+                      {day.slice(0, 3)}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white p-6 rounded-3xl border border-slate-100">
+            <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 flex items-center gap-1.5"><Info size={12} /> About Service</h3>
+            <p className="text-slate-600 text-[14px] leading-relaxed italic">"{service.bio}"</p>
           </div>
         </div>
 
-        {/* 2. MAIN CONTENT AREA */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
-          <div className="lg:col-span-2 space-y-10">
-            <div>
-              <h1 className="text-4xl font-black text-slate-900 mb-4">{service.title}</h1>
-              <div className="flex flex-wrap gap-4 items-center">
-                <div className="flex items-center gap-2 bg-blue-50 text-blue-700 px-4 py-1.5 rounded-full text-sm font-bold">
-                  <Star size={16} className="fill-blue-600" /> {service.rating || "0.0"} Rating
-                </div>
-                <div className="flex items-center gap-2 text-slate-500 font-medium">
-                  <MapPin size={18} /> {service.city}, {service.address}
-                </div>
+        <div className="lg:col-span-5">
+          <div className="bg-white p-6 rounded-3xl shadow-xl shadow-slate-200/40 border border-slate-100 sticky top-24">
+            <div className="flex justify-between items-center mb-6">
+              <div>
+                <p className="text-[9px] font-black text-slate-300 uppercase">Hourly Price</p>
+                <p className="text-3xl font-black text-slate-900">₹{service.hourlyRate}<span className="text-[10px] font-medium text-slate-400 ml-1">/hr</span></p>
+              </div>
+              <div className="text-right">
+                <span className="text-[9px] font-bold text-emerald-500 bg-emerald-50 px-2 py-0.5 rounded uppercase">{service.status}</span>
               </div>
             </div>
 
-            <div className="bg-slate-50 p-8 rounded-[2rem] border border-slate-100">
-              <h3 className="text-lg font-bold mb-4 flex items-center gap-2"><Info size={20} className="text-blue-600" /> Provider Biography</h3>
-              <p className="text-slate-600 leading-relaxed text-lg italic">"{service.bio}"</p>
-
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8">
-                <div className="text-center">
-                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Experience</p>
-                  <p className="font-bold text-slate-800">{service.experience} Years</p>
-                </div>
-                <div className="text-center">
-                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Radius</p>
-                  <p className="font-bold text-slate-800">{service.serviceRadius} KM</p>
-                </div>
-                <div className="text-center">
-                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Tools</p>
-                  <p className="font-bold text-slate-800">{service.hasTools ? "Yes" : "No"}</p>
-                </div>
-                <div className="text-center">
-                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Languages</p>
-                  <p className="font-bold text-slate-800">{service.languages?.[0] || "English"}</p>
-                </div>
+            <div className="space-y-4">
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-bold text-slate-400 uppercase ml-1">Choose Date</label>
+                <input
+                  type="date"
+                  min={today}
+                  value={date}
+                  onChange={(e) => {
+                    const selectedDate = e.target.value;
+                    if (!isDayAvailable(selectedDate)) {
+                      alert(`Provider is not available on ${daysOfWeek[new Date(selectedDate).getDay()]}s`);
+                      setDate(""); 
+                      return;
+                    }
+                    setDate(selectedDate);
+                    setTime("");
+                  }}
+                  className={`w-full bg-slate-50/50 border p-3 rounded-xl font-bold text-[13px] focus:ring-2 outline-none transition-all ${date && !isDayAvailable(date)
+                      ? 'border-rose-500 ring-rose-50'
+                      : 'border-slate-100 focus:ring-blue-500/10'
+                    }`}
+                />
+                <p className="text-[9px] text-slate-400 mt-1 ml-1 italic">
+                  Available: {service.availability.map(d => d.slice(0, 3)).join(", ")}
+                </p>
               </div>
-            </div>
 
-            {/* 3. SELECTABLE SLOT BUTTONS */}
-            <div className="space-y-6">
-              <h3 className="text-xl font-bold flex items-center gap-2">
-                <Calendar size={22} className="text-blue-600" /> 1. Select Appointment
-              </h3>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="bg-white border rounded-2xl p-4">
-                  <p className="text-xs font-bold text-slate-400 mb-3 uppercase">Choose Date</p>
-                  <input
-                    type="date"
-                    value={date}
-                    onChange={(e) => { setDate(e.target.value); setTime(""); }}
-                    className="w-full p-3 bg-slate-50 rounded-xl border-none font-bold outline-none ring-2 ring-transparent focus:ring-blue-500/20"
-                  />
-                </div>
-
-                <div className="bg-white border rounded-2xl p-4">
-                  <p className="text-xs font-bold text-slate-400 mb-3 uppercase">Available Slots</p>
-                  {!date ? (
-                    <p className="text-sm text-slate-400 italic py-2">Please select a date first</p>
-                  ) : (
-                    <div className="grid grid-cols-3 gap-2">
-                      {timeSlots.map((slot) => {
-                        const isBooked = bookedSlots.includes(slot);
-                        const isSelected = time === slot;
-                        return (
-                          <button
-                            key={slot}
-                            disabled={isBooked}
-                            onClick={() => setTime(slot)}
-                            className={`py-2.5 px-2 rounded-xl text-xs font-bold transition-all border-2
-                              ${isBooked ? 'bg-slate-100 text-slate-300 border-slate-100 cursor-not-allowed' :
-                                isSelected ? 'bg-blue-600 text-white border-blue-600 shadow-lg shadow-blue-200' :
-                                  'bg-white text-slate-700 border-slate-100 hover:border-blue-200 hover:bg-blue-50'}`}
-                          >
-                            {slot}
-                          </button>
-                        );
-                      })}
-                    </div>
-                  )}
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-bold text-slate-400 uppercase ml-1">Select Time</label>
+                <div className="grid grid-cols-3 gap-1.5">
+                  {timeSlots.map(slot => (
+                    <button
+                      key={slot}
+                      disabled={bookedSlots.includes(slot) || !date}
+                      onClick={() => setTime(slot)}
+                      className={`py-2 rounded-lg text-[11px] font-bold border transition-all
+                        ${time === slot ? 'bg-slate-900 text-white border-slate-900' : 'bg-white text-slate-600 border-slate-100 hover:border-slate-300'}
+                        ${(bookedSlots.includes(slot) || !date) && 'opacity-20 cursor-not-allowed'}
+                      `}
+                    >
+                      {slot}
+                    </button>
+                  ))}
                 </div>
               </div>
 
-              <div className="space-y-3">
-                <h3 className="text-xl font-bold flex items-center gap-2 pt-4">
-                  <Navigation size={22} className="text-blue-600" /> 2. Service Address
-                </h3>
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-bold text-slate-400 uppercase ml-1">Work Address</label>
                 <textarea
-                  placeholder="Street name, Building, Flat No..."
+                  placeholder="Where is the service needed?"
                   value={address}
                   onChange={(e) => setAddress(e.target.value)}
-                  className="w-full bg-slate-50 border border-slate-100 rounded-2xl p-5 text-sm font-semibold focus:bg-white focus:ring-4 focus:ring-blue-500/10 outline-none h-32 transition-all"
+                  className="w-full bg-slate-50/50 border border-slate-100 p-3 rounded-xl text-[12px] font-medium h-20 resize-none outline-none"
                 />
               </div>
-            </div>
-          </div>
 
-          {/* PROVIDER INFO CARD (Side) */}
-          <div className="lg:col-span-1">
-            <div className="bg-white border border-slate-200 rounded-[2.5rem] p-8 text-center sticky top-24 shadow-sm">
-              <img src={service.user?.profilePic} className="w-24 h-24 rounded-full mx-auto object-cover border-4 border-slate-50 mb-4" alt="user" />
-              <h4 className="text-xl font-bold text-slate-900">{service.user?.firstName} {service.user?.lastName}</h4>
-              <p className="text-blue-600 text-xs font-bold uppercase tracking-widest mb-6">Verified Specialist</p>
-              <div className="space-y-4 text-left border-t pt-6">
-                <div className="flex items-center gap-3 text-slate-600 text-sm">
-                  <CheckCircle2 size={16} className="text-emerald-500" /> Identity Verified
-                </div>
-                <div className="flex items-center gap-3 text-slate-600 text-sm">
-                  <Wrench size={16} className="text-emerald-500" /> Professional Tools Included
-                </div>
-                <div className="flex items-center gap-3 text-slate-600 text-sm">
-                  <Clock size={16} className="text-emerald-500" /> On-time Guarantee
-                </div>
+              <button
+                onClick={handleBooking}
+                disabled={loading || !date || !time}
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white py-4 rounded-xl font-black text-[12px] uppercase tracking-widest shadow-lg shadow-blue-200 active:scale-[0.98] disabled:opacity-30 flex items-center justify-center gap-2 mt-2"
+              >
+                {loading ? "Booking..." : "Confirm Booking"}
+                <ArrowRight size={14} />
+              </button>
+
+              <div className="flex items-center justify-center gap-1.5 opacity-30 mt-4">
+                <ShieldCheck size={12} />
+                <span className="text-[8px] font-bold uppercase tracking-tighter">Verified Provider & Secure Payment</span>
               </div>
             </div>
-          </div>
-        </div>
-      </div>
-
-      {/* 4. FIXED BOTTOM BOOKING BAR */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white/80 backdrop-blur-xl border-t border-slate-200 p-4 z-50 shadow-[0_-10px_40px_rgba(0,0,0,0.05)]">
-        <div className="max-w-6xl mx-auto flex items-center justify-between gap-6">
-          <div className="hidden md:block">
-            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Total Hourly Rate</p>
-            <p className="text-2xl font-black text-slate-900">₹{service.hourlyRate}<span className="text-sm font-normal text-slate-500"> /hr</span></p>
-          </div>
-
-          <div className="flex-1 flex items-center gap-4 justify-end">
-            <div className="text-right hidden sm:block">
-              <p className="text-xs font-bold text-slate-900">
-                {date ? date : "Pick a date"}
-                {time ? ` @ ${time}` : ""}
-              </p>
-              <p className="text-[10px] text-slate-400 font-bold uppercase tracking-tighter">Selected Schedule</p>
-            </div>
-
-            <button
-              onClick={handleBooking}
-              disabled={loading}
-              className="bg-blue-600 hover:bg-blue-700 text-white px-10 py-4 rounded-2xl font-black text-sm uppercase tracking-widest transition-all shadow-xl shadow-blue-200 active:scale-95 disabled:opacity-50 min-w-[200px]"
-            >
-              {loading ? "Processing..." : "Confirm Booking"}
-            </button>
           </div>
         </div>
       </div>

@@ -65,7 +65,6 @@ export default function SimpleApplyForService() {
       formData.append("availability", JSON.stringify(form.availability));
       formData.append("languages", JSON.stringify(form.languages.split(",").map(l => l.trim())));
 
-      // 4. Append the Images
       images.forEach((file) => {
         formData.append("files", file);
       });

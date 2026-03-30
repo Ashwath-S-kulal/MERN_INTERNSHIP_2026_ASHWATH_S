@@ -6,8 +6,10 @@ import {
   updateBookingStatus,
   getSingleBooking,
   getBookedSlots,
+  assignWorkerToBooking,
+  getAllBookingsAdmin,
 } from "../controller/bookingController.js";
-import { isAuthenticated } from "../middleware/isAuthenticated.js";
+import { isAdmin, isAuthenticated } from "../middleware/isAuthenticated.js";
 
 
 const router = express.Router();
@@ -18,5 +20,7 @@ router.get("/provider", isAuthenticated, getProviderBookings);
 router.put("/status/:id", isAuthenticated, updateBookingStatus);
 router.get("/single/:id", isAuthenticated, getSingleBooking);
 router.get("/slots", isAuthenticated, getBookedSlots);
+router.put("/memberassign", isAuthenticated, assignWorkerToBooking);
+router.get("/allbookings", isAuthenticated,isAdmin, getAllBookingsAdmin);
 
 export default router;

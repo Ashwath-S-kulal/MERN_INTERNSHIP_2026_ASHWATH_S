@@ -114,12 +114,9 @@ export default function ServiceExplorer() {
       <main className="max-w-7xl mx-auto px-6 pt-12">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {filteredServices.map((s) => (
-            <div key={s._id} className="group bg-white rounded-3xl border border-slate-100 p-3 shadow-md hover:border-blue-200 hover:shadow-2xl transition-all duration-500 flex flex-col">
-
-              {/* 1. SERVICE IMAGE SECTION */}
-              <div className="relative h-48 w-full mb-4 overflow-hidden rounded-2xl bg-slate-100">
+            <div key={s._id} className="group bg-white rounded-md border border-slate-100 p-3 shadow-md hover:border-blue-200 hover:shadow-2xl transition-all duration-500 flex flex-col">
+              <div className="relative h-48 w-full mb-4 overflow-hidden rounded-md bg-slate-100">
                 <img
-                  // Show the first image from the images array, or a fallback
                   src={s.images?.[0]?.url || "https://images.unsplash.com/photo-1581578731522-745d05db9ad0?q=80&w=800"}
                   alt={s.title}
                   className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
@@ -129,14 +126,12 @@ export default function ServiceExplorer() {
                     {s.services?.[0] || "General"}
                   </span>
                 </div>
-                {/* Overlay Badge for Price */}
                 <div className="absolute bottom-3 right-3 px-3 py-1 bg-slate-900/80 backdrop-blur-md rounded-lg text-white text-xs font-black">
                   ₹{s.hourlyRate}/hr
                 </div>
               </div>
 
               <div className="px-2 flex-1 flex flex-col">
-                {/* 2. PROVIDER HEADER */}
                 <div className="flex items-center gap-3 mb-4">
                   <img
                     src={s.user?.profilePic || `https://ui-avatars.com/api/?name=${s.user?.firstName}`}
@@ -155,12 +150,10 @@ export default function ServiceExplorer() {
                   </div>
                 </div>
 
-                {/* 3. BIO/DESC */}
                 <p className="text-xs text-slate-500 leading-relaxed line-clamp-2 mb-4 h-8">
                   {s.bio || "Quality service provider available for your tasks."}
                 </p>
 
-                {/* 4. DETAILS GRID */}
                 <div className="grid grid-cols-2 gap-2 mb-6">
                   <div className="flex items-center gap-2 text-slate-600 bg-slate-50 p-2 rounded-xl">
                     <MapPin size={12} className="text-blue-500" />
@@ -172,21 +165,18 @@ export default function ServiceExplorer() {
                   </div>
                 </div>
 
-                {/* 5. ACTION BUTTON */}
                 <button
                   onClick={() => navigate(`/service/${s._id}`)}
-                  className="w-full py-4 bg-slate-900 text-white rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] flex items-center justify-center gap-2 hover:bg-blue-600 transition-all shadow-lg active:scale-95 group/btn mt-auto"
+                  className="w-full py-4 bg-slate-900 text-white rounded-md font-black text-[10px] uppercase tracking-[0.12em] flex items-center justify-center gap-2 hover:bg-blue-600 transition-all shadow-lg active:scale-95 group/btn mt-auto"
                 >
                   Book Service
                   <ArrowRight size={14} className="group-hover/btn:translate-x-1 transition-transform" />
                 </button>
               </div>
-
             </div>
           ))}
         </div>
 
-        {/* EMPTY STATE */}
         {filteredServices.length === 0 && (
           <div className="text-center py-20">
             <div className="bg-slate-50 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4">
