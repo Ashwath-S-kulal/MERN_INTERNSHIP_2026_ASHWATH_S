@@ -55,11 +55,27 @@ const bookingSchema = new mongoose.Schema(
       default: false,
     },
 
+    hoursWorked: { 
+      type: Number, 
+      default: 0 
+    },
+
+    totalAmount: { 
+      type: Number, 
+      default: 0 
+    },
+
     paymentStatus: {
       type: String,
-      enum: ["pending", "paid"],
+      enum: ["pending", "paid", "pending_collection"],
       default: "pending",
     },
+
+    isSettled: { 
+      type: Boolean, 
+      default: false 
+    },
+
   },
   { timestamps: true }
 );

@@ -85,7 +85,6 @@ export const deleteMember = async (req, res) => {
 
 export const getMemberById = async (req, res) => {
   try {
-    console.log("Fetching member with ID:", req.params.id);
     const member = await Member.findById(req.params.id);
 
     if (!member) {

@@ -43,9 +43,8 @@ export default function AsymmetricUserLayout() {
   const displayUser = userDetails || authUser;
 
   const navItems = [
-    { name: 'Overview', path: '/userdashboard', icon: <LayoutGrid size={18} /> },
+    { name: 'Overview', path: '/userdashboard/overview', icon: <LayoutGrid size={18} /> },
     { name: 'Bookings', path: '/userdashboard/userbookings', icon: <Calendar size={18} /> },
-    { name: 'Reviews', path: '/userdashboard/userreviews', icon: <Star size={18} /> },
   ];
 
 

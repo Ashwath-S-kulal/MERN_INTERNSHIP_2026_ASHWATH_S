@@ -85,7 +85,7 @@ export default function Navbar() {
                     ? "/dashboard/request"
                     : user.role === "provider"
                     ? "/provider/dashboardpro"
-                    : `/userdashboard`
+                    : `/userdashboard/overview`
                 }
                 className={({ isActive }) =>
                   `flex items-center gap-2 pr-3 transition-all ${

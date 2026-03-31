@@ -117,9 +117,10 @@ export default function ServiceExplorer() {
             <div key={s._id} className="group bg-white rounded-md border border-slate-100 p-3 shadow-md hover:border-blue-200 hover:shadow-2xl transition-all duration-500 flex flex-col">
               <div className="relative h-48 w-full mb-4 overflow-hidden rounded-md bg-slate-100">
                 <img
+                  onClick={() => navigate(`/service/${s._id}`)}
                   src={s.images?.[0]?.url || "https://images.unsplash.com/photo-1581578731522-745d05db9ad0?q=80&w=800"}
                   alt={s.title}
-                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 cursor-pointer"
                 />
                 <div className="absolute top-3 left-3 flex gap-2">
                   <span className="px-3 py-1 bg-white/90 backdrop-blur-md rounded-lg text-blue-600 text-[9px] font-black uppercase tracking-widest shadow-sm">

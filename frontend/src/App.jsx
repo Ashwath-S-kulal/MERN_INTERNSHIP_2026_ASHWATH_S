@@ -25,16 +25,15 @@ import Review from "./pages/admin/Review";
 import Services from "./pages/admin/Services";
 import Dashboardpro from "./pages/provider/Dashboard";
 import Earnings from "./pages/provider/Bookings";
-import Messages from "./pages/provider/Messages";
-import Reviewspro from "./pages/provider/Reviews";
 import UserDashboard from "./pages/User/UserDashboard"
 import UserBookings from "./pages/User/UserBookings"
-import UserReviews from "./pages/User/UserReviews";
 import ServiceDetails from "./pages/ServiceDetails";
 import BookingDetails from "./pages/User/BookingDetails";
 import EditMyJob from "./pages/provider/EditMyJob";
 import AddMember from "./pages/provider/Addmember";
 import ServiceDetailsPage from "./pages/ServiceDetailsPage";
+import JobManagement from "./pages/provider/JobManagement";
+import UserOverview from "./pages/User/UserOverview";
 
 
 export default function App() {
@@ -58,9 +57,9 @@ export default function App() {
         <Route path="/userdashboard" element={<ProtectedRoute><Navbar /><UserDashboard /></ProtectedRoute>}>
           <Route path="applyforservice" element={<ApplyforService />} />
           <Route path="userbookings" element={<UserBookings />} />
-          <Route path="userreviews" element={<UserReviews />} />
+          <Route path="overview" element={<UserOverview />} />
           <Route path="profile/:userId" element={<Profile />} />
-        <Route path="booking/:id" element={<BookingDetails />} />
+          <Route path="booking/:id" element={<BookingDetails />} />
         </Route>
 
 
@@ -84,11 +83,10 @@ export default function App() {
           <Route path="myjob/:id" element={<ProviderData />} />
           <Route path="dashboardpro" element={<Dashboardpro />} />
           <Route path="bookings" element={<Earnings />} />
-          <Route path="messages" element={<Messages />} />
-          <Route path="reviewspro" element={<Reviewspro />} />
           <Route path="profile/:userId" element={<Profile />} />
           <Route path="details/:proid" element={<EditMyJob />} />
           <Route path="addmember" element={<AddMember />} />
+          <Route path="bookmanagement/:id" element={<JobManagement />} />
         </Route>
 
 

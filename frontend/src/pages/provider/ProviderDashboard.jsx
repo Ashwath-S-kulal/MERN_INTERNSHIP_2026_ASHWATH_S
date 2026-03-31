@@ -33,20 +33,18 @@ export default function DashboardLayout() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const accessToken = localStorage.getItem("accessToken");
   const dispatch = useDispatch();
-const { user } = useSelector(store => store.user) 
+  const { user } = useSelector(store => store.user)
 
   const navItems = [
     { name: 'Dashboard', path: '/provider/dashboardpro', icon: <LayoutGrid size={20} /> },
-    { name: 'Team Members', path: '/provider/addmember', icon: <Users2Icon size={20} /> },
-    { name: 'Application', path: '/provider/applyforservice', icon: <LayoutGrid size={20} /> },
-    { name: 'My Jobs', path: `/provider/myjob/${user?._id}`, icon: <Briefcase size={20} /> },
     { name: 'Bookings', path: '/provider/bookings', icon: <IndianRupee size={20} /> },
-    { name: 'Messages', path: '/provider/messages', icon: <MessageSquare size={20} /> },
-    { name: 'Reviews', path: '/provider/reviewspro', icon: <Star size={20} /> },
+    { name: 'Team Members', path: '/provider/addmember', icon: <Users2Icon size={20} /> },
+    { name: 'My Jobs', path: `/provider/myjob/${user?._id}`, icon: <Briefcase size={20} /> },
+    { name: 'Application', path: '/provider/applyforservice', icon: <LayoutGrid size={20} /> },
     { name: 'Profile', path: `/provider/profile/${user._id}`, icon: <User size={20} /> },
   ];
 
-    const logoutHandler = async () => {
+  const logoutHandler = async () => {
     try {
       const res = await axios.post(
         `/api/user/logout`,
@@ -71,7 +69,7 @@ const { user } = useSelector(store => store.user)
 
   return (
     <div className="flex h-screen overflow-hidden bg-[#F8FAFC] font-sans text-slate-900 pt-16">
-            <aside
+      <aside
         className={`
           fixed inset-y-0 left-0 z-50 w-64 bg-white border-r border-slate-200 transition-all duration-300 ease-in-out transform
           lg:relative lg:translate-x-0 

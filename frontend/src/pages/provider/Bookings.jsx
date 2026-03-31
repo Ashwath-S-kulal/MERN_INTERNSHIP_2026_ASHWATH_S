@@ -1,357 +1,195 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import {
-  ChevronRight, Users, CheckCircle2, Loader2, UserPlus, MapPin,
-  Calendar, Clock, Banknote, Info, Timer, LayoutDashboard,
-  CheckCircle, Inbox, TrendingUp, XCircle, AlertCircle, Wrench, X, Check
+  Users, Timer, CheckCircle, ArrowRight,
+  Wrench, MapPin, MoreHorizontal, Eye,
+  Calendar, Clock, ShieldCheck, ListFilter
 } from "lucide-react";
 
-export default function OperatorDashboard() {
+export default function JobControlCenter() {
   const [bookings, setBookings] = useState([]);
-  const [members, setMembers] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState("pending");
-  const [selectedWorkers, setSelectedWorkers] = useState({});
-  const [isAssigning, setIsAssigning] = useState(false);
+  const [filterStatus, setFilterStatus] = useState("all");
+  const navigate = useNavigate();
 
-  const [showCancelModal, setShowCancelModal] = useState(false);
-  const [cancellingId, setCancellingId] = useState(null);
-  const [selectedReason, setSelectedReason] = useState("");
-  const [customReason, setCustomReason] = useState("");
-  const [cancelLoading, setCancelLoading] = useState(false);
+  useEffect(() => {
+    const loadStats = async () => {
+      try {
+        const token = localStorage.getItem("accessToken");
+        const res = await axios.get("http://localhost:8000/api/booking/provider", {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        setBookings(res.data);
+      } catch (err) { console.error(err); }
+      finally { setLoading(false); }
+    };
+    loadStats();
+  }, []);
 
-  const token = localStorage.getItem("accessToken");
+  // Filter Logic
+  const filteredBookings = filterStatus === "all"
+    ? bookings
+    : bookings.filter(b => b.status === filterStatus);
 
-  const quickReasons = [
-    "Staff Unavailable",
-    "Outside Service Area",
-    "Invalid Address",
-    "Equipment Issue",
-    "Other"
+  const stats = [
+    { id: 'pending', label: "Pending", count: bookings.filter(b => b.status === 'pending').length, color: "text-amber-500", bg: "bg-amber-50", icon: <Timer size={20} /> },
+    { id: 'in_progress', label: "In Progress", count: bookings.filter(b => b.status === 'in_progress').length, color: "text-blue-500", bg: "bg-blue-50", icon: <Users size={20} /> },
+    { id: 'completed', label: "Completed", count: bookings.filter(b => b.status === 'completed').length, color: "text-emerald-500", bg: "bg-emerald-50", icon: <CheckCircle size={20} /> },
   ];
 
-  const loadData = async () => {
-    try {
-      const [bookRes, memRes] = await Promise.all([
-        axios.get("http://localhost:8000/api/booking/provider", { headers: { Authorization: `Bearer ${token}` } }),
-        axios.get("http://localhost:8000/api/member/all", { headers: { Authorization: `Bearer ${token}` } })
-      ]);
-      setBookings(bookRes.data);
-      if (memRes.data.success) setMembers(memRes.data.members);
-    } catch (err) {
-      console.error("Data Load Error:", err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => { loadData(); }, []);
-
-  const updateStatus = async (id, status, extraData = {}) => {
-    try {
-      await axios.put(`http://localhost:8000/api/booking/status/${id}`,
-        { status, ...extraData },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      loadData();
-      return true;
-    } catch (err) {
-      console.error("Status Update Error:", err);
-      alert("Status update failed");
-      return false;
-    }
-  };
-
-  const handleCancelSubmit = async () => {
-    if (!selectedReason) return alert("Please select a reason");
-
-    const finalReason = selectedReason === "Other"
-      ? customReason
-      : `${selectedReason}${customReason ? `: ${customReason}` : ""}`;
-
-    setCancelLoading(true);
-    const success = await updateStatus(cancellingId, "rejected", {
-      cancellationReason: finalReason,
-      cancelledBy: "provider"
-    });
-
-    if (success) {
-      setShowCancelModal(false);
-      setCancellingId(null);
-      setSelectedReason("");
-      setCustomReason("");
-    }
-    setCancelLoading(false);
-  };
-
-  const handleAssignWorker = async (bookingId) => {
-    const workerId = selectedWorkers[bookingId];
-    if (!workerId) return;
-    setIsAssigning(true);
-    try {
-      await axios.put("http://localhost:8000/api/booking/memberassign", { bookingId, workerId }, { headers: { Authorization: `Bearer ${token}` } });
-      setSelectedWorkers(prev => { const n = { ...prev }; delete n[bookingId]; return n; });
-      loadData();
-    } catch (err) {
-      console.error("Worker Assignment Error:", err);
-      alert("Assignment failed");
-    } finally {
-      setIsAssigning(false);
-    }
-  };
-
-  const filtered = bookings.filter(b => {
-    if (activeTab === "pending") return b.status === "pending" || b.status === "accepted";
-    if (activeTab === "active") return b.status === "in_progress";
-    if (activeTab === "completed") return b.status === "completed";
-    return true;
-  });
-
   if (loading) return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-50">
-      <Loader2 className="animate-spin text-blue-600" size={40} />
+    <div className="min-h-screen flex items-center justify-center bg-[#F8FAFC]">
+      <div className="flex flex-col items-center gap-4">
+        <div className="w-10 h-10 border-4 border-slate-200 border-t-indigo-600 rounded-full animate-spin"></div>
+        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Loading Master Ledger</p>
+      </div>
     </div>
   );
 
   return (
-    <div className="min-h-screen bg-[#F1F5F9] font-sans text-slate-900 pb-20 relative">
-      {showCancelModal && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onClick={() => setShowCancelModal(false)}></div>
-          <div className="bg-white w-full max-w-md rounded-[2rem] shadow-2xl relative z-10 overflow-hidden animate-in zoom-in duration-200">
-            <div className="p-6 border-b border-slate-100 flex justify-between items-center">
-              <h3 className="font-black text-slate-800">Cancel/Reject Booking</h3>
-              <button onClick={() => setShowCancelModal(false)} className="text-slate-400 hover:text-black transition-colors"><X size={20} /></button>
-            </div>
+    <div className="space-y-2 pb-20 animate-in fade-in duration-700">
 
-            <div className="p-6 space-y-6">
-              <div>
-                <label className="text-[10px] font-black uppercase text-slate-400 mb-3 block">Reason for cancellation</label>
-                <div className="flex flex-wrap gap-2">
-                  {quickReasons.map(r => (
-                    <button
-                      key={r}
-                      onClick={() => setSelectedReason(r)}
-                      className={`px-3 py-2 rounded-xl text-xs font-bold border transition-all ${selectedReason === r ? "bg-red-600 text-white border-red-600 shadow-md" : "bg-white text-slate-600 border-slate-200 hover:border-slate-400"
-                        }`}
-                    >
-                      {r}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <div>
-                <label className="text-[10px] font-black uppercase text-slate-400 mb-2 block">Additional Details</label>
-                <textarea
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm focus:ring-2 focus:ring-red-500 outline-none"
-                  placeholder="Type details here..."
-                  rows="3"
-                  value={customReason}
-                  onChange={(e) => setCustomReason(e.target.value)}
-                />
-              </div>
-
-              <button
-                onClick={handleCancelSubmit}
-                disabled={cancelLoading || !selectedReason}
-                className="w-full bg-red-600 text-white py-4 rounded-2xl font-black text-xs uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-red-700 disabled:opacity-50 transition-all"
-              >
-                {cancelLoading ? <Loader2 className="animate-spin" size={16} /> : <XCircle size={16} />}
-                Confirm Cancellation
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      <div className="bg-white border-b border-slate-200 px-4 md:px-8 py-4">
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div>
-            <h1 className="text-2xl font-black tracking-tight text-slate-800">Operator Console</h1>
-            <p className="text-slate-400 text-xs font-bold uppercase tracking-widest">Service Control Room</p>
-          </div>
-          <div className="flex gap-2 overflow-x-auto pb-2 md:pb-0">
-            <StatCard label="Pending" count={bookings.filter(b => b.status === 'pending').length} color="text-amber-500" />
-            <StatCard label="Live Jobs" count={bookings.filter(b => b.status === 'in_progress').length} color="text-blue-500" />
-            <StatCard label="Finished" count={bookings.filter(b => b.status === 'completed').length} color="text-emerald-500" />
-          </div>
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-slate-100 pb-6">
+        <div>
+          <h1 className="text-3xl font-black tracking-tight text-slate-900">Bookings Console</h1>
+          <p className="text-slate-400 text-xs font-bold  mt-1 ">Provider Control Center • {filteredBookings.length} Viewing</p>
         </div>
       </div>
 
-      <div className="max-w-6xl mx-auto p-4 md:p-8">
-        <div className="flex bg-slate-200/50 p-1.5 rounded-md mb-8 w-max">
-          <TabBtn active={activeTab === 'pending'} onClick={() => setActiveTab('pending')} label="Requests" count={bookings.filter(b => b.status === 'pending' || b.status === 'accepted').length} icon={<Inbox size={16} />} />
-          <TabBtn active={activeTab === 'active'} onClick={() => setActiveTab('active')} label="In Progress" icon={<Timer size={16} />} />
-          <TabBtn active={activeTab === 'completed'} onClick={() => setActiveTab('completed')} label="History" icon={<CheckCircle size={16} />} />
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {stats.map((s, i) => (
+          <button
+            key={i}
+            onClick={() => setFilterStatus(filterStatus === s.id ? 'all' : s.id)}
+            className={`text-left transition-all duration-300 border p-6 rounded-xl flex items-center gap-5 hover:shadow-md ${filterStatus === s.id ? 'bg-white border-indigo-500 ring-2 ring-indigo-50' : 'bg-white border-slate-100'}`}
+          >
+            <div className={`p-3.5 rounded-xl ${s.bg} ${s.color}`}>
+              {s.icon}
+            </div>
+            <div>
+              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{s.label}</p>
+              <p className="text-2xl font-black text-slate-900 leading-none mt-1">{s.count}</p>
+            </div>
+          </button>
+        ))}
+      </div>
+
+
+      <div className="flex items-center gap-4 py-2">
+        <div className="flex items-center gap-2 text-slate-400 px-2">
+          <ListFilter size={16} />
+          <span className="text-[10px] font-black uppercase tracking-widest">Filter:</span>
         </div>
+        <div className="flex flex-wrap gap-2">
+          {['all', 'pending', 'in_progress', 'completed'].map((status) => (
+            <button
+              key={status}
+              onClick={() => setFilterStatus(status)}
+              className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest transition-all border ${filterStatus === status
+                  ? 'bg-slate-900 text-white border-slate-900 shadow-lg shadow-slate-200'
+                  : 'bg-white text-slate-400 border-slate-200 hover:border-slate-300'
+                }`}
+            >
+              {status.replace('_', ' ')}
+            </button>
+          ))}
+        </div>
+      </div>
 
-        <div className="grid gap-6">
-          {filtered.length > 0 ? filtered.map((b) => (
-            <div key={b._id} className="bg-white rounded-md shadow-sm border border-slate-200 overflow-hidden flex flex-col lg:flex-row group hover:shadow-xl transition-all duration-300">
-              <div className="p-6 lg:w-1/3 bg-slate-50/50 border-r border-slate-100 flex flex-col justify-between">
-                <div>
-                  <div className="flex items-center gap-4 mb-4">
-                    <img src={b.user?.profilePic || `https://ui-avatars.com/api/?name=${b.user?.firstName}`} className="w-16 h-16 rounded-2xl object-cover ring-4 ring-white shadow-md" alt="User" />
-                    <div>
-                      <h3 className="font-black text-slate-800 leading-tight">{b.user?.firstName} {b.user?.lastName}</h3>
-                      <p className="text-xs text-slate-400 font-medium">{b.user?.email}</p>
-                    </div>
-                  </div>
-                  <div className="bg-white p-3 rounded-xl border border-slate-100 shadow-sm mb-4">
-                    <div className="flex items-center gap-2 mb-1">
-                      <Wrench size={14} className="text-blue-500" />
-                      <p className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Service</p>
-                    </div>
-                    <p className="text-sm font-bold text-slate-700">{b.serviceType || "General Service"}</p>
-                    <div className="mt-2 pt-2 border-t border-slate-50 flex justify-between items-center">
-                      <span className="text-[10px] font-black uppercase text-slate-400">Total</span>
-                      <span className="text-lg font-black text-emerald-600">₹{b.price}</span>
-                    </div>
-                  </div>
-                </div>
-                <div className="space-y-3">
-                  <InfoItem icon={<Calendar size={14} />} text={b.date} />
-                  <InfoItem icon={<Clock size={14} />} text={b.time} />
-                  <InfoItem icon={<MapPin size={14} />} text={b.address} isAddress />
-                </div>
-              </div>
 
-              <div className="p-6 flex-grow flex flex-col justify-center border-r border-slate-100">
-                <div className="mb-4 flex justify-between items-center">
-                  <div className="flex items-center gap-2">
-                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Status:</p>
-                    <span className={`text-[10px] font-black uppercase px-2 py-0.5 rounded-full ${b.status === 'pending' ? 'bg-amber-100 text-amber-600' :
-                        b.status === 'in_progress' ? 'bg-blue-100 text-blue-600' :
-                          b.status === 'completed' ? 'bg-emerald-100 text-emerald-600' : 'bg-slate-100 text-slate-600'
+      <div className="bg-white rounded-xl border border-slate-200 shadow-xl shadow-slate-200/40 overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full text-left border-collapse">
+            <thead>
+              <tr className="bg-slate-50/50 border-b border-slate-100">
+                <th className="px-8 py-5 text-[10px] font-black uppercase tracking-widest text-slate-400">Client Profile</th>
+                <th className="px-6 py-5 text-[10px] font-black uppercase tracking-widest text-slate-400">Service Details</th>
+                <th className="px-6 py-5 text-[10px] font-black uppercase tracking-widest text-slate-400">Location</th>
+                <th className="px-6 py-5 text-[10px] font-black uppercase tracking-widest text-slate-400 text-center">Status</th>
+                <th className="px-8 py-5 text-[10px] font-black uppercase tracking-widest text-slate-400 text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-50">
+              {filteredBookings.length > 0 ? filteredBookings.map((b) => (
+                <tr key={b._id} className="group hover:bg-indigo-50/30 transition-all duration-300">
+                  <td className="px-8 py-5">
+                    <div className="flex items-center gap-4">
+                      <div className="relative shrink-0">
+                        <img
+                          src={b.user?.profilePic || `https://ui-avatars.com/api/?name=${b.user?.firstName}&background=6366f1&color=fff`}
+                          className="w-10 h-10 rounded-xl object-cover ring-2 ring-white shadow-sm"
+                          alt=""
+                        />
+                      </div>
+                      <div>
+                        <p className="text-sm font-black text-slate-800">{b.user?.firstName} {b.user?.lastName}</p>
+                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">Verified Client</p>
+                      </div>
+                    </div>
+                  </td>
+
+                  <td className="px-6 py-5">
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-2 text-xs font-black text-slate-700">
+                        <Wrench size={12} className="text-indigo-500" />
+                        {b.serviceType}
+                      </div>
+                      <div className="flex items-center gap-3 text-[10px] font-bold text-slate-400 italic">
+                        <span className="flex items-center gap-1"><Calendar size={10} /> {new Date(b.date).toLocaleDateString('en-GB')}</span>
+                        <span className="flex items-center gap-1"><Clock size={10} /> {b.time}</span>
+                      </div>
+                    </div>
+                  </td>
+
+                  <td className="px-6 py-5">
+                    <div className="flex items-start gap-2 max-w-[200px]">
+                      <MapPin size={14} className="text-red-400 shrink-0 mt-0.5" />
+                      <p className="text-xs font-medium text-slate-500 leading-tight line-clamp-2 italic">
+                        {b.address}
+                      </p>
+                    </div>
+                  </td>
+
+                  <td className="px-6 py-5 text-center">
+                    <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border ${b.status === 'pending' ? 'bg-amber-50 text-amber-600 border-amber-100' :
+                        b.status === 'in_progress' ? 'bg-blue-50 text-blue-600 border-blue-100' :
+                          'bg-emerald-50 text-emerald-600 border-emerald-100'
                       }`}>
-                      {b.status}
+                      {b.status.replace('_', ' ')}
                     </span>
-                  </div>
-                </div>
+                  </td>
 
-                {b.status === "accepted" ? (
-                  <div className="space-y-4">
-                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                      {members.map(m => (
-                        <button
-                          key={m._id}
-                          onClick={() => setSelectedWorkers({ ...selectedWorkers, [b._id]: m._id })}
-                          className={`p-2 rounded-xl border-2 transition-all flex flex-col items-center text-center ${selectedWorkers[b._id] === m._id ? 'border-blue-600 bg-blue-50' : 'border-transparent bg-slate-50 hover:bg-slate-100'}`}
-                        >
-                          <img src={m.profilePic || `https://ui-avatars.com/api/?name=${m.fullname}`} className="w-8 h-8 rounded-full mb-1 object-cover" />
-                          <p className="text-[10px] font-bold truncate w-full">{m.fullname.split(' ')[0]}</p>
-                          <p className="text-[8px] text-slate-400 uppercase">{m.role || 'Staff'}</p>
-                        </button>
-                      ))}
-                    </div>
-                    {selectedWorkers[b._id] && (
-                      <button onClick={() => handleAssignWorker(b._id)} disabled={isAssigning} className="w-full bg-blue-600 text-white py-3 rounded-xl font-bold text-xs flex items-center justify-center gap-2">
-                        {isAssigning ? <Loader2 className="animate-spin" size={14} /> : <UserPlus size={14} />} Confirm Assignment
-                      </button>
-                    )}
-                  </div>
-                ) : (
-                  <div className="flex items-center gap-4 p-4 bg-slate-50 rounded-2xl border border-slate-100">
-                    {b.assignedWorker ? (
-                      <>
-                        <img src={getWorker(members, b.assignedWorker)?.profilePic || `https://ui-avatars.com/api/?name=W`} className="w-10 h-10 rounded-full object-cover shadow-sm" alt="Worker" />
-                        <div>
-                          <p className="text-xs font-bold">{getWorker(members, b.assignedWorker)?.fullname}</p>
-                          <p className="text-[9px] text-blue-500 font-black uppercase tracking-tighter">Assigned Professional</p>
-                        </div>
-                      </>
-                    ) : (
-                      <p className="text-xs text-slate-400 italic">No professional assigned yet.</p>
-                    )}
-                  </div>
-                )}
-              </div>
 
-              <div className="p-6 lg:w-56 bg-white flex flex-col justify-center gap-3">
-                {b.status === "pending" && (
-                  <StatusAction label="Accept Job" color="bg-slate-900" onClick={() => updateStatus(b._id, "accepted")} icon={<CheckCircle2 size={16} />} />
-                )}
-                {b.status === "accepted" && b.assignedWorker && (
-                  <StatusAction label="Dispatch Team" color="bg-blue-600" onClick={() => updateStatus(b._id, "in_progress")} icon={<TrendingUp size={16} />} />
-                )}
-                {b.status === "in_progress" && (
-                  <StatusAction label="Complete Job" color="bg-emerald-600" onClick={() => updateStatus(b._id, "completed")} icon={<CheckCircle2 size={16} />} />
-                )}
+                  <td className="px-8 py-5 text-right">
+                    <button
+                      onClick={() => navigate(`/provider/bookmanagement/${b._id}`)}
+                      className="inline-flex items-center gap-2 bg-slate-50 text-slate-900 group-hover:bg-indigo-600 group-hover:text-white px-5 py-2.5 rounded-lg font-black text-[10px] uppercase tracking-widest transition-all shadow-sm"
+                    >
+                      <Eye size={14} />
+                      Know More
+                    </button>
+                  </td>
 
-                {(b.status === "pending" || b.status === "accepted" || b.status === "in_progress") && (
-                  <button
-                    onClick={() => { setCancellingId(b._id); setShowCancelModal(true); }}
-                    className="w-full bg-white text-red-500 border border-red-100 py-3 rounded-2xl font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-red-50 transition-all"
-                  >
-                    <XCircle size={14} /> {b.status === "pending" ? "Reject Request" : "Cancel Order"}
-                  </button>
-                )}
+                </tr>
+              )) : (
+                <tr>
+                  <td colSpan={5} className="px-8 py-20 text-center text-slate-400 font-bold uppercase text-xs tracking-widest bg-slate-50/50">
+                    No bookings found for the "{filterStatus}" category.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
 
-                {b.status === "completed" && (
-                  <div className="flex flex-col items-center text-emerald-600 gap-1">
-                    <CheckCircle2 size={32} />
-                    <span className="text-[10px] font-black uppercase tracking-widest">Finished</span>
-                  </div>
-                )}
-                {b.status === "rejected" && (
-                  <div className="flex flex-col items-center text-red-400 gap-1">
-                    <AlertCircle size={32} />
-                    <span className="text-[10px] font-black uppercase tracking-widest">Cancelled</span>
-                    {b.cancellationReason && (
-                      <p className="text-[9px] text-center bg-red-50 p-2 rounded-lg italic mt-1 leading-tight">"{b.cancellationReason}"</p>
-                    )}
-                  </div>
-                )}
-              </div>
-            </div>
-          )) : (
-            <div className="bg-white rounded-md p-20 text-center border-2 border-dashed border-slate-200">
-              <LayoutDashboard size={48} className="mx-auto text-slate-200 mb-4" />
-              <p className="text-slate-400 font-bold">No jobs in this section.</p>
-            </div>
-          )}
+
+        <div className="p-6 bg-slate-50/50 border-t border-slate-100 flex justify-between items-center">
+          <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Master Ledger Status: Online</p>
+          <p className="text-[10px] font-black text-slate-900 uppercase tracking-widest">{filteredBookings.length} Records Shown</p>
         </div>
       </div>
     </div>
   );
-}
-
-function StatCard({ label, count, color }) {
-  return (
-    <div className="bg-white border border-slate-100 px-4 py-2 rounded-2xl shadow-sm min-w-[100px] shrink-0">
-      <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">{label}</p>
-      <p className={`text-xl font-black ${color}`}>{count}</p>
-    </div>
-  );
-}
-
-function TabBtn({ active, onClick, label, icon, count }) {
-  return (
-    <button onClick={onClick} className={`flex items-center gap-2 px-6 py-2.5 rounded-md font-bold text-sm transition-all ${active ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}>
-      {icon} {label} {count !== undefined && <span className={`ml-1 text-[10px] px-1.5 py-0.5 rounded-full ${active ? 'bg-blue-100' : 'bg-slate-200'}`}>{count}</span>}
-    </button>
-  );
-}
-
-function InfoItem({ icon, text, isAddress }) {
-  return (
-    <div className="flex items-start gap-2 text-slate-600">
-      <div className="mt-0.5 text-blue-500">{icon}</div>
-      <p className={`text-xs font-semibold leading-tight ${isAddress ? 'line-clamp-2' : ''}`}>{text}</p>
-    </div>
-  );
-}
-
-function StatusAction({ label, color, onClick, icon }) {
-  return (
-    <button onClick={onClick} className={`w-full ${color} text-white py-4 rounded-2xl font-black text-xs uppercase tracking-widest flex items-center justify-center gap-2 hover:scale-[1.02] active:scale-[0.98] transition-all shadow-lg`}>
-      {icon} {label}
-    </button>
-  );
-}
-
-function getWorker(members, id) {
-  const workerId = typeof id === 'object' ? id?._id : id;
-  return members.find(m => m._id === workerId);
 }

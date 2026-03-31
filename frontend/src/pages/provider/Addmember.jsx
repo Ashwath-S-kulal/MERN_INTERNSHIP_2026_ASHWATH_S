@@ -94,7 +94,7 @@ export default function ProviderTeam() {
     return (
         <div className="min-h-screen bg-slate-50 font-sans text-slate-900">
             <main className="max-w-screen mx-auto py-8 pt-0">
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                <div className="grid grid-cols-1 lg:grid-cols-12">
 
                     <div className="lg:col-span-4">
                         <div className="bg-white rounded-2xl border border-slate-200 shadow-sm fixed">

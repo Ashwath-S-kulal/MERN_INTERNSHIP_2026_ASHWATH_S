@@ -7,7 +7,7 @@ import adminRoute from "./routes/adminRoute.js"
 import serviceProviderRoute  from "./routes/serviceproviderRoute.js"
 import bookingRoutes from "./routes/bookingRoutes.js"
 import MemberRoutes from "./routes/memberRoute.js"
-
+import reviewRoutes from "./routes/reviewRoutes.js"
 
 import cors from "cors";
 dotenv.config();
@@ -32,6 +32,7 @@ app.use("/api/admin", adminRoute);
 app.use("/api/serviceprovider", serviceProviderRoute);
 app.use("/api/booking", bookingRoutes);
 app.use("/api/member", MemberRoutes);
+app.use('/api/reviews', reviewRoutes);
 
 app.listen(PORT, () => {
   connectDB();

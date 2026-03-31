@@ -4,7 +4,8 @@ import axios from 'axios';
 import {
     ArrowLeft, MapPin, Globe, Calendar,
     Clock, ShieldCheck, Star, Zap, Navigation, Mail,
-    ToolCase
+    ToolCase,
+    MessageSquare
 } from 'lucide-react';
 
 export default function ServiceDetailsPage() {
@@ -13,6 +14,7 @@ export default function ServiceDetailsPage() {
     const [service, setService] = useState(null);
     const [activeImg, setActiveImg] = useState("");
     const [loading, setLoading] = useState(true);
+    const [reviews, setReviews] = useState([]);
 
     useEffect(() => {
         const fetchService = async () => {
@@ -31,6 +33,37 @@ export default function ServiceDetailsPage() {
         };
         fetchService();
     }, [id]);
+
+    useEffect(() => {
+        const fetchServiceAndReviews = async () => {
+            const token = localStorage.getItem("accessToken");
+            try {
+                // Fetch Service Details
+                const res = await axios.get(`http://localhost:8000/api/user/getservicebyid/${id}`, {
+                    headers: { Authorization: `Bearer ${token}` },
+                });
+                setService(res.data);
+                if (res.data.images?.length > 0) setActiveImg(res.data.images[0].url);
+
+                // Fetch Reviews for this Provider
+                const reviewRes = await axios.get(`http://localhost:8000/api/reviews/provider/${id}`, {
+                    headers: { Authorization: `Bearer ${token}` },
+                });
+                setReviews(reviewRes.data.data);
+            } catch (err) {
+                console.error("Error fetching data:", err);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchServiceAndReviews();
+    }, [id]);
+
+
+    const averageRating = reviews.length > 0
+        ? (reviews.reduce((acc, item) => acc + item.rating, 0) / reviews.length).toFixed(1)
+        : (service?.rating || 0);
+
 
     if (loading) return <div className="h-screen flex items-center justify-center text-slate-400 font-bold">Loading Profile...</div>;
     if (!service) return <div className="p-20 text-center">Profile not found.</div>;
@@ -104,13 +137,18 @@ export default function ServiceDetailsPage() {
                         <div className="bg-slate-900 text-white p-8 rounded-md shadow-xl relative overflow-hidden group">
                             <div className="relative z-10">
                                 <div className="flex items-center justify-between mb-8">
-                                    <div className="bg-indigo-500 text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-widest shadow-lg shadow-indigo-500/20">
+                                    <div className="bg-indigo-500 text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-widest shadow-lg shadow-indigo-500/20 text-white">
                                         Approved
                                     </div>
-                                    <div className="flex items-center gap-1 text-amber-400">
-                                        <Star size={16} fill="currentColor" />
-                                        <span className="text-sm font-black text-white">
-                                            {service.rating} ({service.totalReviews || 0})
+                                    <div className="flex items-center gap-1.5">
+                                        <div className="flex items-center gap-1 text-amber-400">
+                                            <Star size={16} fill="currentColor" />
+                                            <span className="text-sm font-black text-white">
+                                                {averageRating}
+                                            </span>
+                                        </div>
+                                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">
+                                            ({reviews.length} {reviews.length === 1 ? 'Review' : 'Reviews'})
                                         </span>
                                     </div>
                                 </div>
@@ -199,6 +237,83 @@ export default function ServiceDetailsPage() {
                                 ))}
                             </div>
                         </div>
+
+                    </div>
+                </div>
+
+                <div className="bg-white p-8 mt-6 rounded-md shadow-sm border border-slate-200">
+                    <div className="flex items-center justify-between mb-8">
+                        <div>
+                            <h2 className="text-xl font-black text-slate-900 flex items-center gap-2">
+                                Client Reviews
+                            </h2>
+                            <p className="text-[10px] font-black uppercase text-slate-400 tracking-widest mt-1">
+                                Verified feedback from {reviews.length} customers
+                            </p>
+                        </div>
+                        <div className="bg-slate-50 px-3 py-2 rounded-2xl flex items-center gap-2 border border-slate-100">
+                            <div className="flex flex-col items-end mr-1">
+                                <span className="text-xl font-black text-slate-800 leading-none">
+                                    {averageRating}
+                                </span>
+                                <span className="text-[8px] font-bold text-slate-400 uppercase tracking-tighter">
+                                    Average
+                                </span>
+                            </div>
+
+                            <div className="flex gap-0.5">
+                                {[...Array(5)].map((_, i) => (
+                                    <Star
+                                        key={i}
+                                        size={10}
+                                        fill={i < Math.round(averageRating) ? "#f59e0b" : "#e2e8f0"}
+                                        stroke="none"
+                                    />
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="space-y-6">
+                        {reviews.length > 0 ? (
+                            reviews.map((review) => (
+                                <div key={review._id} className="group border-b border-slate-50 last:border-0 pb-6 last:pb-0">
+                                    <div className="flex justify-between items-start mb-3">
+                                        <div className="flex items-center gap-3">
+                                            <img
+                                                src={review.user?.profilePic || `https://ui-avatars.com/api/?name=${review.user?.firstName}`}
+                                                className="w-10 h-10 rounded-xl object-cover border border-slate-100"
+                                                alt="User"
+                                            />
+                                            <div>
+                                                <p className="text-sm font-black text-slate-800">
+                                                    {review.user?.firstName} {review.user?.lastName}
+                                                </p>
+                                                <p className="text-[10px] font-bold text-slate-400 uppercase">
+                                                    {new Date(review.createdAt).toLocaleDateString('en-IN', { month: 'short', year: 'numeric' })}
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <div className="flex gap-0.5 bg-slate-50 px-2 py-1 rounded-lg">
+                                            {[...Array(5)].map((_, i) => (
+                                                <Star key={i} size={12} fill={i < review.rating ? "#f59e0b" : "#cbd5e1"} stroke="none" />
+                                            ))}
+                                        </div>
+                                    </div>
+                                    <p className="text-slate-600 text-sm leading-relaxed font-medium pl-[52px]">
+                                        "{review.comment}"
+                                    </p>
+                                </div>
+                            ))
+                        ) : (
+                            <div className="py-10 text-center border-2 border-dashed border-slate-100 rounded-2xl">
+                                <div className="w-12 h-12 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-3">
+                                    <MessageSquare size={20} className="text-slate-300" />
+                                </div>
+                                <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">No reviews yet</p>
+                                <p className="text-[10px] text-slate-300 font-medium">Be the first to hire this professional!</p>
+                            </div>
+                        )}
                     </div>
                 </div>
             </main>

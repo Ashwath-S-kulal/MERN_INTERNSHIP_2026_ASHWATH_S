@@ -18,13 +18,14 @@ export default function ServiceDetails() {
   const [loading, setLoading] = useState(false);
   const [bookedSlots, setBookedSlots] = useState([]);
   const [activeImg, setActiveImg] = useState("");
+  const [reviews, setReviews] = useState([]);
 
   const today = new Date().toISOString().split("T")[0];
   const daysOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
   const navigate = useNavigate();
 
 
-  
+
   useEffect(() => {
     const fetchService = async () => {
       const token = localStorage.getItem("accessToken");
@@ -85,6 +86,30 @@ export default function ServiceDetails() {
   };
 
 
+  useEffect(() => {
+    const fetchServiceAndReviews = async () => {
+      const token = localStorage.getItem("accessToken");
+      try {
+        // Fetch Service
+        const res = await axios.get(`http://localhost:8000/api/user/getservicebyid/${id}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setService(res.data);
+        if (res.data.images?.length > 0) setActiveImg(res.data.images[0].url);
+
+        // Fetch Reviews
+        const reviewRes = await axios.get(`http://localhost:8000/api/reviews/provider/${id}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setReviews(reviewRes.data.data);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+    fetchServiceAndReviews();
+  }, [id]);
+
+
 
   if (!service) return (
     <div className="min-h-screen flex items-center justify-center bg-white">
@@ -93,6 +118,11 @@ export default function ServiceDetails() {
   );
 
   const timeSlots = ["09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00"];
+
+
+  const averageRating = reviews.length > 0
+    ? (reviews.reduce((acc, item) => acc + item.rating, 0) / reviews.length).toFixed(1)
+    : service.rating;
 
   return (
     <div className="min-h-screen bg-[#FDFDFD] pb-12 font-sans text-slate-800">
@@ -131,8 +161,8 @@ export default function ServiceDetails() {
 
       <div className="max-w-6xl mx-auto px-4 grid grid-cols-1 lg:grid-cols-12 gap-8 pt-6">
         <div className="lg:col-span-7 space-y-6">
-          <div className="bg-white p-3 rounded-3xl border border-slate-100 shadow-sm">
-            <div className="aspect-[16/9] rounded-2xl overflow-hidden bg-slate-50 mb-3">
+          <div className="bg-white p-3 rounded-md border border-slate-100 shadow-sm">
+            <div className="aspect-[16/9] rounded-md overflow-hidden bg-slate-50 mb-3">
               <img src={activeImg} className="w-full h-full object-cover" alt="Main" />
             </div>
             <div className="flex gap-2 overflow-x-auto no-scrollbar">
@@ -144,11 +174,17 @@ export default function ServiceDetails() {
             </div>
           </div>
 
-          <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm">
+          <div className="bg-white p-6 rounded-md border border-slate-100 shadow-sm">
             <h1 className="text-2xl font-black text-slate-900 mb-1">{service.title}</h1>
             <div className="flex flex-wrap gap-4 text-[12px] text-slate-400 mb-6">
               <span className="flex items-center gap-1"><MapPin size={13} /> {service.city}, {service.address}</span>
-              <span className="flex items-center gap-1 font-bold text-amber-500"><Star size={13} className="fill-amber-500" /> {service.rating} ({service.totalReviews})</span>
+              <span className="flex items-center gap-1 font-bold text-amber-500">
+                <Star size={13} className="fill-amber-500" />
+                {averageRating}
+                <span className="text-slate-400 font-medium ml-0.5">
+                  ({reviews.length > 0 ? reviews.length : 0})
+                </span>
+              </span>
             </div>
 
             <div className="grid grid-cols-4 gap-2 mb-6">
@@ -183,14 +219,94 @@ export default function ServiceDetails() {
             </div>
           </div>
 
-          <div className="bg-white p-6 rounded-3xl border border-slate-100">
+          <div className="bg-white p-6 rounded-md border border-slate-100">
             <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 flex items-center gap-1.5"><Info size={12} /> About Service</h3>
             <p className="text-slate-600 text-[14px] leading-relaxed italic">"{service.bio}"</p>
           </div>
+
+
+          <div className="bg-white p-6 rounded-md border border-slate-100 shadow-sm mx-auto mt-10">
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1 flex items-center gap-1.5">
+                  Client Feedback
+                </h3>
+                <p className="text-lg font-black text-slate-900">
+                  {reviews.length} {reviews.length === 1 ? 'Review' : 'Reviews'}
+                </p>
+              </div>
+              <div className="bg-slate-50 px-3 py-2 rounded-2xl flex items-center gap-2 border border-slate-100">
+                <div className="flex flex-col items-end mr-1">
+                  <span className="text-xl font-black text-slate-800 leading-none">
+                    {averageRating}
+                  </span>
+                  <span className="text-[8px] font-bold text-slate-400 uppercase tracking-tighter">
+                    Average
+                  </span>
+                </div>
+
+                <div className="flex gap-0.5">
+                  {[...Array(5)].map((_, i) => (
+                    <Star
+                      key={i}
+                      size={10}
+                      fill={i < Math.round(averageRating) ? "#f59e0b" : "#e2e8f0"}
+                      stroke="none"
+                    />
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-5">
+              {reviews.length > 0 ? (
+                reviews.map((review) => (
+                  <div key={review._id} className="p-4 rounded-2xl bg-slate-50/30 border border-slate-50 group hover:border-blue-100 transition-colors">
+                    <div className="flex justify-between items-start mb-3">
+                      <div className="flex items-center gap-3">
+                        <div className="relative">
+                          <img
+                            src={review.user?.profilePic || `https://ui-avatars.com/api/?name=${review.user?.firstName}&background=6366f1&color=fff`}
+                            className="w-10 h-10 rounded-xl object-cover border-2 border-white shadow-sm"
+                            alt="Reviewer"
+                          />
+                          <div className="absolute -bottom-1 -right-1 bg-blue-500 text-white p-0.5 rounded-full border-2 border-white">
+                            <CheckCircle size={8} fill="currentColor" />
+                          </div>
+                        </div>
+                        <div>
+                          <p className="text-[12px] font-black text-slate-800 leading-none mb-1">
+                            {review.user?.firstName} {review.user?.lastName}
+                          </p>
+                          <p className="text-[9px] font-bold text-slate-400 uppercase tracking-tighter">
+                            {new Date(review.createdAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex gap-0.5">
+                        {[...Array(5)].map((_, i) => (
+                          <Star key={i} size={10} fill={i < review.rating ? "#f59e0b" : "#e2e8f0"} stroke="none" />
+                        ))}
+                      </div>
+                    </div>
+                    <p className="text-slate-600 text-[13px] leading-relaxed font-medium pl-1 underline-offset-4 decoration-blue-100 group-hover:underline">
+                      "{review.comment}"
+                    </p>
+                  </div>
+                ))
+              ) : (
+                <div className="py-8 text-center bg-slate-50/50 rounded-2xl border border-dashed border-slate-200">
+                  <Zap size={24} className="mx-auto text-slate-200 mb-2" />
+                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">No ratings yet</p>
+                </div>
+              )}
+            </div>
+          </div>
+
         </div>
 
         <div className="lg:col-span-5">
-          <div className="bg-white p-6 rounded-3xl shadow-xl shadow-slate-200/40 border border-slate-100 sticky top-24">
+          <div className="bg-white p-6 rounded-md shadow-xl shadow-slate-200/40 border border-slate-100 sticky top-24">
             <div className="flex justify-between items-center mb-6">
               <div>
                 <p className="text-[9px] font-black text-slate-300 uppercase">Hourly Price</p>
@@ -212,15 +328,15 @@ export default function ServiceDetails() {
                     const selectedDate = e.target.value;
                     if (!isDayAvailable(selectedDate)) {
                       alert(`Provider is not available on ${daysOfWeek[new Date(selectedDate).getDay()]}s`);
-                      setDate(""); 
+                      setDate("");
                       return;
                     }
                     setDate(selectedDate);
                     setTime("");
                   }}
                   className={`w-full bg-slate-50/50 border p-3 rounded-xl font-bold text-[13px] focus:ring-2 outline-none transition-all ${date && !isDayAvailable(date)
-                      ? 'border-rose-500 ring-rose-50'
-                      : 'border-slate-100 focus:ring-blue-500/10'
+                    ? 'border-rose-500 ring-rose-50'
+                    : 'border-slate-100 focus:ring-blue-500/10'
                     }`}
                 />
                 <p className="text-[9px] text-slate-400 mt-1 ml-1 italic">
@@ -270,10 +386,16 @@ export default function ServiceDetails() {
                 <ShieldCheck size={12} />
                 <span className="text-[8px] font-bold uppercase tracking-tighter">Verified Provider & Secure Payment</span>
               </div>
+
             </div>
+
           </div>
         </div>
+
+
+
       </div>
+
     </div>
   );
 }

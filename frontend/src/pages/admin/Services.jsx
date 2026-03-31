@@ -114,7 +114,11 @@ export default function ServicesPage() {
                     </thead>
                     <tbody className="divide-y divide-slate-50" >
                       {groupedProviders[category].map(p => (
-                        <tr key={p._id} className="hover:bg-indigo-50/30 transition-colors group cursor-pointer" onClick={() => navigate(`/servicedetails/${p._id}`)}>
+                        <tr key={p._id} className="hover:bg-indigo-50/30 transition-colors group cursor-pointer"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            navigate(`/servicedetails/${p._id}`);
+                          }}>
                           <td className="px-8 py-5">
                             <div className="flex items-center gap-4" >
                               <img

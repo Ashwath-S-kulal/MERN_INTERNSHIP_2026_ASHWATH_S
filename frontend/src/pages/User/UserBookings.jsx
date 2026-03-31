@@ -47,8 +47,8 @@ export default function UserBookings() {
             <p className="text-gray-400 font-medium">No service history found</p>
           </div>
         ) : (
-          <div className="bg-white rounded-md border border-gray-200 shadow-sm overflow-hidden">
-            <div className="hidden md:grid grid-cols-12 gap-4 bg-gray-50/50 px-6 py-4 border-b border-gray-100 text-[10px] font-black uppercase tracking-widest text-gray-400">
+          <div className=" overflow-hidden">
+            <div className="hidden md:grid grid-cols-12 gap-4 bg-gray-50/50 px-6 py-4 border-b-2 border-gray-100 text-[10px] font-black uppercase tracking-widest text-gray-400">
               <div className="col-span-4">Service & Professional</div>
               <div className="col-span-3">Schedule</div>
               <div className="col-span-3">Status</div>
@@ -88,7 +88,7 @@ export default function UserBookings() {
 
                   <div className="col-span-3 flex flex-row md:flex-col gap-4 md:gap-1">
                     <div className="flex items-center gap-1.5 text-xs font-bold text-slate-600">
-                      <Calendar size={14} className="text-blue-500" /> {b.date}
+                      <Calendar size={14} className="text-blue-500" /> {new Date(b.date).toLocaleDateString('en-GB')}
                     </div>
                     <div className="flex items-center gap-1.5 text-xs font-medium text-gray-400">
                       <Clock size={14} /> {b.time}

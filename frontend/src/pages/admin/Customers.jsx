@@ -3,17 +3,16 @@ import axios from "axios";
 import { toast } from "sonner";
 import { useDispatch, useSelector } from "react-redux";
 import { setUser } from "@/redux/userSlice";
-import { Mail, Phone, MapPin, Edit2, X, Trash2, Search } from "lucide-react";
+import { Mail, Search, Trash2, X, Shield, User, ShieldCheck, MoreVertical, Calendar, MapPin } from "lucide-react";
 
 const AllUsers = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [updateUser, setUpdateUser] = useState({});
-  const [file, setFile] = useState(null);
   const [userId, setUserId] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
+  
   const dispatch = useDispatch();
   const currentUser = useSelector((state) => state.user.user);
   const accessToken = localStorage.getItem("accessToken");
@@ -27,7 +26,6 @@ const AllUsers = () => {
   useEffect(() => {
     const fetchUsers = async () => {
       if (!accessToken) {
-        setError("You are not logged in or token is missing");
         setLoading(false);
         return;
       }
@@ -37,7 +35,8 @@ const AllUsers = () => {
         });
         setUsers(res.data.users);
       } catch (err) {
-        setError(err.response?.data?.message || "Failed to fetch users");
+        console.error(err);
+        toast.error("Failed to load users");
       } finally {
         setLoading(false);
       }
@@ -46,354 +45,199 @@ const AllUsers = () => {
   }, [accessToken]);
 
   const handleDeleteAccount = async (user) => {
-    if (!window.confirm(`Are you sure you want to delete ${user.firstName}'s account?`)) return;
+    if (!window.confirm(`Permanently delete ${user.firstName}'s account? This cannot be undone.`)) return;
 
     try {
       const res = await fetch(`/api/admin/deleteuser/${user._id}`, {
         method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
+        headers: { Authorization: `Bearer ${accessToken}` },
       });
 
-      if (!res.ok) throw new Error("Unauthorized or failed to delete account");
-
       const data = await res.json();
-      if (!data.success) {
-        toast.error("Failed to delete account");
-        return;
-      }
+      if (!data.success) throw new Error(data.message || "Delete failed");
+
       setUsers((prev) => prev.filter((u) => u._id !== user._id));
-      toast.success(`${user.firstName}'s account deleted successfully`);
-      if (currentUser._id === user._id) {
+      toast.success("Account removed successfully");
+      
+      if (currentUser?._id === user._id) {
         dispatch(setUser(null));
         localStorage.removeItem("accessToken");
       }
       setIsModalOpen(false);
     } catch (error) {
-      toast.error(error.message || "Error deleting account");
+      toast.error(error.message);
     }
   };
 
   const handleEditClick = (user) => {
-    setUpdateUser(user);
+    setUpdateUser({ _id: user._id, firstName: user.firstName, lastName: user.lastName, role: user.role });
     setUserId(user._id);
-    setFile(null);
     setIsModalOpen(true);
   };
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setUpdateUser((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const handleFileChange = (e) => {
-    setFile(e.target.files[0]);
+  const handleRoleChange = (newRole) => {
+    setUpdateUser((prev) => ({ ...prev, role: newRole }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     try {
-      const formData = new FormData();
-      Object.keys(updateUser).forEach((key) => {
-        if (updateUser[key] !== null) formData.append(key, updateUser[key]);
-      });
-      if (file) formData.append("file", file);
-
-      const res = await axios.put(`/api/admin/updateuser/${userId}`, formData, {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-          "content-Type": "multipart/form-data",
-        },
-      });
+      const res = await axios.put(`/api/admin/updateuser/${userId}`, 
+        { role: updateUser.role }, 
+        { headers: { Authorization: `Bearer ${accessToken}` } }
+      );
 
       if (res.data.success) {
-        toast.success(res.data.message);
-        setUsers((prev) =>
-          prev.map((u) => (u._id === userId ? res.data.user : u))
-        );
+        toast.success(`Role updated to ${updateUser.role}`);
+        setUsers((prev) => prev.map((u) => (u._id === userId ? { ...u, role: updateUser.role } : u)));
         setIsModalOpen(false);
       }
     } catch (error) {
-      console.error(error);
-      toast.error("Failed to update profile");
+      toast.error(error.response?.data?.message || "Update failed");
     } finally {
       setLoading(false);
     }
   };
 
-  if (loading) {
-    return (
-      <div className="bg-[#f8fafc] min-h-screen pb-20 animate-pulse">
-        <div className="max-w-7xl mx-auto px-4 pt-10">
-          <div className="h-10 w-48 bg-slate-200 rounded mb-10" />
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {[1, 2, 3].map((i) => (
-              <div key={i} className="h-40 bg-white rounded-2xl border border-slate-200" />
-            ))}
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  if (error)
-    return (
-      <div className="max-w-md mx-auto mt-20 p-8 bg-white border border-red-100 shadow-2xl rounded-2xl text-center">
-        <div className="w-16 h-16 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto mb-4">
-          <X size={32} />
-        </div>
-        <h3 className="text-xl font-bold text-gray-900">Connection Error</h3>
-        <p className="text-gray-500 mt-2">{error}</p>
-      </div>
-    );
+  if (loading && users.length === 0) return (
+    <div className="flex items-center justify-center min-h-screen text-slate-400 font-medium animate-pulse">
+      Loading directory...
+    </div>
+  );
 
   return (
-    <div className="bg-[#f8fafc] min-h-screen pb-20 font-sans text-slate-900">
-      <div className="max-w-7xl mx-auto px-4">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+    <div className="min-h-screen text-slate-900 font-sans ">
+      <div className="max-w-screen mx-auto">
+        
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
           <div>
-            <h1 className="text-2xl font-black text-slate-900">User Directory</h1>
-            <p className="text-slate-500">Manage {users.length} total registered users</p>
+            <h1 className="text-2xl font-bold text-slate-900">User Directory</h1>
+            <p className="text-sm text-slate-500">Manage user permissions and account status.</p>
           </div>
 
-          <div className="relative group">
-            <Search
-              className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-blue-500 transition-colors"
-              size={18}
-            />
+          <div className="relative w-full md:w-80">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
             <input
               type="text"
-              placeholder="Search by name or email..."
-              className="pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl w-full md:w-80 focus:ring-2 focus:ring-blue-500 outline-none transition-all shadow-sm"
+              placeholder="Search members..."
+              className="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-slate-200 transition-all"
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
         </div>
 
-        <div className="bg-transparent md:bg-white md:rounded-2xl md:shadow-xl md:shadow-slate-200/50 md:border md:border-slate-200 overflow-hidden">
-          <div className="grid grid-cols-1 gap-4 md:hidden">
-            {filtered.map((user) => (
-              <div key={user._id} className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
-                <div className="flex items-center gap-4 mb-4">
-                  <div className="relative">
-                    <img
-                      className="h-14 w-14 rounded-2xl object-cover"
-                      src={user.profilePic || `https://ui-avatars.com/api/?name=${user.firstName}`}
-                      alt=""
-                    />
-                    <div
-                      className={`absolute -bottom-1 -right-1 h-4 w-4 rounded-full border-2 border-white ${
-                        user.role === "admin" ? "bg-purple-500" : "bg-emerald-500"
-                      }`}
-                    ></div>
-                  </div>
-                  <div className="flex-1 overflow-hidden">
-                    <div className="font-bold text-slate-900 truncate">
-                      {user.firstName} {user.lastName}
+        <div className="border border-slate-200 rounded-md overflow-hidden shadow-sm">
+          <table className="w-full text-left border-collapse">
+            <thead className="bg-slate-50 border-b border-slate-200">
+              <tr>
+                <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">User</th>
+                <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Access</th>
+                <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider hidden md:table-cell">Location</th>
+                <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100">
+              {filtered.map((user) => (
+                <tr key={user._id} className="hover:bg-slate-50 transition-colors group">
+                  <td className="px-6 py-4">
+                    <div className="flex items-center gap-3">
+                      <img
+                        className="h-9 w-9 rounded-full object-cover ring-1 ring-slate-200"
+                        src={user.profilePic || `https://ui-avatars.com/api/?name=${user.firstName}&background=f1f5f9&color=64748b`}
+                        alt=""
+                      />
+                      <div className="flex flex-col">
+                        <span className="text-sm font-semibold text-slate-900">{user.firstName} {user.lastName}</span>
+                        <span className="text-xs text-slate-500">{user.email}</span>
+                      </div>
                     </div>
-                    <div className="text-xs text-indigo-600 font-bold uppercase">{user.role}</div>
-                  </div>
-                  <button onClick={() => handleEditClick(user)} className="p-2 text-indigo-500 bg-indigo-50 rounded-xl">
-                    <Edit2 size={18} />
-                  </button>
-                </div>
+                  </td>
+                  <td className="px-6 py-4">
+                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wide border ${
+                      user.role === 'admin' ? 'bg-purple-50 border-purple-100 text-purple-700' : 
+                      user.role === 'provider' ? 'bg-blue-50 border-blue-100 text-blue-700' : 
+                      'bg-slate-50 border-slate-200 text-slate-600'
+                    }`}>
+                      {user.role}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 hidden md:table-cell">
+                    <div className="flex items-center text-xs text-slate-500 gap-1">
+                      <MapPin size={12} />
+                      {user.city || "Not set"}
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 text-right">
+                    <button 
+                      onClick={() => handleEditClick(user)}
+                      className="p-2 text-slate-400 hover:text-slate-900 hover:bg-white rounded-md border border-transparent hover:border-slate-200 transition-all"
+                    >
+                      <MoreVertical size={16} />
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
 
-                <div className="space-y-3 border-t border-slate-50 pt-4 text-sm">
-                  <div className="flex items-center text-slate-600">
-                    <Mail size={14} className="mr-3 text-slate-300" /> {user.email}
-                  </div>
-                  <div className="flex items-center text-slate-600">
-                    <Phone size={14} className="mr-3 text-slate-300" /> {user.phoneNo || "N/A"}
-                  </div>
-                  <div className="flex items-start text-slate-600">
-                    <MapPin size={14} className="mr-3 text-slate-300 mt-0.5" /> {user.city || "N/A"}, {user.zipCode}
-                  </div>
+      {isModalOpen && (
+        <div className="fixed inset-0 bg-slate-900/20 backdrop-blur-[2px] flex items-center justify-center z-50 p-4">
+          <div className="bg-white w-full max-w-sm rounded-2xl shadow-2xl border border-slate-200 overflow-hidden animate-in fade-in zoom-in duration-200">
+            <div className="p-6 border-b border-slate-50 flex justify-between items-center">
+              <div>
+                <h3 className="text-lg font-bold text-slate-900">User Permissions</h3>
+                <p className="text-xs text-slate-500">{updateUser.firstName} {updateUser.lastName}</p>
+              </div>
+              <button onClick={() => setIsModalOpen(false)} className="text-slate-400 hover:text-slate-900 transition-colors">
+                <X size={20} />
+              </button>
+            </div>
+
+            <form onSubmit={handleSubmit} className="p-6">
+              <div className="space-y-2 mb-8">
+                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Select Access Level</p>
+                <div className="grid grid-cols-1 gap-2">
+                  {['user', 'provider', 'admin'].map((r) => (
+                    <button
+                      key={r}
+                      type="button"
+                      onClick={() => handleRoleChange(r)}
+                      className={`flex items-center justify-between p-3 rounded-xl border-2 transition-all ${
+                        updateUser.role === r 
+                        ? "border-slate-900 bg-slate-900 text-white shadow-md" 
+                        : "border-slate-100 bg-slate-50 hover:border-slate-200 text-slate-600"
+                      }`}
+                    >
+                      <span className="text-sm font-bold uppercase tracking-wider">{r}</span>
+                      {updateUser.role === r && <ShieldCheck size={18} />}
+                    </button>
+                  ))}
                 </div>
               </div>
-            ))}
-          </div>
 
-          <div className="hidden md:block overflow-x-auto">
-            <table className="min-w-full divide-y divide-slate-100">
-              <thead className="bg-slate-50/50">
-                <tr>
-                  {["User Details", "Status & Role", "Contact Info", "Location", "Joined Date", ""].map((header) => (
-                    <th
-                      key={header}
-                      className="px-6 py-5 text-left text-[11px] font-bold text-slate-400 uppercase tracking-[0.1em]"
-                    >
-                      {header}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100 bg-white">
-                {filtered.map((user) => (
-                  <tr key={user._id} className="group hover:bg-indigo-50/40 transition-all duration-300">
-                    <td className="px-6 py-5">
-                      <div className="flex items-center gap-4">
-                        <div className="relative">
-                          <img
-                            className="h-12 w-12 rounded-2xl object-cover ring-2 ring-white shadow-md"
-                            src={user.profilePic || "https://ui-avatars.com/api/?name=" + user.firstName}
-                            alt=""
-                          />
-                          <div
-                            className={`absolute -bottom-1 -right-1 h-4 w-4 rounded-full border-2 border-white ${
-                              user.role === "admin" ? "bg-purple-500" : "bg-emerald-500"
-                            }`}
-                          ></div>
-                        </div>
-                        <div>
-                          <div className="text-sm font-bold text-slate-900">
-                            {user.firstName} {user.lastName}
-                          </div>
-                          <div className="text-xs text-slate-400 truncate max-w-[150px]">{user.email}</div>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-5">
-                      <span
-                        className={`px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider ${
-                          user.role === "admin" ? "bg-purple-100 text-purple-700" : "bg-blue-100 text-blue-700"
-                        }`}
-                      >
-                        {user.role}
-                      </span>
-                    </td>
-                    <td className="px-6 py-5">
-                      <div className="text-sm text-slate-600 font-medium">{user.phoneNo || "N/A"}</div>
-                    </td>
-                    <td className="px-6 py-5">
-                      <div className="text-sm font-semibold text-slate-700">{user.city || "N/A"}</div>
-                    </td>
-                    <td className="px-6 py-5">
-                      <div className="text-sm text-slate-500">{new Date(user.createdAt).toLocaleDateString()}</div>
-                    </td>
-                    <td className="px-6 py-5 text-right">
-                      <button
-                        onClick={() => handleEditClick(user)}
-                        className="p-2 text-indigo-400 hover:text-indigo-600 rounded-xl transition-all"
-                      >
-                        <Edit2 size={18} />
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        {isModalOpen && (
-          <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-50 p-2 sm:p-4">
-            <div className="bg-white rounded-[2rem] shadow-2xl w-full max-w-2xl overflow-hidden max-h-[95vh] flex flex-col animate-in fade-in zoom-in duration-200">
-              <div className="bg-slate-50 px-6 py-5 border-b border-slate-100 flex justify-between items-center">
-                <h3 className="text-xl font-bold text-slate-900">Edit Profile</h3>
-                <button
-                  onClick={() => setIsModalOpen(false)}
-                  className="text-slate-400 p-2 hover:bg-slate-200 rounded-full transition-colors"
+              <div className="space-y-3">
+                <button 
+                  type="submit" 
+                  disabled={loading} 
+                  className="w-full py-3 bg-slate-900 text-white text-sm font-bold rounded-xl hover:bg-black transition-all"
                 >
-                  <X size={20} />
+                  {loading ? "Saving..." : "Save Changes"}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleDeleteAccount(updateUser)}
+                  className="w-full py-3 text-red-500 text-xs font-bold hover:bg-red-50 rounded-xl transition-all flex items-center justify-center gap-2"
+                >
+                  <Trash2 size={14} /> Remove Member
                 </button>
               </div>
-
-              <form onSubmit={handleSubmit} className="p-6 overflow-y-auto space-y-6">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="space-y-1">
-                    <label className="text-xs font-bold text-slate-500 ml-1">First Name</label>
-                    <input
-                      type="text"
-                      name="firstName"
-                      value={updateUser.firstName || ""}
-                      onChange={handleChange}
-                      className="w-full bg-slate-50 border-none ring-1 ring-slate-200 focus:ring-2 focus:ring-indigo-500 px-4 py-2.5 rounded-xl"
-                    />
-                  </div>
-                  <div className="space-y-1">
-                    <label className="text-xs font-bold text-slate-500 ml-1">Last Name</label>
-                    <input
-                      type="text"
-                      name="lastName"
-                      value={updateUser.lastName || ""}
-                      onChange={handleChange}
-                      className="w-full bg-slate-50 border-none ring-1 ring-slate-200 focus:ring-2 focus:ring-indigo-500 px-4 py-2.5 rounded-xl"
-                    />
-                  </div>
-                  <div className="sm:col-span-2 space-y-1">
-                    <label className="text-xs font-bold text-slate-500 ml-1">Email Address</label>
-                    <input
-                      type="email"
-                      name="email"
-                      value={updateUser.email || ""}
-                      onChange={handleChange}
-                      className="w-full bg-slate-50 border-none ring-1 ring-slate-200 focus:ring-2 focus:ring-indigo-500 px-4 py-2.5 rounded-xl"
-                    />
-                  </div>
-                  <div className="space-y-1">
-                    <label className="text-xs font-bold text-slate-500 ml-1">Phone Number</label>
-                    <input
-                      type="text"
-                      name="phoneNo"
-                      value={updateUser.phoneNo || ""}
-                      onChange={handleChange}
-                      className="w-full bg-slate-50 border-none ring-1 ring-slate-200 focus:ring-2 focus:ring-indigo-500 px-4 py-2.5 rounded-xl"
-                    />
-                  </div>
-                  <div className="space-y-1">
-                    <label className="text-xs font-bold text-slate-500 ml-1">Role</label>
-                    <select
-                      name="role"
-                      value={updateUser.role || ""}
-                      onChange={handleChange}
-                      className="w-full bg-slate-50 border-none ring-1 ring-slate-200 focus:ring-2 focus:ring-indigo-500 px-4 py-2.5 rounded-xl"
-                    >
-                      <option value="user">User</option>
-                      <option value="admin">Admin</option>
-                    </select>
-                  </div>
-                  <div className="sm:col-span-2 space-y-1">
-                    <label className="text-xs font-bold text-slate-500 ml-1">Avatar Update</label>
-                    <input
-                      type="file"
-                      onChange={handleFileChange}
-                      className="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:bg-indigo-50 file:text-indigo-700 cursor-pointer"
-                    />
-                  </div>
-                </div>
-
-                <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-6 border-t border-slate-100">
-                  <button
-                    type="button"
-                    onClick={() => handleDeleteAccount(updateUser)}
-                    className="w-full sm:w-auto flex items-center justify-center px-4 py-2 text-red-600 hover:bg-red-50 rounded-xl text-sm font-bold"
-                  >
-                    <Trash2 size={16} className="mr-2" /> Delete Account
-                  </button>
-                  <div className="flex gap-3 w-full sm:w-auto">
-                    <button
-                      type="button"
-                      onClick={() => setIsModalOpen(false)}
-                      className="flex-1 sm:flex-none px-6 py-2.5 bg-slate-100 text-slate-600 font-bold rounded-xl text-sm"
-                    >
-                      Cancel
-                    </button>
-                    <button
-                      type="submit"
-                      disabled={loading}
-                      className="flex-1 sm:flex-none px-8 py-2.5 bg-indigo-600 text-white font-bold rounded-xl shadow-lg shadow-indigo-200 text-sm disabled:opacity-50"
-                    >
-                      {loading ? "Saving..." : "Save"}
-                    </button>
-                  </div>
-                </div>
-              </form>
-            </div>
+            </form>
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 };

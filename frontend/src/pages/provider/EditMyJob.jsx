@@ -260,7 +260,7 @@ export default function ProviderProfile() {
 
                             <p className="text-[11px] font-bold text-slate-600 flex items-center gap-1 mt-0.5">
                                 <Clock size={12} className="text-slate-400" />
-                                Last Updated: {new Date(profile.updatedAt).toLocaleDateString()} at {new Date(profile.updatedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                Last Updated: {new Date(profile.updatedAt).toLocaleDateString('en-GB')} at {new Date(profile.updatedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                             </p>
                         </div>
                     </div>
