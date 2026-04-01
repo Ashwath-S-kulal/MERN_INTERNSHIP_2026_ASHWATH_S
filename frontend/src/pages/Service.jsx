@@ -70,7 +70,7 @@ export default function ServiceExplorer() {
               </h1>
             </div>
 
-            <div className="flex flex-col sm:flex-row flex-1 max-w-3xl w-full gap-3 bg-white p-2 rounded-[24px] shadow-xl shadow-blue-900/5 border border-slate-100">
+            <div className="flex flex-col sm:flex-row flex-1 max-w-3xl w-full gap-3 bg-white p-2 rounded-[24px] border border-slate-100">
               <div className="relative min-w-[160px]">
                 <select
                   value={selectedCategory}
@@ -111,7 +111,7 @@ export default function ServiceExplorer() {
           </div>
         </div>
       </nav>
-      <main className="max-w-7xl mx-auto px-6 pt-12">
+      <main className="max-w-7xl mx-auto pt-12">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {filteredServices.map((s) => (
             <div key={s._id} className="group bg-white rounded-md border border-slate-100 p-3 shadow-md hover:border-blue-200 hover:shadow-2xl transition-all duration-500 flex flex-col">
@@ -145,10 +145,7 @@ export default function ServiceExplorer() {
                       {s.user?.firstName} {s.user?.lastName}
                     </p>
                   </div>
-                  <div className="ml-auto flex items-center gap-1 bg-amber-50 text-amber-600 px-2 py-1 rounded-lg border border-amber-100">
-                    <Star size={10} fill="currentColor" />
-                    <span className="text-[10px] font-black">{s.rating || 0}</span>
-                  </div>
+                  
                 </div>
 
                 <p className="text-xs text-slate-500 leading-relaxed line-clamp-2 mb-4 h-8">

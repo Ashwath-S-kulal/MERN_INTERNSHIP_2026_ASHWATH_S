@@ -35,7 +35,7 @@ export default function AdminBookings() {
   );
 
   return (
-    <div className="bg-[#F8FAFC] min-h-screen font-sans">
+    <div className="bg-[#F8FAFC] font-sans">
       <div className="max-w-screen mx-auto">
 
         <div className="flex justify-between items-end mb-8">

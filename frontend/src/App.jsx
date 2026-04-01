@@ -51,6 +51,7 @@ export default function App() {
         <Route path="/profile/:userId" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
         <Route path="/service/:id" element={<ProtectedRoute><ServiceDetails /></ProtectedRoute>} />
         <Route path="/servicedetails/:id" element={<ProtectedRoute><ServiceDetailsPage /></ProtectedRoute>} />
+        <Route path="/applyforservice" element={<ProtectedRoute><ApplyforService /></ProtectedRoute>} />
 
 
 

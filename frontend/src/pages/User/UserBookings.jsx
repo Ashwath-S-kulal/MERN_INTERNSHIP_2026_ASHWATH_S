@@ -40,7 +40,7 @@ export default function UserBookings() {
   );
 
   return (
-    <div className="min-h-screen bg-[#F9FAFB] font-sans text-slate-900">
+    <div className=" bg-[#F9FAFB] font-sans text-slate-900">
       <div className="max-w-screen mx-auto">
         {bookings.length === 0 ? (
           <div className="text-center py-20 bg-white rounded-3xl border border-dashed border-gray-300">

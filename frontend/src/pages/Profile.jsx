@@ -64,7 +64,7 @@ export default function Profile() {
     return (
         <div className=' min-h-screen bg-[#F8FAFC] text-slate-900 pb-24 md:pb-32'>
             <div className="max-w-screen mx-auto px-4 sm:px-6">
-                                <div className="bg-white rounded-sm md:rounded-xl p-5 md:p-8 mb-6 border border-slate-200/60 shadow-sm flex flex-col md:flex-row items-center gap-6 md:gap-8">
+                <div className="bg-white rounded-sm md:rounded-xl p-5 md:p-8 mb-6 border border-slate-200/60 shadow-sm flex flex-col md:flex-row items-center gap-6 md:gap-8">
                     <div className="relative group">
                         <div className="w-24 h-24 md:w-32 md:h-32 rounded-full overflow-hidden ring-4 ring-slate-50 shadow-inner bg-slate-100">
                             <img

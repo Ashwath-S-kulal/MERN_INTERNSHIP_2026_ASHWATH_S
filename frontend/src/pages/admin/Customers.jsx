@@ -107,7 +107,7 @@ const AllUsers = () => {
   );
 
   return (
-    <div className="min-h-screen text-slate-900 font-sans ">
+    <div className="text-slate-900 font-sans ">
       <div className="max-w-screen mx-auto">
         
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">

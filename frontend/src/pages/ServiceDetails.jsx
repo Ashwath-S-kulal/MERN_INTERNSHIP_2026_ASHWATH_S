@@ -90,14 +90,12 @@ export default function ServiceDetails() {
     const fetchServiceAndReviews = async () => {
       const token = localStorage.getItem("accessToken");
       try {
-        // Fetch Service
         const res = await axios.get(`http://localhost:8000/api/user/getservicebyid/${id}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         setService(res.data);
         if (res.data.images?.length > 0) setActiveImg(res.data.images[0].url);
 
-        // Fetch Reviews
         const reviewRes = await axios.get(`http://localhost:8000/api/reviews/provider/${id}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
@@ -128,7 +126,7 @@ export default function ServiceDetails() {
     <div className="min-h-screen bg-[#FDFDFD] pb-12 font-sans text-slate-800">
 
       <nav className="sticky top-0 z-40 bg-white/90 backdrop-blur-sm border-b border-slate-100 px-4 py-3">
-        <div className="max-w-6xl mx-auto flex justify-between items-center">
+        <div className="max-w-7xl mx-auto flex justify-between items-center">
           <div className="flex items-center gap-2">
             <button
               onClick={() => navigate(-1)}
@@ -159,7 +157,7 @@ export default function ServiceDetails() {
       </nav>
 
 
-      <div className="max-w-6xl mx-auto px-4 grid grid-cols-1 lg:grid-cols-12 gap-8 pt-6">
+      <div className="max-w-7xl mx-auto px-4 grid grid-cols-1 lg:grid-cols-12 gap-8 pt-6">
         <div className="lg:col-span-7 space-y-6">
           <div className="bg-white p-3 rounded-md border border-slate-100 shadow-sm">
             <div className="aspect-[16/9] rounded-md overflow-hidden bg-slate-50 mb-3">

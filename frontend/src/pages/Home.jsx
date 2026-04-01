@@ -1,47 +1,77 @@
-import React, { useCallback, useEffect } from 'react';
-import { Search, MapPin, Star } from 'lucide-react';
+import React, { useState, useCallback, useEffect } from 'react';
+import { Search, MapPin, Star, Calendar, Clock, ChevronRight, Loader2, User, Check } from 'lucide-react';
 import axios from 'axios';
 import { setUser } from '@/redux/userSlice';
 import { useDispatch, useSelector } from 'react-redux';
+import { Link, useNavigate } from 'react-router-dom';
 
 const Homepage = () => {
   const dispatch = useDispatch();
-  const { user } = useSelector((state) => state.user || {}); 
+  const { user } = useSelector((state) => state.user || {});
+  const [services, setServices] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   const fetchuserbyid = useCallback(async () => {
     const activeUserId = user?._id || localStorage.getItem('userId');
     const token = localStorage.getItem('accessToken');
-    if (!activeUserId) {
-      console.log("Still looking for User ID...");
-      return;
-    }
+    if (!activeUserId || !token) return;
+
     try {
-      const res = await axios.get(`/api/user/getuserbyid/${activeUserId}`, {
+      const res = await axios.get(`http://localhost:8000/api/user/getuserbyid/${activeUserId}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      
       if (res.data.success) {
         const freshUser = res.data.user;
-        if (user && user.role !== freshUser.role) {
+        if (!user || user.role !== freshUser.role) {
           dispatch(setUser(freshUser));
         }
       }
     } catch (error) {
-      console.error("Error syncing user role:", error);
+      console.error("User Sync Error:", error);
     }
   }, [dispatch, user]);
 
+  const fetchServices = async () => {
+    const token = localStorage.getItem("accessToken");
+    try {
+      const res = await axios.get("http://localhost:8000/api/user/getallservices", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      const rawData = Array.isArray(res.data) ? res.data : (res.data.services || []);
+
+      const sorted = [...rawData].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+      setServices(sorted.slice(0, 4));
+    } catch (err) {
+      console.error("Fetch Services Error:", err);
+    }
+  };
+
   useEffect(() => {
-    fetchuserbyid();
-    const interval = setInterval(fetchuserbyid, 10000);
+    const initFetch = async () => {
+      await fetchuserbyid();
+      await fetchServices();
+      setLoading(false);
+    };
+    initFetch();
+
+    const interval = setInterval(fetchuserbyid, 60000);
     return () => clearInterval(interval);
   }, [fetchuserbyid]);
 
-
+  if (loading) {
+    return (
+      <div className="h-screen w-full flex flex-col items-center justify-center gap-3">
+        <Loader2 className="animate-spin text-blue-600" size={40} />
+        <p className="text-zinc-500 font-medium">Loading ServiceMate...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-white font-sans">
-      <header className="relative bg-blue-50 pt-44 pb-20 px-8">
+        <header className="relative bg-blue-50 pt-44 pb-20 px-8">
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center">
           <div className="md:w-1/2 mb-10 md:mb-0">
             <h1 className="text-5xl font-extrabold text-gray-900 leading-tight mb-6">
@@ -97,6 +127,54 @@ const Homepage = () => {
         </div>
       </header>
 
+      <section className="py-24 px-6   max-w-7xl mx-auto">
+        <div className="flex justify-between items-end mb-12">
+          <div>
+            <span className="text-blue-600 font-bold text-xs uppercase tracking-widest">New on Platform</span>
+            <h2 className="text-4xl font-black text-zinc-900 mt-1">New Service Providers</h2>
+          </div>
+          <Link to="/service" className="text-zinc-900 font-bold flex items-center gap-1 hover:text-blue-600 transition-colors">
+            View All <ChevronRight size={18} />
+          </Link>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+          {services.length > 0 ? services.map((item) => (
+            <div key={item._id} className="group bg-white border border-zinc-100 rounded-md p-4 shadow-sm hover:shadow-2xl transition-all hover:-translate-y-2">
+              <div className="relative mb-5">
+                <img
+                  onClick={() => navigate(`/service/${item._id}`)}
+                  src={item.images?.[0].url || "https://images.unsplash.com/photo-1595841696677-6489ff3f8cd1?q=80&w=400"}
+                  className="w-full h-52 object-cover rounded-md"
+                  alt="provider"
+                />
+                <div className="absolute top-3 left-3 bg-white/90 backdrop-blur px-3 py-1 rounded-full text-[10px] font-black text-blue-600 uppercase shadow-sm">
+                  {item.services?.[0] || "General"}
+                </div>
+              </div>
+              <h3 className="font-bold text-zinc-900 text-lg px-1 truncate">
+                {item?.title || "Professional Pro"}
+              </h3>
+              <p className="text-sm text-zinc-500 px-1 mb-4 flex items-center gap-1">
+                <MapPin size={14} className="text-blue-500" /> {item.city || "Nearby"}
+              </p>
+              <div className="flex items-center justify-between mt-auto p-2 bg-zinc-50 rounded-2xl">
+                <div className="flex flex-col">
+                  <span className="text-[10px] text-zinc-400 font-bold uppercase">Rate</span>
+                  <span className="text-base font-black text-zinc-900">₹{item?.hourlyRate || 0}/hr</span>
+                </div>
+                <button onClick={() => navigate(`/service/${item._id}`)}
+                  className="bg-zinc-900 text-white px-5 py-2 rounded-xs text-xs font-bold hover:bg-blue-600 transition-colors">
+                  Book Now
+                </button>
+              </div>
+            </div>
+          )) : (
+            <div className="col-span-full py-10 text-center text-zinc-400 italic">No recent providers found.</div>
+          )}
+        </div>
+      </section>
+
       <section className="bg-gradient-to-br from-slate-50 to-indigo-50 border-y border-indigo-100 py-20 px-6">
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-14">
@@ -106,10 +184,10 @@ const Homepage = () => {
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             {[
-              { icon: "🔍", step: "1", title: "Choose Service", desc: "Browse 50+ home services and pick what you need" },
-              { icon: "📅", step: "2", title: "Pick a Slot", desc: "Select your preferred date & time" },
-              { icon: "👷", step: "3", title: "Pro Arrives", desc: "Verified expert comes to your doorstep" },
-              { icon: "✅", step: "4", title: "Pay & Rate", desc: "Pay after completion, rate your pro" },
+              { icon: <Search/>, step: "1", title: "Choose Service", desc: "Browse home services and pick what you need" },
+              { icon: <Calendar/>, step: "2", title: "Pick a Slot", desc: "Select your preferred date & time" },
+              { icon: <User />, step: "3", title: "Pro Arrives", desc: "Verified expert comes to your doorstep" },
+              { icon: <Check/>, step: "4", title: "Pay & Rate", desc: "Pay after completion, rate your pro" },
             ].map((item, i) => (
               <div key={item.step} className="relative text-center group">
                 {i < 3 && <div className="hidden md:block absolute top-8 left-[65%] w-[70%] h-0.5 bg-gradient-to-r from-indigo-200 to-violet-200 z-0" />}
