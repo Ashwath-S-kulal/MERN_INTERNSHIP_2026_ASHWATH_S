@@ -34,6 +34,7 @@ import AddMember from "./pages/provider/Addmember";
 import ServiceDetailsPage from "./pages/ServiceDetailsPage";
 import JobManagement from "./pages/provider/JobManagement";
 import UserOverview from "./pages/User/UserOverview";
+import ProviderAllJobs from "./pages/User/ProviderAllJobs";
 
 
 export default function App() {
@@ -51,6 +52,7 @@ export default function App() {
         <Route path="/profile/:userId" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
         <Route path="/service/:id" element={<ProtectedRoute><ServiceDetails /></ProtectedRoute>} />
         <Route path="/servicedetails/:id" element={<ProtectedRoute><ServiceDetailsPage /></ProtectedRoute>} />
+        <Route path="/provideralljobs/:id" element={<ProtectedRoute><ProviderAllJobs /></ProtectedRoute>} />
         <Route path="/applyforservice" element={<ProtectedRoute><ApplyforService /></ProtectedRoute>} />
 
 

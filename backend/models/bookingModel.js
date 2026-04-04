@@ -17,14 +17,27 @@ const bookingSchema = new mongoose.Schema(
     assignedWorker: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Member",
-      default: null, 
+      default: null,
     },
 
-    date: { type: String, required: true },
-    time: { type: String, required: true },
-    address: { type: String, required: true },
+    address: {
+      houseNo: { type: String, required: true },
+      landmark: { type: String },
+      area: { type: String, required: true },
+      city: { type: String, required: true },
+      pincode: { type: String, required: true },
+    },
+
+    problemDescription: { type: String },
+    urgency: {
+      type: String,
+      enum: ["low", "medium", "high"],
+      default: "medium",
+    },
     price: { type: Number, required: true },
+    date: { type: String, required: true },
     serviceType: { type: String },
+    unit: { type: String },
 
     status: {
       type: String,
@@ -55,14 +68,21 @@ const bookingSchema = new mongoose.Schema(
       default: false,
     },
 
-    hoursWorked: { 
-      type: Number, 
-      default: 0 
+    hoursWorked: {
+      type: Number,
+      default: 0,
     },
+    
+    extraCharges: [
+      {
+        name: { type: String },
+        price: { type: Number, default: 0 },
+      },
+    ],
 
-    totalAmount: { 
-      type: Number, 
-      default: 0 
+    totalAmount: {
+      type: Number,
+      default: 0,
     },
 
     paymentStatus: {
@@ -71,13 +91,12 @@ const bookingSchema = new mongoose.Schema(
       default: "pending",
     },
 
-    isSettled: { 
-      type: Boolean, 
-      default: false 
+    isSettled: {
+      type: Boolean,
+      default: false,
     },
-
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 const Booking = mongoose.model("Booking", bookingSchema);

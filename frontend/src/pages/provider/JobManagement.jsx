@@ -4,7 +4,8 @@ import axios from "axios";
 import {
     ChevronLeft, CheckCircle2, Loader2, UserPlus, MapPin,
     Calendar, Clock, Timer, TrendingUp, XCircle, Wrench,
-    Mail, Phone, ShieldCheck, CreditCard, Check, Circle, ArrowRight
+    Mail, Phone, ShieldCheck, CreditCard, Check, Circle, ArrowRight,
+    X
 } from "lucide-react";
 
 export default function OrderDetails() {
@@ -18,9 +19,9 @@ export default function OrderDetails() {
     const [showCancelModal, setShowCancelModal] = useState(false);
     const [cancelType, setCancelType] = useState("");
     const [customReason, setCustomReason] = useState("");
-    const [hoursWorked, setHoursWorked] = useState("");
     const [isCalculating, setIsCalculating] = useState(false);
-
+    const [quantity, setQuantity] = useState("");
+    const [extraCharges, setExtraCharges] = useState([]);
     const token = localStorage.getItem("accessToken");
 
     const stages = [
@@ -69,16 +70,15 @@ export default function OrderDetails() {
 
     const cancelOrder = async (status, extraData = {}) => {
         try {
-            // extraData now contains { cancellationReason: "..." }
             await axios.put(`http://localhost:8000/api/booking/cancel/${id}`,
-                { status, ...extraData }, // This results in { status: "rejected", cancellationReason: "..." }
+                { status, ...extraData },
                 { headers: { Authorization: `Bearer ${token}` } }
             );
 
             setShowCancelModal(false);
             setCancelType("");
             setCustomReason("");
-            loadOrderData(); // Ensure this refreshes the UI
+            loadOrderData();
         } catch (err) {
             console.error(err);
             alert("Update failed");
@@ -119,24 +119,37 @@ export default function OrderDetails() {
 
 
     const handleFinalizePayment = async () => {
-        if (!hoursWorked || hoursWorked <= 0) return alert("Please enter valid hours.");
-
         setIsCalculating(true);
+        const parsedQuantity = parseFloat(quantity);
+        const settlementValue = booking.unit === "visit" ? 1 : (parsedQuantity || 0);
+
+        if (booking.unit !== "visit" && !settlementValue) {
+            setIsCalculating(false);
+            return alert(`Please enter a valid amount for ${booking.unit}`);
+        }
+
         try {
+            const token = localStorage.getItem("accessToken");
+
             await axios.put(`http://localhost:8000/api/booking/settle/${id}`,
-                { hoursWorked: parseFloat(hoursWorked) },
+                {
+                    quantity: settlementValue,
+                    extraCharges: extraCharges
+                },
                 { headers: { Authorization: `Bearer ${token}` } }
             );
 
-            setHoursWorked("");
+            setQuantity("");
+            setExtraCharges([]);
             loadOrderData();
+
         } catch (err) {
-            console.error(err);
             alert(err.response?.data?.message || "Settlement failed");
         } finally {
             setIsCalculating(false);
         }
     };
+
 
     const handleConfirmCash = async () => {
         try {
@@ -151,6 +164,22 @@ export default function OrderDetails() {
         }
     };
 
+
+    const addCharge = () => setExtraCharges([...extraCharges, { name: "", price: "" }]);
+    const removeCharge = (index) => setExtraCharges(extraCharges.filter((_, i) => i !== index));
+    const updateCharge = (index, field, value) => {
+        const updated = [...extraCharges];
+        updated[index][field] = value;
+        setExtraCharges(updated);
+    };
+
+    const calculateTotal = () => {
+        const qty = parseFloat(quantity) || 0;
+        const rate = booking.price || 0;
+        const baseTotal = booking.unit === "visit" ? rate : qty * rate;
+        const extrasTotal = extraCharges.reduce((sum, item) => sum + (parseFloat(item.price) || 0), 0);
+        return baseTotal + extrasTotal;
+    };
 
     return (
         <div className="min-h-screen bg-[#F9FBFF] font-sans text-slate-900 pb-10">
@@ -189,19 +218,25 @@ export default function OrderDetails() {
                                 <InfoRow icon={<Wrench size={16} className="text-blue-500" />} label="Service" value={booking.serviceType} />
                                 <InfoRow icon={<CreditCard size={16} className="text-emerald-500" />} label="Amount" value={`₹${booking.price}`} />
                                 <InfoRow icon={<Calendar size={16} className="text-indigo-500" />} label="Date" value={new Date(booking.date).toLocaleDateString('en-GB')} />
-                                <InfoRow icon={<Clock size={16} className="text-amber-500" />} label="Time" value={booking.time} />
+                                <InfoRow icon={<Calendar size={16} className="text-indigo-500" />} label="Problem" value={booking.problemDescription} />
                             </div>
 
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div className="p-5 bg-slate-50 rounded-2xl flex gap-4 items-start border border-slate-100 h-full">
-                                    <div className="p-2 bg-red-100 text-red-600 rounded-lg shrink-0">
-                                        <MapPin size={18} />
-                                    </div>
-                                    <div>
-                                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-2">Service Location</p>
-                                        <p className="text-xs font-bold text-slate-600 leading-relaxed italic">
-                                            "{booking.address}"
+                                <div className="bg-gray-50 p-4 rounded-xl border border-gray-100">
+                                    <p className="text-[10px] font-black uppercase text-gray-400 mb-2 flex items-center gap-1">
+                                        <MapPin size={10} /> Service Address
+                                    </p>
+                                    <div className="space-y-1">
+                                        <p className="text-xs font-bold text-slate-900">
+                                            {booking.address?.houseNo}
+                                        </p>
+                                        <p className="text-xs font-medium text-slate-600">
+                                            {booking.address?.landmark && `Near ${booking.address.landmark}, `}
+                                            {booking.address?.area}
+                                        </p>
+                                        <p className="text-[10px] font-black text-slate-400 uppercase">
+                                            {booking.address?.city} - {booking.address?.pincode}
                                         </p>
                                     </div>
                                 </div>
@@ -463,35 +498,66 @@ export default function OrderDetails() {
                             </div>
 
                             <div className="space-y-2 mb-6">
-                                <label className="text-xs font-black text-slate-700 uppercase ml-1">Actual Hours Worked</label>
+                                <label className="text-xs font-black text-slate-700 uppercase ml-1">
+                                    {booking.unit === "visit" ? "Service Confirmation" : `Total ${booking.unit} completed`}
+                                </label>
                                 <div className="relative">
                                     <input
                                         type="number"
-                                        step="0.5"
-                                        value={hoursWorked}
-                                        onChange={(e) => setHoursWorked(e.target.value)}
-                                        placeholder="e.g. 2.5"
-                                        className="w-full p-5 bg-slate-50 border-2 border-slate-100 rounded-2xl outline-none focus:border-blue-500 focus:bg-white font-black text-lg transition-all"
+                                        value={booking.unit === "visit" ? "1" : quantity}
+                                        onChange={(e) => setQuantity(e.target.value)}
+                                        disabled={booking.unit === "visit"}
+                                        className="w-full p-5 bg-slate-50 border-2 border-slate-100 rounded-2xl font-black text-lg outline-none focus:border-blue-500 transition-all"
                                     />
-                                    <div className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-300 font-bold">HRS</div>
+                                    <div className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-300 font-bold uppercase">{booking.unit}</div>
                                 </div>
+                            </div>
+
+                            <div className="mb-6 space-y-3">
+                                <div className="flex justify-between items-center px-1">
+                                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Extra Parts / Gadgets (Optional)</label>
+                                    <button onClick={addCharge} className="text-[10px] font-black text-blue-600 flex items-center gap-1 hover:text-blue-800">
+                                        + ADD ITEM
+                                    </button>
+                                </div>
+
+                                {extraCharges.map((item, index) => (
+                                    <div key={index} className="flex gap-2 animate-in slide-in-from-right-2">
+                                        <input
+                                            placeholder="Gadget name"
+                                            value={item.name}
+                                            onChange={(e) => updateCharge(index, "name", e.target.value)}
+                                            className="flex-1 p-3 bg-white border border-slate-200 rounded-xl text-xs font-bold outline-none"
+                                        />
+                                        <input
+                                            type="number"
+                                            placeholder="Price"
+                                            value={item.price}
+                                            onChange={(e) => updateCharge(index, "price", e.target.value)}
+                                            className="w-24 p-3 bg-white border border-slate-200 rounded-xl text-xs font-bold outline-none"
+                                        />
+                                        <button onClick={() => removeCharge(index)} className="p-3 text-slate-300 hover:text-red-500 transition-colors">
+                                            <X size={16} />
+                                        </button>
+                                    </div>
+                                ))}
                             </div>
 
                             <div className="flex justify-between items-center bg-blue-50/50 p-5 rounded-2xl mb-6 border border-blue-50">
                                 <span className="text-xs font-bold text-blue-600 uppercase tracking-wider">Calculated Total:</span>
                                 <span className="text-2xl font-black text-slate-900">
-                                    ₹{hoursWorked ? (parseFloat(hoursWorked) * booking.price).toLocaleString() : "0"}
+                                    ₹{calculateTotal().toLocaleString()}
                                 </span>
                             </div>
 
                             <button
-                                onClick={handleFinalizePayment}
-                                disabled={isCalculating || !hoursWorked}
-                                className="w-full bg-blue-600 hover:bg-blue-700 text-white py-5 rounded-2xl font-black text-xs uppercase tracking-[0.15em] flex items-center justify-center gap-3 transition-all disabled:opacity-50 disabled:grayscale shadow-lg shadow-blue-100"
+                                onClick={() => handleFinalizePayment(extraCharges)}
+                                className="w-full bg-blue-600 hover:bg-blue-700 text-white py-5 rounded-2xl font-black text-xs uppercase tracking-[0.15em] flex items-center justify-center gap-3 transition-all"
                             >
                                 {isCalculating ? <Loader2 className="animate-spin" size={18} /> : <CreditCard size={18} />}
                                 {isCalculating ? "Generating..." : "Generate Final Invoice"}
                             </button>
+
                         </div>
                     ) : (
                         <div className="bg-emerald-50 p-8 rounded-md border border-emerald-100 shadow-sm animate-in zoom-in-95 duration-300">
@@ -502,7 +568,7 @@ export default function OrderDetails() {
                                         <p className="text-[10px] font-black text-emerald-600 uppercase tracking-widest">Verified Invoice</p>
                                     </div>
                                     <p className="text-sm text-emerald-800 font-bold italic">
-                                        {booking.hoursWorked} hours at ₹{booking.price}/hr
+                                        {booking.hoursWorked} {booking.unit}{booking.hoursWorked > 1 ? 's' : ''} at ₹{booking.price}/{booking.unit}
                                     </p>
                                 </div>
                                 <div className="text-right">
@@ -518,9 +584,26 @@ export default function OrderDetails() {
                                 <div className="grid grid-cols-2 gap-y-3">
                                     <SummaryItem label="Service Rendered" value={booking.serviceType} />
                                     <SummaryItem label="Professional" value={workerDetails?.fullname || "Assigned Tech"} />
-                                    <SummaryItem label="Work Duration" value={`${booking.hoursWorked} Hours`} />
-                                    <SummaryItem label="Base Rate" value={`₹${booking.price}/hr`} />
-                                    <SummaryItem label="Location" value={booking.address} className="col-span-2" />
+                                    <SummaryItem
+                                        label="Work Quantity"
+                                        value={`${booking.hoursWorked} ${booking.unit.toUpperCase()}`}
+                                    />
+                                    <SummaryItem
+                                        label="Base Rate"
+                                        value={`₹${booking.price}/${booking.unit}`}
+                                    />
+                                    <SummaryItem label="Location" value={booking.city} className="col-span-2" />
+                                    {booking.extraCharges?.length > 0 && (
+                                        <div className="col-span-2 space-y-1 mt-2 pt-2 border-t border-emerald-100">
+                                            <p className="text-[9px] font-black text-emerald-800 uppercase">Additional Parts</p>
+                                            {booking.extraCharges.map((ex, i) => (
+                                                <div key={i} className="flex justify-between text-[11px] font-bold text-emerald-700">
+                                                    <span>• {ex.name}</span>
+                                                    <span>₹{ex.price}</span>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
                                     <div className="col-span-2 pt-2 border-t border-emerald-100 mt-1 flex justify-between items-center">
                                         <span className="text-[10px] font-black text-slate-500 uppercase">Grand Total</span>
                                         <span className="text-lg font-black text-emerald-900">₹{booking.totalAmount?.toLocaleString()}</span>
@@ -547,7 +630,6 @@ export default function OrderDetails() {
                     )}
                 </div>
             )}
-
 
         </div>
     );

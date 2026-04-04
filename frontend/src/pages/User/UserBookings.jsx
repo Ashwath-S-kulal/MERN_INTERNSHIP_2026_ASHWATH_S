@@ -90,9 +90,7 @@ export default function UserBookings() {
                     <div className="flex items-center gap-1.5 text-xs font-bold text-slate-600">
                       <Calendar size={14} className="text-blue-500" /> {new Date(b.date).toLocaleDateString('en-GB')}
                     </div>
-                    <div className="flex items-center gap-1.5 text-xs font-medium text-gray-400">
-                      <Clock size={14} /> {b.time}
-                    </div>
+                   
                   </div>
 
                   <div className="col-span-3 space-y-2">

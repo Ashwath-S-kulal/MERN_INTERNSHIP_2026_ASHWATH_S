@@ -46,7 +46,20 @@ export default function ProviderProfile() {
 
     const handleInputChange = (e) => {
         const { name, value, type, checked } = e.target;
-        setEditForm({ ...editForm, [name]: type === "checkbox" ? checked : (value === "true" ? true : value === "false" ? false : value) });
+        const val = type === "checkbox" ? checked : (value === "true" ? true : value === "false" ? false : value);
+
+        if (name.includes('.')) {
+            const [parent, child] = name.split('.');
+            setEditForm(prev => ({
+                ...prev,
+                [parent]: {
+                    ...prev[parent],
+                    [child]: val
+                }
+            }));
+        } else {
+            setEditForm(prev => ({ ...prev, [name]: val }));
+        }
     };
 
     const removeExistingImage = (publicId) => {
@@ -67,24 +80,42 @@ export default function ProviderProfile() {
         try {
             setSaving(true);
             const formData = new FormData();
+
             const remainingImagesIds = existingImages.map(img => img.public_id);
             formData.append("existingImages", JSON.stringify(remainingImagesIds));
             images.forEach(file => formData.append("files", file));
 
+            const pricingData = {
+                rate: editForm["pricing.rate"] || editForm.pricing?.rate,
+                unit: editForm["pricing.unit"] || editForm.pricing?.unit
+            };
+            formData.append("pricing", JSON.stringify(pricingData));
+
             const submissionData = {
                 ...editForm,
-                services: typeof editForm.services === 'string' ? editForm.services.split(",").map(s => s.trim()).filter(Boolean) : editForm.services,
-                languages: typeof editForm.languages === 'string' ? editForm.languages.split(",").map(l => l.trim()).filter(Boolean) : editForm.languages,
+                services: typeof editForm.services === 'string'
+                    ? editForm.services.split(",").map(s => s.trim()).filter(Boolean)
+                    : editForm.services,
+                languages: typeof editForm.languages === 'string'
+                    ? editForm.languages.split(",").map(l => l.trim()).filter(Boolean)
+                    : editForm.languages,
             };
 
             Object.keys(submissionData).forEach(key => {
-                if (['user', 'images', '_id', 'createdAt', 'updatedAt', '__v', 'rating', 'totalReviews'].includes(key)) return;
-                if (Array.isArray(submissionData[key])) formData.append(key, JSON.stringify(submissionData[key]));
-                else formData.append(key, submissionData[key]);
+                if (['user', 'images', '_id', 'createdAt', 'updatedAt', '__v', 'rating', 'totalReviews', 'pricing', 'pricing.rate', 'pricing.unit'].includes(key)) return;
+
+                if (Array.isArray(submissionData[key])) {
+                    formData.append(key, JSON.stringify(submissionData[key]));
+                } else {
+                    formData.append(key, submissionData[key]);
+                }
             });
 
             const res = await axios.put(`http://localhost:8000/api/serviceprovider/update/${proid}`, formData, {
-                headers: { Authorization: `Bearer ${token}`, "Content-Type": "multipart/form-data" }
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    "Content-Type": "multipart/form-data"
+                }
             });
 
             if (res.data.success) {
@@ -93,11 +124,12 @@ export default function ProviderProfile() {
                 alert("Profile updated successfully!");
             }
         } catch (err) {
-            console.error(err);
+            console.error("Upload Error:", err.response?.data || err.message);
             alert("Failed to update profile.");
-        } finally { setSaving(false); }
+        } finally {
+            setSaving(false);
+        }
     };
-
     if (loading) return <div className="h-screen flex items-center justify-center bg-white text-slate-400 font-medium">Loading Professional Profile...</div>;
 
     return (
@@ -143,8 +175,21 @@ export default function ProviderProfile() {
                         <div className="space-y-8">
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <InputGroup label="Display Title" name="title" value={editForm.title} onChange={handleInputChange} placeholder="e.g. Master Plumber" />
-                                <InputGroup label="Hourly Rate (₹)" name="hourlyRate" type="number" value={editForm.hourlyRate} onChange={handleInputChange} />
                                 <InputGroup label="Experience (Years)" name="experience" type="number" value={editForm.experience} onChange={handleInputChange} />
+                                <InputGroup
+                                    label="Rate (₹)"
+                                    name="pricing.rate"
+                                    type="number"
+                                    value={editForm.pricing?.rate || ""} // Add optional chaining and fallback
+                                    onChange={handleInputChange}
+                                />
+                                <InputGroup
+                                    label="Rate Unit"
+                                    name="pricing.unit"
+                                    value={editForm.pricing?.unit || ""}
+                                    onChange={handleInputChange}
+                                    placeholder="e.g. /hr, /day"
+                                />
                                 <InputGroup label="Languages" name="languages" value={editForm.languages} onChange={handleInputChange} placeholder="English, Hindi, etc." />
                             </div>
 

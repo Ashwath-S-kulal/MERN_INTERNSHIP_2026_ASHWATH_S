@@ -131,10 +131,6 @@ export default function AdminBookings() {
                       <Calendar size={14} className="text-slate-400" />
                       <span className="text-xs font-bold">{new Date(booking.date).toLocaleDateString()}</span>
                     </div>
-                    <div className="flex items-center gap-2 text-slate-400">
-                      <Clock size={14} />
-                      <span className="text-[11px] font-medium">{booking.time}</span>
-                    </div>
                   </td>
 
 
@@ -150,8 +146,8 @@ export default function AdminBookings() {
 
 
                   <td className="px-6 py-4 text-right">
-                    <p className="text-sm font-black text-slate-900">₹{booking.provider?.hourlyRate}</p>
-                    <p className="text-[9px] font-bold text-slate-400 uppercase">Per Hour</p>
+                    <p className="text-sm font-black text-slate-900">₹{booking.price}</p>
+                    <p className="text-[9px] font-bold text-slate-400 uppercase">/ {booking?.unit}</p>
                   </td>
                 </tr>
               ))}

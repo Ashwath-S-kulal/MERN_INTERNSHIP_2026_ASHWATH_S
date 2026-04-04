@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import {
-  Search, MapPin, Star, Zap, ArrowRight,
-  Clock, ShieldCheck, Navigation, Filter, X, CheckCircle2,
-  ToolCase,
-  Globe
+  Search, MapPin, Star, ChevronRight,
+  Sparkles, Home, Clock, Zap, SlidersHorizontal,
+  ChevronDown,
+  Layers,
+  X
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
@@ -13,8 +14,11 @@ export default function ServiceExplorer() {
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState("All");
-  const [priceRange, setPriceRange] = useState(2000);
+  const [selectedCity, setSelectedCity] = useState("All");
+  const [maxPrice, setMaxPrice] = useState(10000); // Default high value
+
   const navigate = useNavigate();
+
 
   useEffect(() => {
     const fetchServices = async () => {
@@ -24,166 +28,271 @@ export default function ServiceExplorer() {
           headers: { Authorization: `Bearer ${token}` },
         });
         setServices(Array.isArray(res.data) ? res.data : []);
-      } catch (err) {
-        console.error("Fetch Error:", err);
-      } finally {
-        setLoading(false);
-      }
+      } catch (err) { console.error(err); }
+      finally { setLoading(false); }
     };
     fetchServices();
   }, []);
 
-  const categories = ["All", ...new Set(services.map(s => s.services?.[0]).filter(Boolean))];
+
+  const categories = ["All", ...new Set(services.map(s => s.category).filter(Boolean))];
+  const cities = ["All", ...new Set(services.map(s => s.city).filter(Boolean))];
+
 
   const filteredServices = services.filter(s => {
-    const matchesSearch = s.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      s.city?.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = selectedCategory === "All" || s.services?.[0] === selectedCategory;
-    const matchesPrice = s.hourlyRate <= priceRange;
+    const searchLower = searchTerm.toLowerCase();
+    const currentPrice = s.pricing?.rate || s.hourlyRate || 0;
+    const matchesSearch =
+      s.title?.toLowerCase().includes(searchLower) ||
+      s.services?.some(svc => svc.toLowerCase().includes(searchLower));
+    const matchesCategory = selectedCategory === "All" || s.category === selectedCategory;
+    const matchesCity = selectedCity === "All" || s.city === selectedCity;
+    const matchesPrice = currentPrice <= maxPrice;
 
-    return matchesSearch && matchesCategory && matchesPrice;
+    return matchesSearch && matchesCategory && matchesCity && matchesPrice;
   });
 
 
+  const resetFilters = () => {
+    setSelectedCategory("All");
+    setSelectedCity("All");
+    setMaxPrice(10000);
+    setSearchTerm("");
+  };
 
-  if (loading) return (
-    <div className="min-h-screen flex items-center justify-center bg-[#F8FAFC]">
-      <div className="flex flex-col items-center gap-4">
-        <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
-        <p className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400">Loading Marketplace</p>
-      </div>
-    </div>
-  );
 
-  return (
-    <div className="min-h-screen bg-[#FDFDFF] pb-20 font-sans mt-20">
-      <nav className="bg-white/80 backdrop-blur-xl border-b border-slate-100 py-6 px-8 shadow-sm">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-8">
-            <div className="relative group">
-              <div className="absolute"></div>
-              <h1 className="relative flex flex-col">
-                <span className="text-[10px] font-black uppercase tracking-[0.4em] text-blue-600 mb-1">Marketplace</span>
-                <span className="text-3xl font-black text-slate-900 tracking-tighter sm:text-4xl">
-                  Find Your <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">Services</span>
-                </span>
-              </h1>
-            </div>
+  const getSectionData = (categoryName) => {
+    return filteredServices.filter(s => s.category === categoryName).slice(0, 4);
+  };
 
-            <div className="flex flex-col sm:flex-row flex-1 max-w-3xl w-full gap-3 bg-white p-2 rounded-[24px] border border-slate-100">
-              <div className="relative min-w-[160px]">
-                <select
-                  value={selectedCategory}
-                  onChange={(e) => setSelectedCategory(e.target.value)}
-                  className="w-full h-full pl-4 pr-10 py-3 bg-slate-50 border-none rounded-2xl text-[11px] font-black uppercase tracking-widest text-slate-700 appearance-none cursor-pointer focus:ring-2 focus:ring-blue-100 transition-all outline-none"
-                >
-                  {categories.map(cat => (
-                    <option key={cat} value={cat}>{cat === "All" ? "All Services" : cat}</option>
-                  ))}
-                </select>
-                <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
-                  <Filter size={14} />
-                </div>
-              </div>
 
-              <div className="relative flex-1 group">
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-blue-600 transition-colors" size={18} />
-                <input
-                  type="text"
-                  placeholder="Search by name or city..."
-                  className="w-full pl-12 pr-4 py-3 bg-slate-50 border-none rounded-2xl text-sm font-bold focus:bg-white transition-all outline-none"
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                />
-              </div>
+  const newArrivals = [...filteredServices].reverse().slice(0, 4);
 
-              <div className="flex items-center gap-4 bg-slate-900 px-5 py-3 rounded-2xl">
-                <div className="flex flex-col">
-                  <span className="text-[8px] font-black text-slate-400 uppercase leading-none mb-1">Max Price</span>
-                  <span className="text-xs font-black text-white leading-none">₹{priceRange}</span>
-                </div>
-                <input
-                  type="range" min="100" max="2000" step="50" value={priceRange}
-                  onChange={(e) => setPriceRange(e.target.value)}
-                  className="w-20 accent-blue-500 h-1 bg-slate-700 rounded-lg appearance-none cursor-pointer"
-                />
-              </div>
-            </div>
+
+  if (loading) {
+    return (
+      <div className="h-screen w-full flex flex-col items-center justify-center bg-white">
+        <div className="relative flex items-center justify-center">
+          <div className="w-16 h-16 border-4 border-slate-100 rounded-full animate-[spin_3s_linear_infinite]"></div>
+          <div className="absolute w-16 h-16 border-4 border-t-blue-600 border-r-transparent border-b-transparent border-l-transparent rounded-full animate-spin"></div>
+          <div className="absolute w-2 h-2 bg-blue-600 rounded-full animate-pulse"></div>
+        </div>
+
+        <div className="mt-8 flex flex-col items-center gap-2">
+          <h2 className="font-black text-slate-900 text-[10px] uppercase tracking-[0.4em] animate-pulse">
+            Syncing Marketplace
+          </h2>
+          <div className="flex gap-1">
+            <div className="w-1 h-1 bg-blue-600 rounded-full animate-bounce [animation-delay:-0.3s]"></div>
+            <div className="w-1 h-1 bg-blue-600 rounded-full animate-bounce [animation-delay:-0.15s]"></div>
+            <div className="w-1 h-1 bg-blue-600 rounded-full animate-bounce"></div>
           </div>
         </div>
-      </nav>
-      <main className="max-w-7xl mx-auto pt-12">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {filteredServices.map((s) => (
-            <div key={s._id} className="group bg-white rounded-md border border-slate-100 p-3 shadow-md hover:border-blue-200 hover:shadow-2xl transition-all duration-500 flex flex-col">
-              <div className="relative h-48 w-full mb-4 overflow-hidden rounded-md bg-slate-100">
-                <img
-                  onClick={() => navigate(`/service/${s._id}`)}
-                  src={s.images?.[0]?.url || "https://images.unsplash.com/photo-1581578731522-745d05db9ad0?q=80&w=800"}
-                  alt={s.title}
-                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 cursor-pointer"
-                />
-                <div className="absolute top-3 left-3 flex gap-2">
-                  <span className="px-3 py-1 bg-white/90 backdrop-blur-md rounded-lg text-blue-600 text-[9px] font-black uppercase tracking-widest shadow-sm">
-                    {s.services?.[0] || "General"}
-                  </span>
-                </div>
-                <div className="absolute bottom-3 right-3 px-3 py-1 bg-slate-900/80 backdrop-blur-md rounded-lg text-white text-xs font-black">
-                  ₹{s.hourlyRate}/hr
-                </div>
-              </div>
 
-              <div className="px-2 flex-1 flex flex-col">
-                <div className="flex items-center gap-3 mb-4">
-                  <img
-                    src={s.user?.profilePic || `https://ui-avatars.com/api/?name=${s.user?.firstName}`}
-                    className="w-10 h-10 rounded-full border-2 border-white shadow-sm object-cover"
-                    alt="avatar"
-                  />
-                  <div>
-                    <h3 className="text-lg font-black text-slate-900 leading-none truncate max-w-[180px]">{s.title}</h3>
-                    <p className="text-[10px] font-bold text-slate-400 mt-1 uppercase tracking-tight">
-                      {s.user?.firstName} {s.user?.lastName}
-                    </p>
-                  </div>
-                  
-                </div>
+        <p className="absolute bottom-10 text-[8px] font-black text-slate-200 uppercase tracking-widest">
+          Establishing Secure Connection...
+        </p>
+      </div>
+    );
+  }
 
-                <p className="text-xs text-slate-500 leading-relaxed line-clamp-2 mb-4 h-8">
-                  {s.bio || "Quality service provider available for your tasks."}
-                </p>
+  return (
+    <div className="min-h-screen bg-white pb-20 mt-16">
+      <div className="sticky top-16 z-30 bg-white/90 backdrop-blur-2xl border-b border-slate-100 px-6 py-4">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex flex-col lg:flex-row items-stretch lg:items-center gap-3 bg-slate-100/50 p-2 rounded-[24px] border border-slate-200/30">
 
-                <div className="grid grid-cols-2 gap-2 mb-6">
-                  <div className="flex items-center gap-2 text-slate-600 bg-slate-50 p-2 rounded-xl">
-                    <MapPin size={12} className="text-blue-500" />
-                    <span className="text-[9px] font-bold truncate uppercase">{s.city}</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-slate-600 bg-slate-50 p-2 rounded-xl">
-                    <Clock size={12} className="text-blue-500" />
-                    <span className="text-[9px] font-bold uppercase">{s.experience}Y Exp.</span>
-                  </div>
-                </div>
-
-                <button
-                  onClick={() => navigate(`/service/${s._id}`)}
-                  className="w-full py-4 bg-slate-900 text-white rounded-md font-black text-[10px] uppercase tracking-[0.12em] flex items-center justify-center gap-2 hover:bg-blue-600 transition-all shadow-lg active:scale-95 group/btn mt-auto"
-                >
-                  Book Service
-                  <ArrowRight size={14} className="group-hover/btn:translate-x-1 transition-transform" />
-                </button>
-              </div>
+            <div className="relative min-w-[180px] group">
+              <Layers className="absolute left-4 top-1/2 -translate-y-1/2 text-blue-600 z-10" size={14} />
+              <select
+                value={selectedCategory}
+                onChange={(e) => setSelectedCategory(e.target.value)}
+                className="w-full pl-10 pr-10 py-3 bg-white border-none rounded-xl text-[10px] font-black uppercase tracking-widest text-slate-700 appearance-none cursor-pointer outline-none shadow-sm group-hover:ring-2 group-hover:ring-blue-500/10 transition-all"
+              >
+                {categories.map(cat => (
+                  <option key={cat} value={cat}>{cat === "All" ? "All Categories" : cat}</option>
+                ))}
+              </select>
+              <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={12} />
             </div>
-          ))}
+
+            <div className="relative min-w-[160px] group">
+              <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-hover:text-blue-500 transition-colors z-10" size={14} />
+              <select
+                value={selectedCity}
+                onChange={(e) => setSelectedCity(e.target.value)}
+                className="w-full pl-10 pr-10 py-3 bg-white border-none rounded-xl text-[10px] font-black uppercase tracking-widest text-slate-700 appearance-none cursor-pointer outline-none shadow-sm"
+              >
+                {cities.map(city => (
+                  <option key={city} value={city}>{city === "All" ? "Everywhere" : city}</option>
+                ))}
+              </select>
+              <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={12} />
+            </div>
+
+            <div className="relative flex-1 group">
+              <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-blue-600 transition-colors" size={16} />
+              <input
+                type="text"
+                value={searchTerm}
+                placeholder="Search services, skills, or names..."
+                className="w-full pl-12 pr-4 py-3 bg-white border-none rounded-xl text-xs font-bold outline-none shadow-sm placeholder:text-slate-300"
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </div>
+
+            <div className="hidden lg:flex items-center gap-4 bg-white px-5 py-2.5 rounded-xl shadow-sm border border-transparent hover:border-slate-200 transition-all">
+              <div className="flex flex-col min-w-[70px]">
+                <span className="text-[8px] font-black text-slate-400 uppercase leading-none mb-1">Max Budget</span>
+                <span className="text-[11px] font-black text-slate-900 leading-none">₹{maxPrice}</span>
+              </div>
+              <input
+                type="range" min="100" max="10000" step="100"
+                value={maxPrice}
+                onChange={(e) => setMaxPrice(Number(e.target.value))}
+                className="w-24 h-1 bg-slate-100 rounded-lg appearance-none cursor-pointer accent-blue-600"
+              />
+            </div>
+
+            {(selectedCategory !== "All" || selectedCity !== "All" || searchTerm !== "") && (
+              <button
+                onClick={resetFilters}
+                className="p-3 bg-red-50 text-red-500 rounded-xl hover:bg-red-500 hover:text-white transition-all"
+              >
+                <X size={16} />
+              </button>
+            )}
+          </div>
         </div>
+      </div>
 
-        {filteredServices.length === 0 && (
-          <div className="text-center py-20">
-            <div className="bg-slate-50 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Search className="text-slate-300" size={32} />
-            </div>
-            <p className="text-slate-400 font-bold">No services found matching your criteria.</p>
+
+      <main className="max-w-7xl mx-auto px-6 mt-8 space-y-20">
+        {filteredServices.length > 0 ? (
+          <>
+            {selectedCategory === "All" && searchTerm === "" ? (
+              <>
+                <ServiceSection
+                  title="New Arrivals"
+                  subtitle="Recently Joined Experts"
+                  icon={<Sparkles size={18} className="text-amber-500" />}
+                  data={newArrivals}
+                  navigate={navigate}
+                />
+
+                <ServiceSection
+                  title="Home Services"
+                  subtitle="Top Rated in Cleaning & Fixes"
+                  icon={<Home size={18} className="text-blue-500" />}
+                  data={getSectionData("Home Services")}
+                  navigate={navigate}
+                />
+              </>
+            ) : null}
+
+            <section>
+              <div className="flex items-center justify-between mb-8">
+                <div>
+                  <h2 className="text-2xl font-black text-slate-900 tracking-tight">
+                    {selectedCategory === "All" ? "Explore Marketplace" : `${selectedCategory} Experts`}
+                  </h2>
+                  <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Handpicked Professionals</p>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-15">
+                {filteredServices.map(s => (
+                  <SmallServiceCard key={s._id} service={s} navigate={navigate} />
+                ))}
+              </div>
+            </section>
+          </>
+        ) : (
+          <div className="py-40 text-center bg-slate-50 rounded-[40px] border-2 border-dashed border-slate-200">
+            <Search className="mx-auto text-slate-300 mb-4" size={48} />
+            <h3 className="text-lg font-black text-slate-900 uppercase">No Matches Found</h3>
+            <p className="text-xs font-bold text-slate-400 mt-2">Try adjusting your price range or switching locations.</p>
+            <button
+              onClick={() => { setSelectedCategory("All"); setSelectedCity("All"); setMaxPrice(10000); setSearchTerm(""); }}
+              className="mt-6 text-[10px] font-black text-blue-600 uppercase border-b-2 border-blue-600 pb-1"
+            >
+              Reset All Filters
+            </button>
           </div>
         )}
       </main>
+    </div>
+  );
+}
+
+
+function ServiceSection({ title, subtitle, icon, data, navigate }) {
+  if (data.length === 0) return null;
+  return (
+    <section>
+      <div className="flex items-end justify-between mb-6">
+        <div className="flex items-center gap-3">
+          <div className="p-3 bg-slate-50 rounded-2xl">{icon}</div>
+          <div>
+            <h2 className="text-xl font-black text-slate-900 tracking-tight">{title}</h2>
+            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">{subtitle}</p>
+          </div>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        {data.map(s => (
+          <ServiceCard key={s._id} service={s} navigate={navigate} />
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function SmallServiceCard({ service, navigate }) {
+  return (
+    <div onClick={() => navigate(`/service/${service._id}`)} className="group cursor-pointer">
+      <div className="relative aspect-square rounded-2xl overflow-hidden mb-3 bg-slate-100">
+        <img src={service.images?.[0]?.url} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" alt="" />
+        <div className="absolute top-2 right-2 bg-white/90 backdrop-blur px-2 py-1 rounded-lg text-[9px] font-black shadow-sm">
+          ₹{service.pricing?.rate}<span className="text-slate-400"> /{service.pricing?.unit || 'hr'}</span>
+        </div>
+      </div>
+      <h4 className="text-xs font-black text-slate-900 truncate">{service.title}</h4>
+      <p className="text-[10px] font-bold text-slate-400 uppercase">{service.city}</p>
+    </div>
+  );
+}
+
+function ServiceCard({ service, navigate }) {
+  return (
+    <div
+      onClick={() => navigate(`/service/${service._id}`)}
+      className="group bg-white border border-slate-100 rounded-[24px] p-3 hover:shadow-xl hover:shadow-slate-200/50 transition-all cursor-pointer"
+    >
+      <div className="relative h-44 rounded-[18px] overflow-hidden mb-4">
+        <img
+          src={service.images?.[0]?.url || "https://images.unsplash.com/photo-1581578731522-745d05db9ad0?q=80&w=800"}
+          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+          alt={service.title}
+        />
+        <div className="absolute bottom-2 left-2 bg-slate-900/80 backdrop-blur-md px-3 py-1.5 rounded-xl text-white text-[10px] font-black">
+          ₹{service.pricing?.rate} <span className="text-slate-400">/{service.pricing?.unit || 'hr'}</span>
+        </div>
+      </div>
+
+      <div className="px-1">
+        <div className="flex items-center justify-between mb-2">
+          <span className="text-[9px] font-black text-blue-600 uppercase tracking-widest">{service.category}</span>
+          <div className="flex items-center gap-1 text-amber-500 font-bold text-[10px]">
+            <Star size={10} fill="currentColor" /> 4.9
+          </div>
+        </div>
+        <h3 className="text-sm font-black text-slate-900 mb-1 truncate">{service.title}</h3>
+        <div className="flex items-center gap-1 text-slate-400">
+          <MapPin size={10} />
+          <span className="text-[9px] font-bold uppercase tracking-tighter">{service.city}</span>
+        </div>
+      </div>
     </div>
   );
 }

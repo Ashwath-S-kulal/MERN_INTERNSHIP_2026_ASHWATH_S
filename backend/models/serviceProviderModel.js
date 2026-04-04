@@ -4,7 +4,7 @@ const serviceProviderSchema = new mongoose.Schema(
   {
     user: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
 
-   images: {
+    images: {
       type: [
         {
           url: { type: String, required: true },
@@ -20,11 +20,21 @@ const serviceProviderSchema = new mongoose.Schema(
         required: true,
       },
     ],
+    
+    category: { type: String, required: true },
+
+    pricing: {
+      rate: { type: Number, required: true }, // The number (e.g., 500)
+      unit: {
+        type: String,
+        required: true,
+        default: "hour",
+      },
+    },
 
     title: { type: String, required: true },
     bio: { type: String, maxLength: 500 },
     experience: { type: Number, required: true },
-    hourlyRate: { type: Number, required: true },
 
     serviceRadius: { type: Number, default: 10 },
     languages: [String],

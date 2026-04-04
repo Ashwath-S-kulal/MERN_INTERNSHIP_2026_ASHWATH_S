@@ -147,7 +147,7 @@ export default function JobControlCenter() {
                     <div className="flex items-start gap-2 max-w-[200px]">
                       <MapPin size={14} className="text-red-400 shrink-0 mt-0.5" />
                       <p className="text-xs font-medium text-slate-500 leading-tight line-clamp-2 italic">
-                        {b.address}
+                        {b.address.city}
                       </p>
                     </div>
                   </td>

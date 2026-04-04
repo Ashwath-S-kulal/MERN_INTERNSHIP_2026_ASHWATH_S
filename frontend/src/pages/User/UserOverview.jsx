@@ -104,7 +104,7 @@ const UserDashboard = () => {
             </div>
 
             {bookings.length > 0 ? (
-              bookings.slice(0, 5).map((booking, i) => (
+              bookings.slice(0, 4).map((booking, i) => (
                 <BookingItem key={i} booking={booking} />
               ))
             ) : (
@@ -121,7 +121,7 @@ const UserDashboard = () => {
 
 
           <div className="space-y-6 mt-8">
-            <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm overflow-hidden group">
+            <div className="bg-white p-6 rounded-md border border-slate-200 shadow-sm overflow-hidden group">
               <div className="flex items-center justify-between mb-6 px-1">
                 <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Live Insights</h4>
                 <div className="flex items-center gap-1.5 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-100">
@@ -144,10 +144,10 @@ const UserDashboard = () => {
                 <div className="flex items-center justify-between p-4 rounded-2xl hover:bg-slate-50 transition-all">
                   <div className="flex items-center gap-3">
                     <Clock size={16} className="text-blue-500" />
-                    <span className="text-[11px] font-black text-slate-800 uppercase">Support Hours</span>
+                    <span className="text-[11px] font-black text-slate-800 uppercase">Support Time</span>
                   </div>
                   <span className="text-[10px] font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-md">
-                    09:00 - 21:00
+                    24/7
                   </span>
                 </div>
 

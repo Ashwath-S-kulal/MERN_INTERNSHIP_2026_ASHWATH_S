@@ -183,19 +183,17 @@ export default function ServiceDetailsPage() {
                                 <p className="text-slate-400 font-medium mb-8 text-xs leading-relaxed line-clamp-2 italic">
                                     {service.services?.[0] || "General Professional"} • {service.experience} Years Experience
                                 </p>
-
-                                <div className="space-y-4 border-t border-white/10 pt-6">
-                                    <div className="flex justify-between items-center">
-                                        <span className="text-slate-400 font-bold text-xs uppercase tracking-wider">Service Email</span>
-                                        <span className="text-xs font-bold text-white truncate max-w-[150px]">
+                                <span className="text-xs font-bold text-white truncate max-w-[150px]">
                                             {service.user?.email}
                                         </span>
-                                    </div>
+
+                                <div className="space-y-4 border-t border-white/10 pt-6">
+                                  
                                     <div className="flex justify-between items-end">
                                         <div>
                                             <span className="text-slate-400 font-bold text-xs uppercase tracking-wider block mb-1">Rate</span>
-                                            <span className="text-3xl font-black text-indigo-400">₹{service.hourlyRate}</span>
-                                            <span className="text-slate-500 text-[10px] font-black ml-1 uppercase">/ Hr</span>
+                                            <span className="text-3xl font-black text-indigo-400">₹{service.pricing.rate}</span>
+                                            <span className="text-slate-500 text-[10px] font-black ml-1 uppercase">/ {service.pricing.unit}</span>
                                         </div>
                                     </div>
                                 </div>

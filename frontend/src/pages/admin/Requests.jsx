@@ -109,8 +109,8 @@ export default function AdminProviderRequests() {
             </div>
             <div className="bg-slate-50 p-4 rounded-2xl">
               <Clock size={16} className="text-slate-400 mb-1" />
-              <p className="text-lg font-black">₹{p.hourlyRate}</p>
-              <p className="text-[9px] font-bold text-slate-400 uppercase">Hourly Rate</p>
+              <p className="text-lg font-black">₹{p.pricing?.rate} / {p.pricing?.unit}</p>
+              <p className="text-[9px] font-bold text-slate-400 uppercase">Pricing</p>
             </div>
           </div>
           <div className="flex flex-wrap gap-1 pt-2">

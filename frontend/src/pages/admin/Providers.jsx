@@ -144,7 +144,7 @@ export default function ProviderDirectory() {
                   <td className="p-4 text-sm text-slate-600 font-medium">{p.services[0]}</td>
                   <td className="p-4">{getStatusBadge(p.status)}</td>
                   <td className="p-4 text-sm text-slate-600 font-medium">{p.experience} Years</td>
-                  <td className="p-4 text-sm font-bold text-slate-900">₹{p.hourlyRate}/hr</td>
+                  <td className="p-4 text-sm font-bold text-slate-900">₹{p.pricing.rate}/{p.pricing.unit}</td>
                   <td className="p-6 text-right">
                     <div className="flex justify-end gap-3">
                       {p.status !== "approved" && (

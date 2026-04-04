@@ -2,125 +2,108 @@ import React, { useEffect, useState } from "react";
 import { NavLink, useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 import {
-  Calendar, Clock, MapPin, Star, ShieldCheck,
+  Calendar, MapPin, Star, ShieldCheck,
   Briefcase, Wrench, Navigation, Info,
-  ChevronRight, ArrowRight, Globe,
-  CheckCircle, Hash, Zap, CalendarDays,
-  ArrowLeft
+  ChevronRight, ArrowLeft, CheckCircle, Hash, Zap, Loader2
 } from "lucide-react";
 
 export default function ServiceDetails() {
   const { id } = useParams();
+  const navigate = useNavigate();
+
   const [service, setService] = useState(null);
   const [date, setDate] = useState("");
-  const [time, setTime] = useState("");
-  const [address, setAddress] = useState("");
   const [loading, setLoading] = useState(false);
-  const [bookedSlots, setBookedSlots] = useState([]);
   const [activeImg, setActiveImg] = useState("");
   const [reviews, setReviews] = useState([]);
+  const [problem, setProblem] = useState("");
+  const [address, setAddress] = useState({
+    houseNo: "",
+    landmark: "",
+    area: "",
+    pincode: ""
+  });
 
   const today = new Date().toISOString().split("T")[0];
   const daysOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-  const navigate = useNavigate();
-
-
 
   useEffect(() => {
-    const fetchService = async () => {
+    const fetchData = async () => {
       const token = localStorage.getItem("accessToken");
       try {
-        const res = await axios.get(`http://localhost:8000/api/user/getservicebyid/${id}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        setService(res.data);
-        if (res.data.images?.length > 0) setActiveImg(res.data.images[0].url);
-      } catch (err) { console.error(err); }
+        const [serviceRes, reviewRes] = await Promise.all([
+          axios.get(`http://localhost:8000/api/user/getservicebyid/${id}`, {
+            headers: { Authorization: `Bearer ${token}` },
+          }),
+          axios.get(`http://localhost:8000/api/reviews/provider/${id}`, {
+            headers: { Authorization: `Bearer ${token}` },
+          })
+        ]);
+
+        setService(serviceRes.data);
+        if (serviceRes.data.images?.length > 0) setActiveImg(serviceRes.data.images[0].url);
+        setReviews(reviewRes.data.data || []);
+      } catch (err) {
+        console.error("Error fetching service details:", err);
+      }
     };
-    fetchService();
+    fetchData();
   }, [id]);
 
+  const handleAddressChange = (e) => {
+    setAddress({ ...address, [e.target.name]: e.target.value });
+  };
 
-
-  useEffect(() => {
-    const fetchSlots = async () => {
-      if (!date) return;
-      const token = localStorage.getItem("accessToken");
-      try {
-        const res = await axios.get(`http://localhost:8000/api/booking/slots?providerId=${id}&date=${date}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        setBookedSlots(res.data);
-      } catch (err) { console.error(err); }
-    };
-    fetchSlots();
-  }, [date, id]);
-
-
+  const resetForm = () => {
+    setDate("");
+    setProblem("");
+    setAddress({
+      houseNo: "",
+      landmark: "",
+      area: "",
+      pincode: ""
+    });
+  };
 
   const handleBooking = async () => {
-    if (!date || !time || !address) return alert("Please fill all details");
-
+    if (!date || !address.houseNo || !address.area) {
+      return alert("Please fill in all mandatory fields (Date, House No, and Area).");
+    }
     const token = localStorage.getItem("accessToken");
     try {
       setLoading(true);
-      await axios.post("http://localhost:8000/api/booking/create",
-        { providerId: service._id, date, time, address },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      alert("✅ Booking Successful!");
-      setDate(""); setTime(""); setAddress("");
+      await axios.post("http://localhost:8000/api/booking/create", {
+        providerId: service._id,
+        date,
+        problemDescription: problem || "No specific problem described",
+        address: {
+          ...address,
+          city: service.city
+        },
+        unit: service.pricing.unit,
+        price: service.pricing.rate
+      }, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      alert("✅ Service Request Sent Successfully!");
+      resetForm();
     } catch (err) {
-      console.log(err)
-      alert("❌ Booking failed");
+      console.error(err);
+      alert(err.response?.data?.message || "Request failed. Please check your connection.");
+    } finally {
+      setLoading(false);
     }
-    finally { setLoading(false); }
   };
-
-
-
-  const isDayAvailable = (dateString) => {
-    if (!dateString || !service) return false;
-    const dayName = daysOfWeek[new Date(dateString).getDay()];
-    return service.availability.includes(dayName);
-  };
-
-
-  useEffect(() => {
-    const fetchServiceAndReviews = async () => {
-      const token = localStorage.getItem("accessToken");
-      try {
-        const res = await axios.get(`http://localhost:8000/api/user/getservicebyid/${id}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        setService(res.data);
-        if (res.data.images?.length > 0) setActiveImg(res.data.images[0].url);
-
-        const reviewRes = await axios.get(`http://localhost:8000/api/reviews/provider/${id}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        setReviews(reviewRes.data.data);
-      } catch (err) {
-        console.error(err);
-      }
-    };
-    fetchServiceAndReviews();
-  }, [id]);
-
-
 
   if (!service) return (
     <div className="min-h-screen flex items-center justify-center bg-white">
-      <div className="w-5 h-5 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+      <Loader2 className="w-6 h-6 text-blue-600 animate-spin" />
     </div>
   );
 
-  const timeSlots = ["09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00"];
-
-
   const averageRating = reviews.length > 0
     ? (reviews.reduce((acc, item) => acc + item.rating, 0) / reviews.length).toFixed(1)
-    : service.rating;
+    : 0;
 
   return (
     <div className="min-h-screen bg-[#FDFDFD] pb-12 font-sans text-slate-800">
@@ -128,34 +111,25 @@ export default function ServiceDetails() {
       <nav className="sticky top-0 z-40 bg-white/90 backdrop-blur-sm border-b border-slate-100 px-4 py-3">
         <div className="max-w-7xl mx-auto flex justify-between items-center">
           <div className="flex items-center gap-2">
-            <button
-              onClick={() => navigate(-1)}
-              className="flex items-center gap-2 px-3 py-1.5 hover:bg-slate-100 rounded-xl transition-all text-slate-600 group"
-            >
+            <button onClick={() => navigate(-1)} className="flex items-center gap-2 px-3 py-1.5 hover:bg-slate-100 rounded-xl transition-all text-slate-600 group">
               <ArrowLeft size={16} className="group-hover:-translate-x-0.5 transition-transform" />
               <span className="text-[10px] font-black uppercase tracking-widest">Back</span>
             </button>
-
             <div className="h-4 w-[1px] bg-slate-200 mx-2"></div>
-
             <div className="flex items-center gap-1.5 text-[10px] font-bold text-slate-400 uppercase tracking-tight">
-              <NavLink to={"/service"} className="hover:text-slate-600 transition-colors underline-offset-4 hover:underline">
-                Services
-              </NavLink>
-              <ChevronRight size={10} className="text-slate-300" />
+              <NavLink to="/service" className="hover:text-slate-600">Services</NavLink>
+              <ChevronRight size={10} />
               <span className="text-blue-600 font-black">{service.services?.[0]}</span>
             </div>
           </div>
-
           <div className="flex items-center gap-2">
-            <div className={`w-1.5 h-1.5 rounded-full animate-pulse ${service.isActive ? 'bg-emerald-500' : 'bg-slate-300'}`}></div>
+            <div className={`w-1.5 h-1.5 rounded-full ${service.isActive ? 'bg-emerald-500 animate-pulse' : 'bg-slate-300'}`}></div>
             <span className={`text-[9px] font-black px-2 py-0.5 rounded-md uppercase tracking-wider ${service.isActive ? 'bg-emerald-50 text-emerald-600' : 'bg-slate-100 text-slate-400'}`}>
               {service.isActive ? "Online" : "Offline"}
             </span>
           </div>
         </div>
       </nav>
-
 
       <div className="max-w-7xl mx-auto px-4 grid grid-cols-1 lg:grid-cols-12 gap-8 pt-6">
         <div className="lg:col-span-7 space-y-6">
@@ -173,15 +147,47 @@ export default function ServiceDetails() {
           </div>
 
           <div className="bg-white p-6 rounded-md border border-slate-100 shadow-sm">
+
+            <div className="flex items-center justify-between mb-8">
+              <div onClick={() => navigate(`/provideralljobs/${service.user._id}`)} className="flex items-center gap-4 cursor-pointer">
+                <div className="relative">
+                  <img
+                    src={service.user?.profilePic || `https://ui-avatars.com/api/?name=${service.user?.firstName}&background=6366f1&color=fff`}
+                    className="w-16 h-16 rounded-[22px] border-4 border-white shadow-md object-cover ring-1 ring-slate-100"
+                    alt="avatar"
+                  />
+                  <div className="absolute -bottom-1 -right-1 bg-blue-600 rounded-full p-1 border-2 border-white">
+                    <CheckCircle size={10} className="text-white" fill="currentColor" />
+                  </div>
+                </div>
+                <div>
+                  <h3 className="text-lg font-black text-slate-900 tracking-tight leading-none mb-1.5">
+                    {service.user?.firstName} {service.user?.lastName}
+                  </h3>
+                  <div className="inline-flex items-center px-2.5 py-1 rounded-lg bg-blue-50 text-blue-600">
+                    <span className="text-[10px] font-black uppercase tracking-widest">
+                      {service.services?.[0] || "Verified Professional"}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-amber-50 px-3 py-2 rounded-2xl flex flex-col items-center border border-amber-100">
+                <div className="flex items-center gap-1 text-amber-600 font-black text-sm">
+                  <Star size={14} className="fill-amber-500 text-amber-500" />
+                  {averageRating}
+                </div>
+                <span className="text-[8px] font-black text-amber-400 uppercase tracking-tighter">{reviews.length} reviews</span>
+              </div>
+            </div>
+
+
             <h1 className="text-2xl font-black text-slate-900 mb-1">{service.title}</h1>
             <div className="flex flex-wrap gap-4 text-[12px] text-slate-400 mb-6">
               <span className="flex items-center gap-1"><MapPin size={13} /> {service.city}, {service.address}</span>
               <span className="flex items-center gap-1 font-bold text-amber-500">
-                <Star size={13} className="fill-amber-500" />
-                {averageRating}
-                <span className="text-slate-400 font-medium ml-0.5">
-                  ({reviews.length > 0 ? reviews.length : 0})
-                </span>
+                <Star size={13} className="fill-amber-500" stroke="none" />
+                {averageRating} ({reviews.length})
               </span>
             </div>
 
@@ -204,15 +210,12 @@ export default function ServiceDetails() {
                 <Calendar size={12} /> Weekly Schedule
               </p>
               <div className="flex flex-wrap gap-1.5">
-                {daysOfWeek.map((day) => {
-                  const isAvailable = service.availability.includes(day);
-                  return (
-                    <div key={day} className={`px-2.5 py-1 rounded-lg text-[10px] font-bold border transition-all 
-                      ${isAvailable ? 'bg-blue-50 border-blue-100 text-blue-600' : 'bg-slate-50 border-transparent text-slate-300'}`}>
-                      {day.slice(0, 3)}
-                    </div>
-                  );
-                })}
+                {daysOfWeek.map((day) => (
+                  <div key={day} className={`px-2.5 py-1 rounded-lg text-[10px] font-bold border transition-all 
+                    ${service.availability.includes(day) ? 'bg-blue-50 border-blue-100 text-blue-600' : 'bg-slate-50 border-transparent text-slate-300'}`}>
+                    {day.slice(0, 3)}
+                  </div>
+                ))}
               </div>
             </div>
           </div>
@@ -222,77 +225,25 @@ export default function ServiceDetails() {
             <p className="text-slate-600 text-[14px] leading-relaxed italic">"{service.bio}"</p>
           </div>
 
-
           <div className="bg-white p-6 rounded-md border border-slate-100 shadow-sm mx-auto mt-10">
-            <div className="flex items-center justify-between mb-6">
-              <div>
-                <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1 flex items-center gap-1.5">
-                  Client Feedback
-                </h3>
-                <p className="text-lg font-black text-slate-900">
-                  {reviews.length} {reviews.length === 1 ? 'Review' : 'Reviews'}
-                </p>
-              </div>
-              <div className="bg-slate-50 px-3 py-2 rounded-2xl flex items-center gap-2 border border-slate-100">
-                <div className="flex flex-col items-end mr-1">
-                  <span className="text-xl font-black text-slate-800 leading-none">
-                    {averageRating}
-                  </span>
-                  <span className="text-[8px] font-bold text-slate-400 uppercase tracking-tighter">
-                    Average
-                  </span>
-                </div>
-
-                <div className="flex gap-0.5">
-                  {[...Array(5)].map((_, i) => (
-                    <Star
-                      key={i}
-                      size={10}
-                      fill={i < Math.round(averageRating) ? "#f59e0b" : "#e2e8f0"}
-                      stroke="none"
-                    />
-                  ))}
-                </div>
-              </div>
-            </div>
-
+            <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Client Feedback</h3>
             <div className="space-y-5">
-              {reviews.length > 0 ? (
-                reviews.map((review) => (
-                  <div key={review._id} className="p-4 rounded-2xl bg-slate-50/30 border border-slate-50 group hover:border-blue-100 transition-colors">
-                    <div className="flex justify-between items-start mb-3">
-                      <div className="flex items-center gap-3">
-                        <div className="relative">
-                          <img
-                            src={review.user?.profilePic || `https://ui-avatars.com/api/?name=${review.user?.firstName}&background=6366f1&color=fff`}
-                            className="w-10 h-10 rounded-xl object-cover border-2 border-white shadow-sm"
-                            alt="Reviewer"
-                          />
-                          <div className="absolute -bottom-1 -right-1 bg-blue-500 text-white p-0.5 rounded-full border-2 border-white">
-                            <CheckCircle size={8} fill="currentColor" />
-                          </div>
-                        </div>
-                        <div>
-                          <p className="text-[12px] font-black text-slate-800 leading-none mb-1">
-                            {review.user?.firstName} {review.user?.lastName}
-                          </p>
-                          <p className="text-[9px] font-bold text-slate-400 uppercase tracking-tighter">
-                            {new Date(review.createdAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}
-                          </p>
-                        </div>
-                      </div>
-                      <div className="flex gap-0.5">
-                        {[...Array(5)].map((_, i) => (
-                          <Star key={i} size={10} fill={i < review.rating ? "#f59e0b" : "#e2e8f0"} stroke="none" />
-                        ))}
-                      </div>
+              {reviews.length > 0 ? reviews.map((review) => (
+                <div key={review._id} className="p-4 rounded-2xl bg-slate-50/30 border border-slate-50">
+                  <div className="flex justify-between items-start mb-2">
+                    <div className="flex items-center gap-3">
+                      <img src={review.user?.profilePic || `https://ui-avatars.com/api/?name=${review.user?.firstName}&background=6366f1&color=fff`} className="w-8 h-8 rounded-lg object-cover" alt="User" />
+                      <p className="text-[12px] font-black text-slate-800">{review.user?.firstName} {review.user?.lastName}</p>
                     </div>
-                    <p className="text-slate-600 text-[13px] leading-relaxed font-medium pl-1 underline-offset-4 decoration-blue-100 group-hover:underline">
-                      "{review.comment}"
-                    </p>
+                    <div className="flex gap-0.5">
+                      {[...Array(5)].map((_, i) => (
+                        <Star key={i} size={10} fill={i < review.rating ? "#f59e0b" : "#e2e8f0"} stroke="none" />
+                      ))}
+                    </div>
                   </div>
-                ))
-              ) : (
+                  <p className="text-slate-600 text-[13px]">"{review.comment}"</p>
+                </div>
+              )) : (
                 <div className="py-8 text-center bg-slate-50/50 rounded-2xl border border-dashed border-slate-200">
                   <Zap size={24} className="mx-auto text-slate-200 mb-2" />
                   <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">No ratings yet</p>
@@ -300,100 +251,87 @@ export default function ServiceDetails() {
               )}
             </div>
           </div>
-
         </div>
 
         <div className="lg:col-span-5">
           <div className="bg-white p-6 rounded-md shadow-xl shadow-slate-200/40 border border-slate-100 sticky top-24">
             <div className="flex justify-between items-center mb-6">
               <div>
-                <p className="text-[9px] font-black text-slate-300 uppercase">Hourly Price</p>
-                <p className="text-3xl font-black text-slate-900">₹{service.hourlyRate}<span className="text-[10px] font-medium text-slate-400 ml-1">/hr</span></p>
+                <p className="text-[9px] font-black text-slate-300 uppercase">Price</p>
+                <p className="text-3xl font-black text-slate-900">₹{service.pricing.rate}<span className="text-[20px] font-medium text-slate-400 ml-1">/{service.pricing.unit}</span></p>
               </div>
-              <div className="text-right">
-                <span className="text-[9px] font-bold text-emerald-500 bg-emerald-50 px-2 py-0.5 rounded uppercase">{service.status}</span>
-              </div>
+              <ShieldCheck className="text-emerald-500" size={24} />
             </div>
 
             <div className="space-y-4">
               <div className="space-y-1.5">
-                <label className="text-[10px] font-bold text-slate-400 uppercase ml-1">Choose Date</label>
+                <label className="text-[10px] font-bold text-slate-400 uppercase ml-1">Preferred Date *</label>
                 <input
                   type="date"
                   min={today}
                   value={date}
-                  onChange={(e) => {
-                    const selectedDate = e.target.value;
-                    if (!isDayAvailable(selectedDate)) {
-                      alert(`Provider is not available on ${daysOfWeek[new Date(selectedDate).getDay()]}s`);
-                      setDate("");
-                      return;
-                    }
-                    setDate(selectedDate);
-                    setTime("");
-                  }}
-                  className={`w-full bg-slate-50/50 border p-3 rounded-xl font-bold text-[13px] focus:ring-2 outline-none transition-all ${date && !isDayAvailable(date)
-                    ? 'border-rose-500 ring-rose-50'
-                    : 'border-slate-100 focus:ring-blue-500/10'
-                    }`}
+                  onChange={(e) => setDate(e.target.value)}
+                  className="w-full bg-slate-50 border border-slate-100 p-3 rounded-xl font-bold text-[13px] outline-none focus:border-blue-500 focus:bg-white transition-all"
                 />
-                <p className="text-[9px] text-slate-400 mt-1 ml-1 italic">
-                  Available: {service.availability.map(d => d.slice(0, 3)).join(", ")}
-                </p>
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-[10px] font-bold text-slate-400 uppercase ml-1">Select Time</label>
-                <div className="grid grid-cols-3 gap-1.5">
-                  {timeSlots.map(slot => (
-                    <button
-                      key={slot}
-                      disabled={bookedSlots.includes(slot) || !date}
-                      onClick={() => setTime(slot)}
-                      className={`py-2 rounded-lg text-[11px] font-bold border transition-all
-                        ${time === slot ? 'bg-slate-900 text-white border-slate-900' : 'bg-white text-slate-600 border-slate-100 hover:border-slate-300'}
-                        ${(bookedSlots.includes(slot) || !date) && 'opacity-20 cursor-not-allowed'}
-                      `}
-                    >
-                      {slot}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <div className="space-y-1.5">
-                <label className="text-[10px] font-bold text-slate-400 uppercase ml-1">Work Address</label>
+                <label className="text-[10px] font-bold text-slate-400 uppercase ml-1">Describe the Problem (Optional)</label>
                 <textarea
-                  placeholder="Where is the service needed?"
-                  value={address}
-                  onChange={(e) => setAddress(e.target.value)}
-                  className="w-full bg-slate-50/50 border border-slate-100 p-3 rounded-xl text-[12px] font-medium h-20 resize-none outline-none"
+                  placeholder="e.g. My AC is making a loud noise..."
+                  value={problem}
+                  onChange={(e) => setProblem(e.target.value)}
+                  className="w-full bg-slate-50 border border-slate-100 p-3 rounded-xl text-[12px] font-medium h-24 resize-none outline-none focus:border-blue-400"
+                />
+              </div>
+
+              <div className="space-y-3 pt-2 border-t border-slate-50">
+                <label className="text-[10px] font-bold text-slate-400 uppercase ml-1">Service Location *</label>
+                <div className="grid grid-cols-2 gap-2">
+                  <input
+                    name="houseNo"
+                    value={address.houseNo}
+                    placeholder="House/Flat No."
+                    onChange={handleAddressChange}
+                    className="bg-slate-50 border border-slate-100 p-3 rounded-xl text-[12px] outline-none focus:border-blue-400"
+                  />
+                  <input
+                    name="pincode"
+                    value={address.pincode}
+                    placeholder="Pincode"
+                    onChange={handleAddressChange}
+                    className="bg-slate-50 border border-slate-100 p-3 rounded-xl text-[12px] outline-none focus:border-blue-400"
+                  />
+                </div>
+                <input
+                  name="area"
+                  value={address.area}
+                  placeholder="Area / Street Name"
+                  onChange={handleAddressChange}
+                  className="w-full bg-slate-50 border border-slate-100 p-3 rounded-xl text-[12px] outline-none focus:border-blue-400"
+                />
+                <input
+                  name="landmark"
+                  value={address.landmark}
+                  placeholder="Landmark (Optional)"
+                  onChange={handleAddressChange}
+                  className="w-full bg-slate-50 border border-slate-100 p-3 rounded-xl text-[12px] outline-none focus:border-blue-400"
                 />
               </div>
 
               <button
                 onClick={handleBooking}
-                disabled={loading || !date || !time}
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white py-4 rounded-xl font-black text-[12px] uppercase tracking-widest shadow-lg shadow-blue-200 active:scale-[0.98] disabled:opacity-30 flex items-center justify-center gap-2 mt-2"
+                disabled={loading || !date || !address.houseNo || !address.area}
+                className="w-full bg-blue-600 text-white py-4 rounded-xl font-black text-[12px] uppercase tracking-widest shadow-lg shadow-blue-100 active:scale-95 transition-all disabled:opacity-30 flex items-center justify-center"
               >
-                {loading ? "Booking..." : "Confirm Booking"}
-                <ArrowRight size={14} />
+                {loading ? (
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                ) : "Request Service"}
               </button>
-
-              <div className="flex items-center justify-center gap-1.5 opacity-30 mt-4">
-                <ShieldCheck size={12} />
-                <span className="text-[8px] font-bold uppercase tracking-tighter">Verified Provider & Secure Payment</span>
-              </div>
-
             </div>
-
           </div>
         </div>
-
-
-
       </div>
-
     </div>
   );
 }

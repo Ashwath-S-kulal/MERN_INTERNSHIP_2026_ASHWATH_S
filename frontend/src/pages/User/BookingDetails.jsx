@@ -127,7 +127,7 @@ export default function BookingDetails() {
 
       setBooking((prev) => ({
         ...prev,
-        status: "cancelled",
+        status: "rejected",
         cancellationReason: finalReason
       }));
       setShowCancelModal(false);
@@ -296,16 +296,6 @@ export default function BookingDetails() {
           </div>
         </div>
 
-        {booking.status === "cancelled" && booking.cancellationReason && (
-          <div className="bg-red-50 border border-red-100 p-4 rounded-2xl flex items-start gap-3">
-            <XCircle className="text-red-500 shrink-0 mt-0.5" size={20} />
-            <div>
-              <p className="text-xs font-black uppercase tracking-widest text-red-400 mb-1">Cancellation Reason</p>
-              <p className="text-sm font-bold text-red-700 italic">"{booking.cancellationReason}"</p>
-            </div>
-          </div>
-        )}
-
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <section className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm">
             <h2 className="text-sm font-black uppercase tracking-widest text-gray-400 mb-6 flex items-center gap-2"><User size={16} className="text-blue-500" /> Customer Info</h2>
@@ -322,7 +312,7 @@ export default function BookingDetails() {
           <section className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm">
             <h2 className="text-sm font-black uppercase tracking-widest text-gray-400 mb-6 flex items-center gap-2"><ShieldCheck size={16} className="text-blue-500" /> Service Provider</h2>
             <div className="flex items-center gap-4">
-              <img src={booking.provider?.user?.profilePic || "https://ui-avatars.com/api/?name=P"} className="w-14 h-14 rounded-full object-cover border border-gray-100" alt="Provider" />
+              <img onClick={() => navigate(`/service/${booking.provider._id}`)} src={booking.provider?.user?.profilePic || "https://ui-avatars.com/api/?name=P"} className="cursor-pointer w-14 h-14 rounded-full object-cover border border-gray-100" alt="Provider" />
               <div className="space-y-1">
                 <p className="font-bold text-slate-800">{booking.provider?.user?.firstName} {booking.provider?.user?.lastName}</p>
                 <div className="flex items-center gap-2 text-xs text-gray-500 font-medium"><Mail size={12} /> {booking.provider?.user?.email}</div>
@@ -332,25 +322,49 @@ export default function BookingDetails() {
           </section>
 
           <section className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm">
-            <h2 className="text-sm font-black uppercase tracking-widest text-gray-400 mb-6 flex items-center gap-2"><Info size={16} className="text-blue-500" /> Service Details</h2>
-            <div className="space-y-3">
-              <DetailRow label="Service Type" value={booking.provider?.services?.join(", ")} />
-              <DetailRow label="Title" value={booking.provider?.title} />
-              <DetailRow label="Experience" value={`${booking.provider?.experience} yrs`} />
-              <DetailRow label="Hourly Rate" value={`₹${booking.provider?.hourlyRate}/hr`} />
+            <h2 className="text-sm font-black uppercase tracking-widest text-gray-400 mb-6 flex items-center gap-2">
+              <Info size={16} className="text-blue-500" /> Job Requirements
+            </h2>
+            <div className="space-y-4">
+              <DetailRow label="Service Type" value={booking.serviceType || "General"} />
+              <DetailRow label="Urgency" value={booking.urgency} isPill />
+
+              <div className="mt-4 pt-4 border-t border-gray-50">
+                <p className="text-[10px] font-black uppercase text-gray-400 mb-2">Problem Description</p>
+                <div className="bg-blue-50/50 p-4 rounded-xl border border-blue-100/50">
+                  <p className="text-sm font-semibold text-slate-700 leading-relaxed italic">
+                    "{booking.problemDescription}"
+                  </p>
+                </div>
+              </div>
             </div>
           </section>
 
           <section className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm">
-            <h2 className="text-sm font-black uppercase tracking-widest text-gray-400 mb-6 flex items-center gap-2"><Calendar size={16} className="text-blue-500" /> Appointment Info</h2>
+            <h2 className="text-sm font-black uppercase tracking-widest text-gray-400 mb-6 flex items-center gap-2">
+              <Calendar size={16} className="text-blue-500" /> Appointment Info
+            </h2>
             <div className="space-y-3 mb-4">
-              <DetailRow label="Date" value={ new Date(booking.date).toLocaleDateString('en-GB') }/>
-              <DetailRow label="Time" value={booking.time} />
+              <DetailRow label="Requested Date" value={new Date(booking.date).toLocaleDateString('en-GB')} />
               <DetailRow label="Payment Status" value={booking.paymentStatus} isPill />
             </div>
-            <div className="bg-gray-50 p-3 rounded-xl border border-gray-100">
-              <p className="text-[10px] font-black uppercase text-gray-400 mb-1">Service Address</p>
-              <p className="text-xs font-semibold text-slate-700 leading-relaxed">{booking.address}</p>
+
+            <div className="bg-gray-50 p-4 rounded-xl border border-gray-100">
+              <p className="text-[10px] font-black uppercase text-gray-400 mb-2 flex items-center gap-1">
+                <MapPin size={10} /> Service Address
+              </p>
+              <div className="space-y-1">
+                <p className="text-xs font-bold text-slate-900">
+                  {booking.address?.houseNo}
+                </p>
+                <p className="text-xs font-medium text-slate-600">
+                  {booking.address?.landmark && `Near ${booking.address.landmark}, `}
+                  {booking.address?.area}
+                </p>
+                <p className="text-[10px] font-black text-slate-400 uppercase">
+                  {booking.address?.city} - {booking.address?.pincode}
+                </p>
+              </div>
             </div>
           </section>
         </div>
@@ -366,7 +380,7 @@ export default function BookingDetails() {
           </div>
         )}
 
-        {workerDetails && booking.status !== "cancelled" && (
+        {workerDetails && booking.status !== "rejected" && (
           <section className="bg-indigo-600 rounded-2xl p-6 shadow-lg shadow-indigo-100 text-white relative overflow-hidden">
             <div className="relative z-10">
               <div className="flex items-center gap-2 mb-4">
@@ -417,7 +431,7 @@ export default function BookingDetails() {
         )}
 
 
-        {booking.status === "completed" && booking.hoursWorked > 0  && (
+        {booking.status === "completed" && booking.hoursWorked > 0 && (
           <div className="bg-emerald-50 p-8 rounded-md border border-emerald-100 shadow-sm animate-in zoom-in-95 duration-300 relative group">
             <div className="flex justify-between items-start mb-8">
               <div>
@@ -430,7 +444,9 @@ export default function BookingDetails() {
                 </p>
               </div>
               <div className="text-right">
-                <p className="text-3xl font-black text-emerald-950 leading-none">₹{booking.price?.toLocaleString()}</p>
+                <p className="text-3xl font-black text-emerald-950 leading-none">
+                  ₹{booking.totalAmount?.toLocaleString()}
+                </p>
                 <span className={`text-[10px] font-black uppercase px-3 py-1 rounded-full mt-3 inline-block shadow-sm transition-all duration-500 ${booking.paymentStatus === 'paid'
                   ? 'bg-emerald-500 text-white'
                   : 'bg-amber-400 text-white animate-pulse'
@@ -445,9 +461,27 @@ export default function BookingDetails() {
               <div className="grid grid-cols-2 gap-y-3">
                 <SummaryItem label="Service Rendered" value={booking.serviceType} />
                 <SummaryItem label="Professional" value={workerDetails?.fullname || "Assigned Tech"} />
-                <SummaryItem label="Work Duration" value={`${booking.hoursWorked} Hours`} />
-                <SummaryItem label="Base Rate" value={`₹${booking.price}/hr`} />
-                <SummaryItem label="Location" value={booking.address} className="col-span-2" />
+                <SummaryItem
+                  label="Quantity"
+                  value={`${booking.hoursWorked} ${booking.unit}${booking.hoursWorked > 1 ? 's' : ''}`}
+                />
+                <SummaryItem
+                  label="Rate"
+                  value={`₹${booking.price}/${booking.unit}`}
+                />
+                <SummaryItem label="Location" value={booking.city} className="col-span-2" />
+                {booking.extraCharges?.length > 0 && (
+                  <div className="col-span-2 space-y-1 mt-2 pt-2 border-t border-emerald-100">
+                    <p className="text-[9px] font-black text-emerald-800 uppercase">Additional Parts</p>
+                    {booking.extraCharges.map((ex, i) => (
+                      <div key={i} className="flex justify-between text-[11px] font-bold text-emerald-700">
+                        <span>• {ex.name}</span>
+                        <span>₹{ex.price}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
                 <div className="col-span-2 pt-2 border-t border-emerald-100 mt-1 flex justify-between items-center">
                   <span className="text-[10px] font-black text-slate-500 uppercase">Grand Total</span>
                   <span className="text-lg font-black text-emerald-900">₹{booking.totalAmount?.toLocaleString()}</span>
@@ -474,7 +508,7 @@ export default function BookingDetails() {
       </div>
 
 
-      {booking.status === "completed" && booking.paymentStatus === "paid" &&  (
+      {booking.status === "completed" && booking.paymentStatus === "paid" && (
         <section className="bg-white p-8 mt-10 rounded-2xl border border-blue-100 shadow-sm mb-6 animate-in slide-in-from-bottom-4">
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-3">

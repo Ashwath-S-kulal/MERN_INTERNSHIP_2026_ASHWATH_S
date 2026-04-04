@@ -52,7 +52,7 @@ export default function ProviderDashboard() {
       <main className="max-w-screen mx-auto mt-5">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
           <StatBox label="Total Services" value={profiles.length} sub="Active services" color="blue" />
-          <StatBox label="Avg. Hourly Rate" value={`₹${profiles.length ? Math.round(profiles.reduce((acc, curr) => acc + curr.hourlyRate, 0) / profiles.length) : 0}`} sub="Market average" color="emerald" />
+          <StatBox label="Avg. Rate" value={`₹${profiles.length ? Math.round(profiles.reduce((acc, curr) => acc + curr.pricing.rate, 0) / profiles.length) : 0}`} sub="Market average" color="emerald" />
           <StatBox label="Experience Range" value={`${Math.min(...profiles.map(p => p.experience || 0))} - ${Math.max(...profiles.map(p => p.experience || 0))} yrs`} sub="Professional depth" color="purple" />
         </div>
 
@@ -129,7 +129,7 @@ export default function ProviderDashboard() {
                 <div className="flex items-center justify-between md:justify-end gap-6 border-t md:border-t-0 pt-3 md:pt-0">
                   <div className="text-left md:text-right">
                     <p className="text-xl font-black text-slate-900 leading-none">
-                      ₹{job.hourlyRate}<span className="text-[10px] text-slate-400 font-bold tracking-normal">/hr</span>
+                      ₹{job.pricing.rate}<span className="text-[10px] text-slate-400 font-bold tracking-normal"> /{job.pricing.unit}</span>
                     </p>
                     <p className="text-[9px] font-black text-slate-400 uppercase mt-1 tracking-widest">
                       {job.status === 'approved' ? 'Earnings Rate' : 'Estimated Rate'}

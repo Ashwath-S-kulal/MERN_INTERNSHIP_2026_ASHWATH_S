@@ -147,8 +147,8 @@ export default function ServicesPage() {
                             </div>
                           </td>
                           <td className="px-6 py-5">
-                            <span className="text-lg font-black text-slate-900">₹{p.hourlyRate}</span>
-                            <span className="text-[10px] text-slate-400 font-bold ml-1 italic">/hr</span>
+                            <span className="text-lg font-black text-slate-900">₹{p.pricing.rate}</span>
+                            <span className="text-[10px] text-slate-400 font-bold ml-1 italic">/{p.pricing.unit}</span>
                           </td>
                           <td className="px-6 py-5 text-right">
                             <button

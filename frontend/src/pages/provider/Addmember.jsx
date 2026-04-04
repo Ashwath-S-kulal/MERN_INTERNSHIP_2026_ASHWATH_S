@@ -92,7 +92,7 @@ export default function ProviderTeam() {
     };
 
     return (
-        <div className="min-h-screen bg-slate-50 font-sans text-slate-900">
+        <div className=" bg-slate-50 font-sans text-slate-900">
             <main className="max-w-screen mx-auto py-8 pt-0">
                 <div className="grid grid-cols-1 lg:grid-cols-12">
 
@@ -135,7 +135,7 @@ export default function ProviderTeam() {
                         </div>
                     </div>
 
-                    <div className="lg:col-span-8 space-y-6">
+                    <div className="lg:col-span-8 space-y-3">
                         <div className="w-full bg-white rounded-md border border-slate-200 shadow-sm p-8 py-6 overflow-hidden relative group">
                             <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-8 md:gap-4 divide-y md:divide-y-0 md:divide-x divide-slate-100">
                                 <div className="w-full md:w-1/4 flex flex-col items-center md:items-start px-4">
@@ -155,7 +155,7 @@ export default function ProviderTeam() {
                             </div>
                         </div>
 
-                        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm max-h-[500px] overflow-y-auto">
                             <div className="p-6 border-b border-slate-100 flex items-center justify-between">
                                 <h3 className="font-bold">Team Directory</h3>
                                 <span className="text-xs font-bold px-2 py-1 bg-indigo-50 text-indigo-600 rounded-md">Live Data</span>
@@ -174,7 +174,7 @@ export default function ProviderTeam() {
                                     <p className="text-slate-500 font-medium text-sm">No members found. Use the form to add your team.</p>
                                 </div>
                             ) : (
-                                <div className="divide-y divide-slate-100">
+                                <div className="divide-y divide-slate-100 ">
                                     {members.map((member) => (
                                         <div key={member._id} className="p-4 flex items-center justify-between hover:bg-slate-50 transition-colors group">
                                             <div className="flex items-center gap-4">

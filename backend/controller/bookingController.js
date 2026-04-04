@@ -3,48 +3,53 @@ import { ServiceProvider } from "../models/serviceProviderModel.js";
 
 export const createBooking = async (req, res) => {
   try {
-    const { providerId, date, time, address } = req.body;
+    const { 
+      providerId, 
+      date, 
+      problemDescription, 
+      address, 
+      urgency ,
+      unit,
+    } = req.body;
 
-    if (!providerId || !date || !time || !address) {
-      return res.status(400).json({ message: "All fields required" });
+    if (!providerId || !date || !problemDescription || !address?.houseNo || !address?.area) {
+      return res.status(400).json({ 
+        message: "Please provide the date, problem details, and full address." 
+      });
     }
 
     const provider = await ServiceProvider.findById(providerId);
-
     if (!provider) {
       return res.status(404).json({ message: "Provider not found" });
-    }
-
-    const existingBooking = await Booking.findOne({
-      provider: provider._id,
-      date,
-      time,
-      status: { $in: ["pending", "accepted", "in_progress"] },
-    });
-
-    if (existingBooking) {
-      return res.status(400).json({
-        message: " This slot is already booked",
-      });
     }
 
     const booking = await Booking.create({
       user: req.user.id,
       provider: provider._id,
       date,
-      time,
-      address,
-      price: provider.hourlyRate,
-      serviceType: provider.services?.[0] || "general",
+      problemDescription, 
+      urgency: urgency || "medium", 
+      address: {
+        houseNo: address.houseNo,
+        landmark: address.landmark,
+        area: address.area,
+        pincode: address.pincode,
+        city: address.city || provider.city 
+      },
+      price: provider.pricing?.rate || provider.hourlyRate || 0,
+      unit: unit || provider.pricing?.unit || "hr",
+      serviceType: provider.services?.[0] || "General Service",
+      status: "pending",
     });
 
     res.status(201).json({
-      message: " Booking created",
+      message: "Service request sent successfully!",
       booking,
     });
+
   } catch (err) {
     console.error("Booking Error:", err);
-    res.status(500).json({ message: "Error creating booking" });
+    res.status(500).json({ message: "Internal server error while creating request" });
   }
 };
 
@@ -253,33 +258,47 @@ export const getAllBookingsAdmin = async (req, res) => {
 export const settleBooking = async (req, res) => {
   try {
     const { id } = req.params;
-    const { hoursWorked } = req.body;
-
-    if (!hoursWorked || hoursWorked <= 0) {
-      return res
-        .status(400)
-        .json({ message: "Valid hours worked is required" });
-    }
-
+    const { quantity, extraCharges } = req.body; 
     const booking = await Booking.findById(id);
+
     if (!booking) return res.status(404).json({ message: "Booking not found" });
 
-    // Calculate total: hours * hourly rate (price)
-    const totalAmount = parseFloat(hoursWorked) * booking.price;
+    let baseAmount = 0;
+    let finalQuantity = parseFloat(quantity) || 0;
+
+    if (booking.unit === "visit") {
+      baseAmount = booking.price;
+      finalQuantity = 1; 
+    } else {
+      if (!finalQuantity || finalQuantity <= 0) {
+        return res.status(400).json({ 
+          message: `Valid ${booking.unit} count is required for this service.` 
+        });
+      }
+      baseAmount = finalQuantity * booking.price;
+    }
+
+    const extrasTotal = Array.isArray(extraCharges) 
+      ? extraCharges.reduce((sum, item) => sum + (parseFloat(item.price) || 0), 0)
+      : 0;
+
+    const totalAmount = baseAmount + extrasTotal;
 
     const updatedBooking = await Booking.findByIdAndUpdate(
       id,
       {
-        hoursWorked: parseFloat(hoursWorked),
+        hoursWorked: finalQuantity, 
+        extraCharges: extraCharges || [], 
         totalAmount: totalAmount,
         isSettled: true,
         updatedAt: Date.now(),
       },
-      { new: true },
+      { new: true }
     );
 
     res.status(200).json({ success: true, booking: updatedBooking });
   } catch (error) {
+    console.error("Settlement Error:", error);
     res.status(500).json({ message: error.message });
   }
 };
