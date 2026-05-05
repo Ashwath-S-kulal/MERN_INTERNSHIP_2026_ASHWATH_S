@@ -17,7 +17,7 @@ export default function ProviderDirectory() {
   useEffect(() => {
     const fetchAll = async () => {
       try {
-        const res = await axios.get("http://localhost:8000/api/admin/allprovider", {
+        const res = await axios.get(`${import.meta.env.VITE_BASE_URI}/api/admin/allprovider`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         setProviders(res.data);
@@ -33,7 +33,7 @@ export default function ProviderDirectory() {
 
   const handleApprove = async (id, newStatus) => {
     try {
-      await axios.patch(`http://localhost:8000/api/admin/approve/${id}`,
+      await axios.patch(`${import.meta.env.VITE_BASE_URI}/api/admin/approve/${id}`,
         { status: newStatus },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -48,7 +48,7 @@ export default function ProviderDirectory() {
 
   const handleReject = async (id, newStatus) => {
     try {
-      await axios.patch(`http://localhost:8000/api/admin/reject/${id}`,
+      await axios.patch(`${import.meta.env.VITE_BASE_URI}/api/admin/reject/${id}`,
         { status: newStatus },
         { headers: { Authorization: `Bearer ${token}` } }
       );

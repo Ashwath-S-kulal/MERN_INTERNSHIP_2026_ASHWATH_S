@@ -15,7 +15,7 @@ export default function AdminBookings() {
     const fetchAllBookings = async () => {
       const token = localStorage.getItem("accessToken");
       try {
-        const res = await axios.get("http://localhost:8000/api/booking/allbookings", {
+        const res = await axios.get(`${import.meta.env.VITE_BASE_URI}/api/booking/allbookings`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         setBookings(res.data);

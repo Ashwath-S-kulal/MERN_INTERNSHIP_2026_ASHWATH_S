@@ -30,7 +30,7 @@ const AllUsers = () => {
         return;
       }
       try {
-        const res = await axios.get(`/api/admin/alluser`, {
+        const res = await axios.get(`${import.meta.env.VITE_BASE_URI}/api/admin/alluser`, {
           headers: { Authorization: `Bearer ${accessToken}` },
         });
         setUsers(res.data.users);
@@ -48,7 +48,7 @@ const AllUsers = () => {
     if (!window.confirm(`Permanently delete ${user.firstName}'s account? This cannot be undone.`)) return;
 
     try {
-      const res = await fetch(`/api/admin/deleteuser/${user._id}`, {
+      const res = await fetch(`${import.meta.env.VITE_BASE_URI}/api/admin/deleteuser/${user._id}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${accessToken}` },
       });
@@ -83,7 +83,7 @@ const AllUsers = () => {
     e.preventDefault();
     setLoading(true);
     try {
-      const res = await axios.put(`/api/admin/updateuser/${userId}`, 
+      const res = await axios.put(`${import.meta.env.VITE_BASE_URI}/api/admin/updateuser/${userId}`, 
         { role: updateUser.role }, 
         { headers: { Authorization: `Bearer ${accessToken}` } }
       );

@@ -20,7 +20,7 @@ export default function AdminProviderRequests() {
   const fetchProviders = async () => {
     try {
       setLoading(true);
-      const res = await axios.get("http://localhost:8000/api/admin/allprovider", {
+      const res = await axios.get(`${import.meta.env.VITE_BASE_URI}/api/admin/allprovider`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setProviders(res.data);
@@ -44,7 +44,7 @@ export default function AdminProviderRequests() {
 
     try {
       setActionId(id);
-      await axios.patch(`http://localhost:8000/api/admin/${endpoint}/${id}`,
+      await axios.patch(`${import.meta.env.VITE_BASE_URI}/api/admin/${endpoint}/${id}`,
         { status: newStatus },
         { headers: { Authorization: `Bearer ${token}` } }
       );

@@ -15,7 +15,7 @@ export default function AdminReviews() {
 
   const fetchReviews = async () => {
     try {
-      const res = await axios.get("http://localhost:8000/api/reviews/admin/all", {
+      const res = await axios.get(`${import.meta.env.VITE_BASE_URI}/api/reviews/admin/all`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setReviews(res.data.reviews);
@@ -29,7 +29,7 @@ export default function AdminReviews() {
   const handleDelete = async (id) => {
     if (!window.confirm("Delete this review permanently?")) return;
     try {
-      await axios.delete(`http://localhost:8000/api/reviews/admin/delete/${id}`, {
+      await axios.delete(`${import.meta.env.VITE_BASE_URI}/api/reviews/admin/delete/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setReviews(reviews.filter((r) => r._id !== id));

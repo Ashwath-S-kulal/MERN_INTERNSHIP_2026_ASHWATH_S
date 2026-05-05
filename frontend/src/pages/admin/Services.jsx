@@ -18,7 +18,7 @@ export default function ServicesPage() {
     const fetchAll = async () => {
       const token = localStorage.getItem("accessToken");
       try {
-        const res = await axios.get("http://localhost:8000/api/admin/allprovider", {
+        const res = await axios.get(`${import.meta.env.VITE_BASE_URI}/api/admin/allprovider`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         const rawData = Array.isArray(res.data) ? res.data : res.data.providers || [];

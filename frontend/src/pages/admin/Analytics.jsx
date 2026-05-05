@@ -21,10 +21,10 @@ const AdminAnalytics = () => {
     const fetchAdminData = async () => {
       try {
         const [bookRes, userRes, provRes, revRes] = await Promise.all([
-          axios.get("http://localhost:8000/api/booking/allbookings", { headers: { Authorization: `Bearer ${token}` } }),
-          axios.get("/api/admin/alluser", { headers: { Authorization: `Bearer ${token}` } }),
-          axios.get("http://localhost:8000/api/admin/allprovider", { headers: { Authorization: `Bearer ${token}` } }),
-          axios.get("http://localhost:8000/api/reviews/admin/all", { headers: { Authorization: `Bearer ${token}` } })
+          axios.get(`${import.meta.env.VITE_BASE_URI}/api/booking/allbookings`, { headers: { Authorization: `Bearer ${token}` } }),
+          axios.get(`${import.meta.env.VITE_BASE_URI}/api/admin/alluser`, { headers: { Authorization: `Bearer ${token}` } }),
+          axios.get(`${import.meta.env.VITE_BASE_URI}/api/admin/allprovider`, { headers: { Authorization: `Bearer ${token}` } }),
+          axios.get(`${import.meta.env.VITE_BASE_URI}/api/reviews/admin/all`, { headers: { Authorization: `Bearer ${token}` } })
         ]);
 
         setData({
