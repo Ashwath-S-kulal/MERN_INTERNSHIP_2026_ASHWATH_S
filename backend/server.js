@@ -52,16 +52,20 @@ import reviewRoutes from "./routes/reviewRoutes.js";
 import cors from "cors";
 
 dotenv.config();
+
 const app = express();
+
 connectDB();
+
 app.use(express.json());
+
 app.use(cors({
   origin: process.env.FRONTEND_URI,
   credentials: true,
 }));
 
 app.get("/", (req, res) => {
-  res.send("Backend running on Vercel 🚀");
+  res.send("Backend running on Vercel");
 });
 
 app.use("/api/user", userRoute);
