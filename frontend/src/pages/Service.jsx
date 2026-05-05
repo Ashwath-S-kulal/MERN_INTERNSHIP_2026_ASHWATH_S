@@ -24,7 +24,7 @@ export default function ServiceExplorer() {
     const fetchServices = async () => {
       const token = localStorage.getItem("accessToken");
       try {
-        const res = await axios.get("http://localhost:8000/api/user/getallservices", {
+        const res = await axios.get(`${import.meta.env.VITE_BASE_URI}/api/user/getallservices`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         setServices(Array.isArray(res.data) ? res.data : []);

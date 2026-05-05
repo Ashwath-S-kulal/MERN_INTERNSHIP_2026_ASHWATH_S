@@ -28,7 +28,7 @@ export default function AsymmetricUserLayout() {
     const fetchUser = async () => {
       try {
         if (authUser?._id) {
-          const res = await axios.get(`/api/user/getuserbyid/${authUser._id}`);
+          const res = await axios.get(`${import.meta.env.VITE_BASE_URI}/api/user/getuserbyid/${authUser._id}`);
           if (res.data.success) {
             setUserDetails(res.data.user);
           }
@@ -51,7 +51,7 @@ export default function AsymmetricUserLayout() {
    const logoutHandler = async () => {
     try {
       const res = await axios.post(
-        `/api/user/logout`,
+        `${import.meta.env.VITE_BASE_URI}/api/user/logout`,
         {},
         {
           headers: {

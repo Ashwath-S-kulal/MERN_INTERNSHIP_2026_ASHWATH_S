@@ -58,7 +58,7 @@ export default function SignUp() {
     const handleResendOTP = async () => {
         try {
             setResending(true);
-            const res = await axios.post(`/api/user/resendotp`, {
+            const res = await axios.post(`${import.meta.env.VITE_BASE_URI}/api/user/resendotp`, {
                 email: formData.email
             });
 
@@ -82,7 +82,7 @@ export default function SignUp() {
         }
         try {
             setLoading(true);
-            const res = await axios.post(`/api/user/register`, formData);
+            const res = await axios.post(`${import.meta.env.VITE_BASE_URI}/api/user/register`, formData);
             if (res.data.success) {
                 toast.success("Verification code sent!");
                 setStep(2);
@@ -101,7 +101,7 @@ export default function SignUp() {
         if (timeLeft === 0) return toast.error("OTP Expired. Please resend code.");
         try {
             setLoading(true);
-            const res = await axios.post(`/api/user/verifysignup`, {
+            const res = await axios.post(`${import.meta.env.VITE_BASE_URI}/api/user/verifysignup`, {
                 email: formData.email,
                 otp: otp
             });

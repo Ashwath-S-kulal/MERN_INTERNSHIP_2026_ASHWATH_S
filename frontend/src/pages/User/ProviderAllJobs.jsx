@@ -21,7 +21,7 @@ export default function ProviderAllJobs() {
     useEffect(() => {
         const fetchProfiles = async () => {
             try {
-                const res = await axios.get(`http://localhost:8000/api/serviceprovider/provider/${id}`, {
+                const res = await axios.get(`${import.meta.env.VITE_BASE_URI}/api/serviceprovider/provider/${id}`, {
                     headers: { Authorization: `Bearer ${token}` }
                 });
                 if (res.data.success) {

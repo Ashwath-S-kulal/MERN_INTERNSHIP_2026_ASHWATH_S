@@ -32,10 +32,10 @@ export default function ServiceDetails() {
       const token = localStorage.getItem("accessToken");
       try {
         const [serviceRes, reviewRes] = await Promise.all([
-          axios.get(`http://localhost:8000/api/user/getservicebyid/${id}`, {
+          axios.get(`${import.meta.env.VITE_BASE_URI}/api/user/getservicebyid/${id}`, {
             headers: { Authorization: `Bearer ${token}` },
           }),
-          axios.get(`http://localhost:8000/api/reviews/provider/${id}`, {
+          axios.get(`${import.meta.env.VITE_BASE_URI}/api/reviews/provider/${id}`, {
             headers: { Authorization: `Bearer ${token}` },
           })
         ]);
@@ -72,7 +72,7 @@ export default function ServiceDetails() {
     const token = localStorage.getItem("accessToken");
     try {
       setLoading(true);
-      await axios.post("http://localhost:8000/api/booking/create", {
+      await axios.post(`${import.meta.env.VITE_BASE_URI}/api/booking/create`, {
         providerId: service._id,
         date,
         problemDescription: problem || "No specific problem described",

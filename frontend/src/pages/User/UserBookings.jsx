@@ -15,7 +15,7 @@ export default function UserBookings() {
 
   const fetchBookings = async () => {
     try {
-      const res = await axios.get("http://localhost:8000/api/booking/user", {
+      const res = await axios.get(`${import.meta.env.VITE_BASE_URI}/api/booking/user`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setBookings(res.data);

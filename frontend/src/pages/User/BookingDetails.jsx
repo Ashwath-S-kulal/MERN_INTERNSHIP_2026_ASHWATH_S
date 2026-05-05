@@ -44,7 +44,7 @@ export default function BookingDetails() {
       try {
         setLoading(true);
         const res = await axios.get(
-          `http://localhost:8000/api/booking/single/${id}`,
+          `${import.meta.env.VITE_BASE_URI}/api/booking/single/${id}`,
           { headers: { Authorization: `Bearer ${token}` } }
         );
         const bookingData = res.data;
@@ -53,7 +53,7 @@ export default function BookingDetails() {
         if (bookingData.assignedWorker) {
           try {
             const workerRes = await axios.get(
-              `http://localhost:8000/api/member/getbyid/${bookingData.assignedWorker}`,
+              `${import.meta.env.VITE_BASE_URI}/api/member/getbyid/${bookingData.assignedWorker}`,
               { headers: { Authorization: `Bearer ${token}` } }
             );
             if (workerRes.data && workerRes.data.member) {
@@ -79,7 +79,7 @@ export default function BookingDetails() {
       if (id && booking?.status === "completed") {
         try {
           const res = await axios.get(
-            `http://localhost:8000/api/reviews/booking/${id}`,
+            `${import.meta.env.VITE_BASE_URI}/api/reviews/booking/${id}`,
             { headers: { Authorization: `Bearer ${token}` } }
           );
 
@@ -116,7 +116,7 @@ export default function BookingDetails() {
     try {
       setCancelLoading(true);
       await axios.put(
-        `http://localhost:8000/api/booking/cancel/${booking._id}`,
+        `${import.meta.env.VITE_BASE_URI}/api/booking/cancel/${booking._id}`,
         {
           status: "rejected",
           cancellationReason: finalReason,
@@ -161,8 +161,8 @@ export default function BookingDetails() {
       setReviewLoading(true);
 
       const url = hasReviewed
-        ? `http://localhost:8000/api/reviews/update/booking/${booking._id}`
-        : `http://localhost:8000/api/reviews/create`;
+        ? `${import.meta.env.VITE_BASE_URI}/api/reviews/update/booking/${booking._id}`
+        : `${import.meta.env.VITE_BASE_URI}/api/reviews/create`;
 
       const method = hasReviewed ? "put" : "post";
       const res = await axios[method](

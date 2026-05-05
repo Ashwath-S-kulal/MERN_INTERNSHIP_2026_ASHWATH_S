@@ -18,7 +18,7 @@ const Homepage = () => {
     if (!activeUserId || !token) return;
 
     try {
-      const res = await axios.get(`http://localhost:8000/api/user/getuserbyid/${activeUserId}`, {
+      const res = await axios.get(`${import.meta.env.VITE_BASE_URI}/api/user/getuserbyid/${activeUserId}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (res.data.success) {
@@ -35,7 +35,7 @@ const Homepage = () => {
   const fetchServices = async () => {
     const token = localStorage.getItem("accessToken");
     try {
-      const res = await axios.get("http://localhost:8000/api/user/getallservices", {
+      const res = await axios.get(`${import.meta.env.VITE_BASE_URI}/api/user/getallservices`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 

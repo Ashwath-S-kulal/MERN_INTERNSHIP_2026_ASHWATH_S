@@ -37,7 +37,7 @@ export default function Login() {
     e.preventDefault()
     setLoading(true)
     try {
-      const res = await axios.post(`/api/user/login`, formData)
+      const res = await axios.post(`${import.meta.env.VITE_BASE_URI}/api/user/login`, formData)
       if (res.data.success) {
         toast.success(res.data.message)
         dispatch(setUser(res.data.user))
@@ -55,7 +55,7 @@ export default function Login() {
     e.preventDefault()
     setLoading(true)
     try {
-      const res = await axios.post(`/api/user/forgotpassword`, { email: formData.email })
+      const res = await axios.post(`${import.meta.env.VITE_BASE_URI}/api/user/forgotpassword`, { email: formData.email })
       if (res.data.success) {
         toast.success("OTP sent to your email")
         setMode("verify")
@@ -71,7 +71,7 @@ export default function Login() {
     e.preventDefault()
     setLoading(true)
     try {
-      const res = await axios.post(`/api/user/verifyotp/${formData.email}`, { otp })
+      const res = await axios.post(`${import.meta.env.VITE_BASE_URI}/api/user/verifyotp/${formData.email}`, { otp })
       if (res.data.success) {
         toast.success("OTP Verified")
         setMode("reset")
@@ -88,7 +88,7 @@ export default function Login() {
     if(newPasswords.newPassword !== newPasswords.confirmPassword) return toast.error("Passwords match error");
     setLoading(true)
     try {
-      const res = await axios.post(`/api/user/changepassword/${formData.email}`, newPasswords)
+      const res = await axios.post(`${import.meta.env.VITE_BASE_URI}/api/user/changepassword/${formData.email}`, newPasswords)
       if (res.data.success) {
         toast.success("Password updated successfully!")
         setMode("login")

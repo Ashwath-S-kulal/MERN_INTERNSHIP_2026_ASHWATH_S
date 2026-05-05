@@ -20,7 +20,7 @@ export default function ServiceDetailsPage() {
         const fetchService = async () => {
             const token = localStorage.getItem("accessToken");
             try {
-                const res = await axios.get(`http://localhost:8000/api/user/getservicebyid/${id}`, {
+                const res = await axios.get(`${import.meta.env.VITE_BASE_URI}/api/user/getservicebyid/${id}`, {
                     headers: { Authorization: `Bearer ${token}` },
                 });
                 setService(res.data);
@@ -39,14 +39,14 @@ export default function ServiceDetailsPage() {
             const token = localStorage.getItem("accessToken");
             try {
                 // Fetch Service Details
-                const res = await axios.get(`http://localhost:8000/api/user/getservicebyid/${id}`, {
+                const res = await axios.get(`${import.meta.env.VITE_BASE_URI}/api/user/getservicebyid/${id}`, {
                     headers: { Authorization: `Bearer ${token}` },
                 });
                 setService(res.data);
                 if (res.data.images?.length > 0) setActiveImg(res.data.images[0].url);
 
                 // Fetch Reviews for this Provider
-                const reviewRes = await axios.get(`http://localhost:8000/api/reviews/provider/${id}`, {
+                const reviewRes = await axios.get(`${import.meta.env.VITE_BASE_URI}/api/reviews/provider/${id}`, {
                     headers: { Authorization: `Bearer ${token}` },
                 });
                 setReviews(reviewRes.data.data);

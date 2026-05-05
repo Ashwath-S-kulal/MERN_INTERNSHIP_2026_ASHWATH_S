@@ -65,7 +65,7 @@ export default function SimpleApplyForService() {
 
       images.forEach((file) => formData.append("files", file));
 
-      await axios.post("http://localhost:8000/api/serviceProvider/applyprovider", formData, {
+      await axios.post(`${import.meta.env.VITE_BASE_URI}/api/serviceProvider/applyprovider`, formData, {
         headers: {
           Authorization: `Bearer ${accessToken}`,
           "Content-Type": "multipart/form-data"
