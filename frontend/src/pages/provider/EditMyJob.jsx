@@ -27,7 +27,7 @@ export default function ProviderProfile() {
     const fetchProfile = async () => {
         try {
             setLoading(true);
-            const res = await axios.get(`/api/serviceprovider/singleprovider/${proid}`, {
+            const res = await axios.get(`${import.meta.env.VITE_BASE_URI}/api/serviceprovider/singleprovider/${proid}`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             const data = res.data.provider || (res.data.providers ? res.data.providers[0] : null);
@@ -111,7 +111,7 @@ export default function ProviderProfile() {
                 }
             });
 
-            const res = await axios.put(`http://localhost:8000/api/serviceprovider/update/${proid}`, formData, {
+            const res = await axios.put(`${import.meta.env.VITE_BASE_URI}/api/serviceprovider/update/${proid}`, formData, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                     "Content-Type": "multipart/form-data"

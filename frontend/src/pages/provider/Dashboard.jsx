@@ -27,9 +27,9 @@ const ProviderAnalytics = () => {
       if (!user?._id) return;
       try {
         const [b, p, r] = await Promise.all([
-          axios.get("http://localhost:8000/api/booking/provider", { headers: { Authorization: `Bearer ${token}` } }),
-          axios.get(`http://localhost:8000/api/serviceprovider/provider/${user._id}`, { headers: { Authorization: `Bearer ${token}` } }),
-          axios.get(`http://localhost:8000/api/reviews/providerreviews/${user._id}`, { headers: { Authorization: `Bearer ${token}` } })
+          axios.get(`${import.meta.env.VITE_BASE_URI}/api/booking/provider`, { headers: { Authorization: `Bearer ${token}` } }),
+          axios.get(`${import.meta.env.VITE_BASE_URI}/api/serviceprovider/provider/${user._id}`, { headers: { Authorization: `Bearer ${token}` } }),
+          axios.get(`${import.meta.env.VITE_BASE_URI}/api/reviews/providerreviews/${user._id}`, { headers: { Authorization: `Bearer ${token}` } })
         ]);
         setBookings(b.data || []);
         setProfiles(p.data.providers || []);

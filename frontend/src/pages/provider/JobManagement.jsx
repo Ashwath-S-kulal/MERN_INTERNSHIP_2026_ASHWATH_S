@@ -34,8 +34,8 @@ export default function OrderDetails() {
     const loadOrderData = async () => {
         try {
             const [bookRes, memRes] = await Promise.all([
-                axios.get(`http://localhost:8000/api/booking/single/${id}`, { headers: { Authorization: `Bearer ${token}` } }),
-                axios.get("http://localhost:8000/api/member/all", { headers: { Authorization: `Bearer ${token}` } })
+                axios.get(`${import.meta.env.VITE_BASE_URI}/api/booking/single/${id}`, { headers: { Authorization: `Bearer ${token}` } }),
+                axios.get(`${import.meta.env.VITE_BASE_URI}/api/member/all`, { headers: { Authorization: `Bearer ${token}` } })
             ]);
             const data = bookRes.data.booking || bookRes.data;
             setBooking(data);
@@ -57,7 +57,7 @@ export default function OrderDetails() {
 
     const updateStatus = async (status, extraData = {}) => {
         try {
-            await axios.put(`http://localhost:8000/api/booking/status/${id}`,
+            await axios.put(`${import.meta.env.VITE_BASE_URI}/api/booking/status/${id}`,
                 { status, ...extraData },
                 { headers: { Authorization: `Bearer ${token}` } }
             );
@@ -70,7 +70,7 @@ export default function OrderDetails() {
 
     const cancelOrder = async (status, extraData = {}) => {
         try {
-            await axios.put(`http://localhost:8000/api/booking/cancel/${id}`,
+            await axios.put(`${import.meta.env.VITE_BASE_URI}/api/booking/cancel/${id}`,
                 { status, ...extraData },
                 { headers: { Authorization: `Bearer ${token}` } }
             );
@@ -91,7 +91,7 @@ export default function OrderDetails() {
         if (!selectedWorker) return;
         setIsAssigning(true);
         try {
-            await axios.put("http://localhost:8000/api/booking/memberassign",
+            await axios.put(`${import.meta.env.VITE_BASE_URI}/api/booking/memberassign`,
                 { bookingId: id, workerId: selectedWorker },
                 { headers: { Authorization: `Bearer ${token}` } }
             );

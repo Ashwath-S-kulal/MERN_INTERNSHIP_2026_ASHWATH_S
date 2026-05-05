@@ -17,7 +17,7 @@ export default function JobControlCenter() {
     const loadStats = async () => {
       try {
         const token = localStorage.getItem("accessToken");
-        const res = await axios.get("http://localhost:8000/api/booking/provider", {
+        const res = await axios.get(`${import.meta.env.VITE_BASE_URI}/api/booking/provider`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         setBookings(res.data);

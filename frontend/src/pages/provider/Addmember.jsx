@@ -25,7 +25,7 @@ export default function ProviderTeam() {
 
     const fetchMembers = async () => {
         try {
-            const res = await axios.get("http://localhost:8000/api/member/all", {
+            const res = await axios.get(`${import.meta.env.VITE_BASE_URI}/api/member/all`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             if (res.data.success) setMembers(res.data.members);
@@ -58,7 +58,7 @@ export default function ProviderTeam() {
         if (selectedFile) data.append("file", selectedFile);
 
         try {
-            const res = await axios.post("http://localhost:8000/api/member/add", data, {
+            const res = await axios.post(`${import.meta.env.VITE_BASE_URI}/api/member/add`, data, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                     "Content-Type": "multipart/form-data"
@@ -81,7 +81,7 @@ export default function ProviderTeam() {
     const deleteMember = async (id) => {
         if (!window.confirm("Remove this member?")) return;
         try {
-            await axios.delete(`http://localhost:8000/api/member/delete/${id}`, {
+            await axios.delete(`${import.meta.env.VITE_BASE_URI}/api/member/delete/${id}`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             setMembers(members.filter(m => m._id !== id));
