@@ -1,6 +1,24 @@
 import React, { useState } from "react";
 import { Link, NavLink } from "react-router-dom";
-import { LogOut, Menu, X, Home, Briefcase, LayoutDashboard } from "lucide-react";
+import {
+  LogOut,
+  Menu,
+  X,
+  Home,
+  Briefcase,
+  LayoutDashboard,
+  LayoutGrid,
+  IndianRupee,
+  Users2Icon,
+  User,
+  Wrench,
+  ClipboardList,
+  Users,
+  ShieldCheck,
+  Star,
+  BarChart3,
+  ArrowUpRight,
+} from "lucide-react";
 import { Button } from "./ui/button";
 import axios from "axios";
 import { toast } from "sonner";
@@ -38,16 +56,53 @@ export default function Navbar() {
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
 
   const navLinkStyles = ({ isActive }) =>
-    `px-4 py-2 md:py-1.5 rounded-md transition-all flex items-center gap-3 md:block ${isActive
-      ? "bg-blue-50 md:bg-zinc-100 text-blue-600 md:text-black"
-      : "text-zinc-600 md:text-zinc-500 hover:text-black hover:bg-zinc-50"
+    `px-4 py-2 md:py-1.5 rounded-md transition-all flex items-center gap-3 md:block ${
+      isActive
+        ? "bg-blue-50 md:bg-zinc-100 text-blue-600 md:text-black"
+        : "text-zinc-600 md:text-zinc-500 hover:text-black hover:bg-zinc-50"
     }`;
 
-  const dashboardRoute = user?.role === "admin"
-    ? "/dashboard/request"
-    : user?.role === "provider"
+  // Logic for dynamic routes based on roles
+  const dashboardRoute =
+    user?.role === "admin"
+      ? "/dashboard/request"
+      : user?.role === "provider"
       ? "/provider/dashboardpro"
       : "/userdashboard/overview";
+
+  const getRoleBasedItems = () => {
+    if (user?.role === "provider") {
+      return [
+        { name: "Dashboard", path: "/provider/dashboardpro", icon: <LayoutGrid size={20} /> },
+        { name: "Bookings", path: "/provider/bookings", icon: <IndianRupee size={20} /> },
+        { name: "Team Members", path: "/provider/addmember", icon: <Users2Icon size={20} /> },
+        { name: "My Jobs", path: `/provider/myjob/${user?._id}`, icon: <Briefcase size={20} /> },
+        { name: "Application", path: "/provider/applyforservice", icon: <LayoutGrid size={20} /> },
+        { name: "Profile", path: `/provider/profile/${user?._id}`, icon: <User size={20} /> },
+      ];
+    }
+    if (user?.role === "admin") {
+      return [
+        { name: "Requests", path: "/dashboard/request", icon: <LayoutDashboard size={18} /> },
+        { name: "Providers", path: "/dashboard/providers", icon: <Wrench size={18} /> },
+        { name: "Bookings", path: "/dashboard/bookings", icon: <ClipboardList size={18} /> },
+        { name: "Customers", path: "/dashboard/customers", icon: <Users size={18} /> },
+        { name: "Services", path: "/dashboard/services", icon: <ShieldCheck size={18} /> },
+        { name: "Reviews", path: "/dashboard/reviews", icon: <Star size={18} /> },
+        { name: "Analytics", path: "/dashboard/analytics", icon: <BarChart3 size={18} /> },
+        { name: "Profile", path: `/dashboard/profile/${user?._id}`, icon: <User size={20} /> },
+      ];
+    }
+    if (user?.role === "user") {
+      return [
+        { name: "Apply for provider", path:"/userdashboard/applyforservice", icon: <ArrowUpRight size={18} /> },
+        { name: "Profile", path: `/userdashboard/profile/${User?._id}`, icon: <User size={20} /> },
+      ];
+    }
+    return [];
+  };
+
+  const roleItems = getRoleBasedItems();
 
   return (
     <div>
@@ -56,11 +111,7 @@ export default function Navbar() {
           <div className="flex-1 flex justify-start">
             <Link to="/" className="group flex items-center gap-2.5 outline-none">
               <div className="w-10 h-10 rounded-full flex items-center justify-center shadow-lg shadow-blue-900/20 group-hover:scale-110 transition-transform overflow-hidden">
-                <img
-                  src={logo}
-                  alt="ServiceMate Helper Logo"
-                  className="w-full h-full object-contain"
-                />
+                <img src={logo} alt="Logo" className="w-full h-full object-contain" />
               </div>
               <div className="flex flex-col leading-none">
                 <span className="font-black tracking-tight text-zinc-900 text-sm md:text-base">
@@ -93,7 +144,7 @@ export default function Navbar() {
                     {user.firstName || "Account"}
                   </span>
                 </NavLink>
-                <div className="h-4 w-[px] bg-zinc-300 mx-1 hidden sm:block" />
+                <div className="h-4 w-[1px] bg-zinc-300 mx-1 hidden sm:block" />
                 <button
                   onClick={logoutHandler}
                   className="hidden sm:flex p-1.5 text-zinc-500 hover:text-red-500 transition-colors"
@@ -125,9 +176,10 @@ export default function Navbar() {
         </div>
       </header>
 
+      {/* Mobile Menu */}
       <div className={`fixed inset-0 z-[90] md:hidden transition-transform duration-300 ease-in-out ${isMenuOpen ? "translate-x-0" : "translate-x-full"}`}>
         <div className="absolute inset-0 bg-black/20 backdrop-blur-sm" onClick={toggleMenu} />
-        <div className="absolute right-0 top-0 h-full w-[280px] bg-white shadow-2xl p-6 flex flex-col">
+        <div className="absolute right-0 top-0 h-full w-[280px] bg-white shadow-2xl p-6 flex flex-col overflow-y-auto">
           <div className="mt-16 flex flex-col gap-4">
             <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest px-4">Menu</p>
             <NavLink to="/" onClick={toggleMenu} className={navLinkStyles}>
@@ -140,10 +192,23 @@ export default function Navbar() {
             {user && (
               <>
                 <div className="h-px bg-zinc-100 my-2" />
-                <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest px-4">Account</p>
-                <NavLink to={dashboardRoute} onClick={toggleMenu} className={navLinkStyles}>
-                  <LayoutDashboard size={18} /> Dashboard
-                </NavLink>
+                <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest px-4">
+                  {user.role} Panel
+                </p>
+                
+                {/* Dynamically injected role-based items */}
+                {roleItems.map((item) => (
+                  <NavLink
+                    key={item.path}
+                    to={item.path}
+                    onClick={toggleMenu}
+                    className={navLinkStyles}
+                  >
+                    {item.icon} {item.name}
+                  </NavLink>
+                ))}
+
+                <div className="h-px bg-zinc-100 my-2" />
                 <button
                   onClick={() => { logoutHandler(); toggleMenu(); }}
                   className="flex items-center gap-3 px-4 py-2 text-red-500 font-medium hover:bg-red-50 rounded-md transition-all"
