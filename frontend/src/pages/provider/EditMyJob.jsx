@@ -154,7 +154,7 @@ export default function ProviderProfile() {
                 </div>
             </nav>
 
-            <main className="max-w-screen mx-auto px-12 mt-10">
+            <main className="max-w-screen mx-auto px-3 md:px-12 mt-10">
                 <div className="mb-8 flex flex-col md:flex-row md:items-end justify-between gap-4">
                     <div>
                         <h1 className="text-3xl font-bold tracking-tight">{editForm.title || "Provider Profile"}</h1>

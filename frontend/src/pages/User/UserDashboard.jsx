@@ -139,7 +139,7 @@ export default function AsymmetricUserLayout() {
             ))}
           </nav>
 
-          <div className="flex-1 overflow-y-auto lg:pt-3 p-8 lg:p-12 custom-scrollbar bg-[#F8FAFC]">
+          <div className="flex-1 overflow-y-auto lg:pt-3 p-4 md:p-8 lg:p-12 custom-scrollbar bg-[#F8FAFC]">
             <div className="max-w-screen">
               <div className="animate-in fade-in zoom-in-95 duration-500 ease-out rounded-xl">
                 <Outlet />
