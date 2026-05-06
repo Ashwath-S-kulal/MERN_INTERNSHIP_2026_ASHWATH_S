@@ -6,6 +6,7 @@ import {
   Briefcase, Wrench, Navigation, Info,
   ChevronRight, ArrowLeft, CheckCircle, Hash, Zap, Loader2
 } from "lucide-react";
+import Loader from "../components/Loading";
 
 export default function ServiceDetails() {
   const { id } = useParams();
@@ -96,9 +97,7 @@ export default function ServiceDetails() {
   };
 
   if (!service) return (
-    <div className="min-h-screen flex items-center justify-center bg-white">
-      <Loader2 className="w-6 h-6 text-blue-600 animate-spin" />
-    </div>
+   <Loader/>
   );
 
   const averageRating = reviews.length > 0
