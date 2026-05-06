@@ -7,6 +7,8 @@ import {
     ToolCase,
     MessageSquare
 } from 'lucide-react';
+import Loader from "../components/Loading";
+
 
 export default function ServiceDetailsPage() {
     const { id } = useParams();
@@ -65,8 +67,9 @@ export default function ServiceDetailsPage() {
         : (service?.rating || 0);
 
 
-    if (loading) return <div className="h-screen flex items-center justify-center text-slate-400 font-bold">Loading Profile...</div>;
-    if (!service) return <div className="p-20 text-center">Profile not found.</div>;
+  if (loading) return <Loader/>
+
+  if (!service) return <div className="p-20 text-center">Profile not found.</div>;
 
     return (
         <div className="min-h-screen bg-slate-50 pb-20">

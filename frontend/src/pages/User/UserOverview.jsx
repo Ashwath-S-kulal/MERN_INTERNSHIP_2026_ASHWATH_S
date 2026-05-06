@@ -15,6 +15,8 @@ import { NavLink } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { setUser } from "@/redux/userSlice";
 import { toast } from "sonner";
+import Loader from "../../components/Loading";
+
 
 const UserDashboard = () => {
   const [bookings, setBookings] = useState([]);
@@ -72,13 +74,8 @@ const UserDashboard = () => {
     };  
   }, [bookings]);  
 
-  if (loading) return (
-    <div className="h-screen flex flex-col items-center justify-center bg-slate-50 text-slate-500 gap-4">
-      <Loader2 className="animate-spin text-indigo-600" size={32} />
-      <p className="text-sm font-medium">Loading your activity...</p>
-    </div>    
-  );
-  
+  if (loading) return <Loader/>
+
 
 
   return (

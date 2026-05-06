@@ -6,6 +6,8 @@ import {
   CheckCircle, XCircle, AlertCircle, ExternalLink,
   Database
 } from "lucide-react";
+import Loader from "../../components/Loading";
+
 
 export default function AdminBookings() {
   const [bookings, setBookings] = useState([]);
@@ -29,11 +31,8 @@ export default function AdminBookings() {
     fetchAllBookings();
   }, []);
 
-  if (loading) return (
-    <div className="min-h-screen flex items-center justify-center">
-      <div className="w-8 h-8 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
-    </div>
-  );
+  if (loading) return <Loader />
+
 
   return (
     <div className="bg-[#F8FAFC] font-sans min-h-screen">
@@ -138,11 +137,11 @@ export default function AdminBookings() {
 
                     <td className="px-4 py-4 md:py-5 md:table-cell text-left md:text-center">
                       <span className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border shadow-sm ${booking.status === 'completed' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' :
-                          booking.status === 'pending' ? 'bg-amber-50 text-amber-600 border-amber-100' :
-                            'bg-rose-50 text-rose-600 border-rose-100'
+                        booking.status === 'pending' ? 'bg-amber-50 text-amber-600 border-amber-100' :
+                          'bg-rose-50 text-rose-600 border-rose-100'
                         }`}>
                         <span className={`h-1.5 w-1.5 rounded-full animate-pulse ${booking.status === 'completed' ? 'bg-emerald-500' :
-                            booking.status === 'pending' ? 'bg-amber-500' : 'bg-rose-500'
+                          booking.status === 'pending' ? 'bg-amber-500' : 'bg-rose-500'
                           }`}></span>
                         {booking.status}
                       </span>

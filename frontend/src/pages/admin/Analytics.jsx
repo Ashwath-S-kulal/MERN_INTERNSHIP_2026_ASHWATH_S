@@ -10,6 +10,7 @@ import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid
 } from 'recharts';
 import { useNavigate } from "react-router-dom";
+import Loader from "../../components/Loading";
 
 const AdminAnalytics = () => {
   const [data, setData] = useState({ bookings: [], users: [], providers: [], reviews: [] });
@@ -89,13 +90,7 @@ const AdminAnalytics = () => {
 
 
 
-  if (loading) return (
-    <div className="h-screen flex flex-col items-center justify-center bg-slate-50 text-slate-500 gap-4">
-      <Loader2 className="animate-spin text-indigo-600" size={32} />
-      <p className="text-sm font-medium">Loading Dashboard...</p>
-    </div>
-  );
-
+  if (loading) return <Loader/>
 
   
   return (

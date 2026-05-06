@@ -5,6 +5,8 @@ import {
   XCircle, Clock, ExternalLink, User
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import Loader from "../../components/Loading";
+
 
 export default function ProviderDirectory() {
   const [providers, setProviders] = useState([]);
@@ -80,7 +82,8 @@ export default function ProviderDirectory() {
     );
   };
 
-  if (loading) return <div className="p-10 text-center font-medium">Loading Directory...</div>;
+  if (loading) return <Loader/>
+
 
   return (
     <div className="px-0 md:px-4 max-w-7xl mx-auto space-y-6">

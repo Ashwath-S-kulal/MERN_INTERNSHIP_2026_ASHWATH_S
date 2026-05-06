@@ -11,6 +11,8 @@ import {
   Tooltip, ResponsiveContainer, BarChart, Bar
 } from 'recharts';
 import { useNavigate } from "react-router-dom";
+import Loader from "../../components/Loading";
+
 
 const ProviderAnalytics = () => {
   const [bookings, setBookings] = useState([]);
@@ -62,12 +64,8 @@ const ProviderAnalytics = () => {
     return { totalRevenue, avgRating, conversionRate, completed, cancelled, pending, graphData };
   }, [bookings, reviews]);
 
-  if (loading) return (
-    <div className="h-screen flex flex-col items-center justify-center bg-slate-50">
-      <Loader2 className="animate-spin text-blue-600 mb-2" size={32} />
-      <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">Generating Insights</span>
-    </div>
-  );
+
+  if (loading) return <Loader />
 
   return (
     <div className="min-h-screen bg-slate-50 md:p-8 font-sans text-slate-900">

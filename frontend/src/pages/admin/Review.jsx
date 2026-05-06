@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { Star, Trash2, Calendar, Mail, Loader2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import Loader from "../../components/Loading";
 
 export default function AdminReviews() {
   const [reviews, setReviews] = useState([]);
@@ -39,7 +40,7 @@ export default function AdminReviews() {
     }
   };
 
-  if (loading) return <div className="flex justify-center p-20"><Loader2 className="animate-spin text-blue-600" /></div>;
+  if (loading) return <Loader/>
 
   return (
     <div className="bg-slate-50 min-h-screen font-sans">

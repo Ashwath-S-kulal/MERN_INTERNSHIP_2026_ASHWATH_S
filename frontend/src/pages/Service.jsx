@@ -8,6 +8,7 @@ import {
   X
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import Loader from "../components/Loading";
 
 export default function ServiceExplorer() {
   const [services, setServices] = useState([]);
@@ -69,32 +70,7 @@ export default function ServiceExplorer() {
   const newArrivals = [...filteredServices].reverse().slice(0, 4);
 
 
-  if (loading) {
-    return (
-      <div className="h-screen w-full flex flex-col items-center justify-center bg-white">
-        <div className="relative flex items-center justify-center">
-          <div className="w-16 h-16 border-4 border-slate-100 rounded-full animate-[spin_3s_linear_infinite]"></div>
-          <div className="absolute w-16 h-16 border-4 border-t-blue-600 border-r-transparent border-b-transparent border-l-transparent rounded-full animate-spin"></div>
-          <div className="absolute w-2 h-2 bg-blue-600 rounded-full animate-pulse"></div>
-        </div>
-
-        <div className="mt-8 flex flex-col items-center gap-2">
-          <h2 className="font-black text-slate-900 text-[10px] uppercase tracking-[0.4em] animate-pulse">
-            Syncing Marketplace
-          </h2>
-          <div className="flex gap-1">
-            <div className="w-1 h-1 bg-blue-600 rounded-full animate-bounce [animation-delay:-0.3s]"></div>
-            <div className="w-1 h-1 bg-blue-600 rounded-full animate-bounce [animation-delay:-0.15s]"></div>
-            <div className="w-1 h-1 bg-blue-600 rounded-full animate-bounce"></div>
-          </div>
-        </div>
-
-        <p className="absolute bottom-10 text-[8px] font-black text-slate-200 uppercase tracking-widest">
-          Establishing Secure Connection...
-        </p>
-      </div>
-    );
-  }
+  if (loading) return <Loader/>
 
   return (
     <div className="min-h-screen bg-white pb-20 mt-16">

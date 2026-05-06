@@ -4,6 +4,7 @@ import axios from 'axios';
 import { setUser } from '@/redux/userSlice';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
+import Loader from '../components/Loading';
 
 const Homepage = () => {
   const dispatch = useDispatch();
@@ -60,14 +61,8 @@ const Homepage = () => {
     return () => clearInterval(interval);
   }, [fetchuserbyid]);
 
-  if (loading) {
-    return (
-      <div className="h-screen w-full flex flex-col items-center justify-center gap-3">
-        <Loader2 className="animate-spin text-blue-600" size={40} />
-        <p className="text-zinc-500 font-medium">Loading ServiceMate...</p>
-      </div>
-    );
-  }
+  if (loading) return <Loader/>
+
 
   return (
     <div className="min-h-screen bg-white font-sans">

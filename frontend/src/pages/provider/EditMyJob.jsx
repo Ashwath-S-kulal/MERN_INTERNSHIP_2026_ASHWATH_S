@@ -7,6 +7,8 @@ import {
     User, Clock, Camera, Home, Star, Activity, Loader2,
     Calendar
 } from "lucide-react";
+import Loader from "../../components/Loading";
+
 
 export default function ProviderProfile() {
     const { proid } = useParams();
@@ -130,7 +132,9 @@ export default function ProviderProfile() {
             setSaving(false);
         }
     };
-    if (loading) return <div className="h-screen flex items-center justify-center bg-white text-slate-400 font-medium">Loading Professional Profile...</div>;
+
+    
+    if (loading) return <Loader />;
 
     return (
         <div className="min-h-screen bg-[#FBFBFB] text-slate-900 font-sans pb-20">

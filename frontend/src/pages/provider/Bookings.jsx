@@ -6,6 +6,8 @@ import {
   Wrench, MapPin, MoreHorizontal, Eye,
   Calendar, Clock, ShieldCheck, ListFilter
 } from "lucide-react";
+import Loader from "../../components/Loading";
+
 
 export default function JobControlCenter() {
   const [bookings, setBookings] = useState([]);
@@ -38,14 +40,8 @@ export default function JobControlCenter() {
     { id: 'completed', label: "Completed", count: bookings.filter(b => b.status === 'completed').length, color: "text-emerald-500", bg: "bg-emerald-50", icon: <CheckCircle size={20} /> },
   ];
 
-  if (loading) return (
-    <div className="min-h-screen flex items-center justify-center bg-[#F8FAFC]">
-      <div className="flex flex-col items-center gap-4">
-        <div className="w-10 h-10 border-4 border-slate-200 border-t-indigo-600 rounded-full animate-spin"></div>
-        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Loading Master Ledger</p>
-      </div>
-    </div>
-  );
+   if (loading) return <Loader/>
+
 
   return (
     <div className="space-y-6 pb-20 animate-in fade-in slide-in-from-bottom-4 duration-700">

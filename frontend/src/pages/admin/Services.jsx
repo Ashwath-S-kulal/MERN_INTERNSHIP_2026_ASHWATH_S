@@ -6,6 +6,7 @@ import {
   ChevronRight, ArrowUpRight, Filter, Users, ChevronDown,
   ArrowRight
 } from 'lucide-react';
+import Loader from '../../components/Loading';
 
 export default function ServicesPage() {
   const [providers, setProviders] = useState([]);
@@ -47,12 +48,8 @@ export default function ServicesPage() {
 
   const displayCategories = Object.keys(groupedProviders);
 
-  if (loading) return (
-    <div className="h-96 flex flex-col items-center justify-center space-y-4">
-      <div className="w-10 h-10 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
-      <p className="text-slate-400 font-bold animate-pulse">Organizing Service Directory...</p>
-    </div>
-  );
+  if (loading) return <Loader/>
+
 
   return (
     <div className="max-w-screen mx-auto px-0 md:px-6 py-10 pt-3">

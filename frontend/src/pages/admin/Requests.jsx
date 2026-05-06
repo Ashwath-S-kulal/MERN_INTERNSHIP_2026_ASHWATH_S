@@ -7,6 +7,8 @@ import {
   Globe
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import Loader from "../../components/Loading";
+
 
 export default function AdminProviderRequests() {
   const [providers, setProviders] = useState([]);
@@ -60,12 +62,8 @@ export default function AdminProviderRequests() {
   const pendingRequests = providers.filter(p => p.status === "pending");
   const historyRequests = providers.filter(p => p.status === historyTab);
 
-  if (loading) return (
-    <div className="flex flex-col items-center justify-center h-screen bg-slate-50">
-      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
-      <p className="text-slate-500 font-black uppercase text-[10px] tracking-widest mt-4">Syncing Database</p>
-    </div>
-  );
+  if (loading) return <Loader/>
+
 
   const DetailedProviderCard = ({ p }) => (
     <div className={`bg-white rounded-md shadow-sm border border-slate-200 overflow-hidden transition-all ${actionId === p._id ? 'opacity-50 scale-95' : ''}`}>

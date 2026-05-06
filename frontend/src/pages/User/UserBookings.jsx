@@ -5,6 +5,8 @@ import {
   Calendar, Clock, ChevronRight, Circle,
   User, HardHat, ArrowUpRight
 } from "lucide-react";
+import Loader from "../../components/Loading";
+
 
 export default function UserBookings() {
   const [bookings, setBookings] = useState([]);
@@ -30,14 +32,8 @@ export default function UserBookings() {
     fetchBookings();
   }, []);
 
-  if (loading) return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <div className="flex items-center gap-2 text-gray-500 font-medium italic">
-        <Circle size={10} className="animate-ping fill-blue-500 text-blue-500" />
-        Loading bookings...
-      </div>
-    </div>
-  );
+  if (loading) return <Loader/>
+
 
   return (
     <div className=" bg-[#F9FAFB] font-sans text-slate-900">

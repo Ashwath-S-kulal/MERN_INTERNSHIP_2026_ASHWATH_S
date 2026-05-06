@@ -4,6 +4,7 @@ import { toast } from "sonner";
 import { useDispatch, useSelector } from "react-redux";
 import { setUser } from "@/redux/userSlice";
 import { Mail, Search, Trash2, X, Shield, User, ShieldCheck, MoreVertical, Calendar, MapPin } from "lucide-react";
+import Loader from "../../components/Loading";
 
 const AllUsers = () => {
   const [users, setUsers] = useState([]);
@@ -100,11 +101,7 @@ const AllUsers = () => {
     }
   };
 
-  if (loading && users.length === 0) return (
-    <div className="flex items-center justify-center min-h-screen text-slate-400 font-medium animate-pulse">
-      Loading directory...
-    </div>
-  );
+  if (loading && users.length === 0)  return <Loader/>
 
   return (
     <div className="text-slate-900 font-sans ">

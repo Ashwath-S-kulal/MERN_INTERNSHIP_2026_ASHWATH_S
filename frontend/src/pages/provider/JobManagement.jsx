@@ -7,6 +7,8 @@ import {
     Mail, Phone, ShieldCheck, CreditCard, Check, Circle, ArrowRight,
     X
 } from "lucide-react";
+import Loader from "../../components/Loading";
+
 
 export default function OrderDetails() {
     const { id } = useParams();
@@ -105,13 +107,8 @@ export default function OrderDetails() {
 
 
 
-    if (loading) {
-        return (
-            <div className="min-h-screen flex items-center justify-center bg-white">
-                <Loader2 className="animate-spin text-blue-600" />
-            </div>
-        )
-    }
+  if (loading) return <Loader/>
+
 
 
     const currentStageIndex = stages.findIndex(s => s.key === booking.status);

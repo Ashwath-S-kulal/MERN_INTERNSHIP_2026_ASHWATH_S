@@ -5,6 +5,8 @@ import {
   Wrench, ChevronRight, MapPin, Plus, Clock,
   Briefcase, ToolCase, Star, LayoutGrid, List
 } from "lucide-react";
+import Loader from "../../components/Loading";
+
 
 export default function ProviderDashboard() {
   const { id } = useParams();
@@ -26,12 +28,8 @@ export default function ProviderDashboard() {
     fetchProfiles();
   }, [id, token]);
 
-  if (loading) return (
-    <div className="h-screen flex flex-col items-center justify-center bg-[#F8FAFC]">
-      <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mb-4"></div>
-      <p className="font-bold text-slate-400 animate-pulse">Syncing your services...</p>
-    </div>
-  );
+  if (loading) return <Loader/>
+
 
   return (
     <div className="min-h-screen bg-[#F8FAFC] pb-20">

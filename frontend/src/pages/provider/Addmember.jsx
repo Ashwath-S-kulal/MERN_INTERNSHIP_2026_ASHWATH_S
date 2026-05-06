@@ -5,6 +5,8 @@ import {
     Mail, Check, ShieldCheck, Camera, Loader2, User, ChevronRight,
     Zap
 } from "lucide-react";
+import Loader from "../../components/Loading";
+
 
 export default function ProviderTeam() {
     const [members, setMembers] = useState([]);
@@ -164,8 +166,7 @@ export default function ProviderTeam() {
                             <div className="max-h-[600px] overflow-y-auto">
                                 {loading ? (
                                     <div className="p-20 flex flex-col items-center justify-center opacity-40">
-                                        <Loader2 className="animate-spin mb-2" />
-                                        <p className="text-sm font-medium">Loading Directory...</p>
+                                        <Loader />
                                     </div>
                                 ) : members.length === 0 ? (
                                     <div className="p-20 text-center">

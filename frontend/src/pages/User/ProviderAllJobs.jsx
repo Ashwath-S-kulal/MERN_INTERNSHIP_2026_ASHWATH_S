@@ -8,6 +8,8 @@ import {
     ArrowLeft,
     ChevronRight
 } from "lucide-react";
+import Loader from "../../components/Loading";
+
 
 export default function ProviderAllJobs() {
     const { id } = useParams();
@@ -42,14 +44,8 @@ export default function ProviderAllJobs() {
         job.category.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
-    if (loading) {
-        return (
-            <div className="h-screen w-full flex flex-col items-center justify-center bg-white">
-                <div className="w-12 h-12 border-4 border-slate-100 border-t-blue-600 rounded-full animate-spin"></div>
-                <p className="mt-4 text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]">Loading Catalog...</p>
-            </div>
-        );
-    }
+  if (loading) return <Loader/>
+
 
     return (
         <div className="min-h-screen bg-[#FAFBFF] pb-20">

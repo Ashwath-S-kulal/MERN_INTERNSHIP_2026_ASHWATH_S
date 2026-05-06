@@ -8,6 +8,8 @@ import {
   HardHat, MessageSquare, CheckCircle2, XCircle, X, Check, Star,
   Download
 } from "lucide-react";
+import Loader from "../../components/Loading";
+
 
 export default function BookingDetails() {
   const { id } = useParams();
@@ -187,11 +189,8 @@ export default function BookingDetails() {
     }
   };
 
-  if (loading) return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <Loader2 className="animate-spin text-blue-600" size={32} />
-    </div>
-  );
+  if (loading) return <Loader/>
+
 
   if (!booking) {
     return (
