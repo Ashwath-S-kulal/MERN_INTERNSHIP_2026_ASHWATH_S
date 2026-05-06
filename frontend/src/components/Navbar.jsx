@@ -134,7 +134,7 @@ export default function Navbar() {
           <div className="flex-1 flex items-center justify-end gap-2 md:gap-3">
             {user ? (
               <div className="flex items-center bg-zinc-100/80 p-1 rounded-full border border-zinc-200">
-                <NavLink to={dashboardRoute} className="flex items-center gap-2 pr-2 transition-all">
+                <NavLink to={dashboardRoute} className="flex items-center gap-2 pr-0 md:pr-2 transition-all">
                   <img
                     src={user.profilePic || "https://cdn.pixabay.com/photo/2023/02/18/11/00/icon-7797704_640.png"}
                     alt="profile"

@@ -59,7 +59,7 @@ export default function UserBookings() {
               {bookings.map((b) => (
                 <div
                   key={b._id}
-                  className="grid grid-cols-1 md:grid-cols-12 gap-4 px-6 py-5 hover:bg-blue-50/30 transition-colors items-center group"
+                  className="grid grid-cols-1 md:grid-cols-12 gap-4 px-6 py-5 hover:bg-blue-50/30 transition-colors items-center group border-b-2 border-gray-300 rounded-lg"
                 >
                   <div className="col-span-4 flex items-center gap-4">
                     <div className="relative shrink-0">
@@ -111,7 +111,7 @@ export default function UserBookings() {
                       onClick={() => navigate(`/userdashboard/booking/${b._id}`)}
                       className="bg-slate-100 group-hover:bg-blue-600 text-slate-600 group-hover:text-white p-2 md:px-4 md:py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1"
                     >
-                      <span className="hidden md:inline tracking-tighter">Details</span>
+                      <span className="tracking-tighter">Details</span>
                       <ArrowUpRight size={14} />
                     </button>
                   </div>

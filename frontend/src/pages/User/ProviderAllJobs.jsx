@@ -68,9 +68,9 @@ export default function ProviderAllJobs() {
                             <span className="text-blue-600 font-black">{provider?.firstName} {provider?.lastName} profile</span>
                         </div>
                     </div>
-                    <h1 className="text-sm font-black text-slate-900 uppercase tracking-widest">Business Profile</h1>
+                    <h1 className="hidden md:inline text-sm font-black text-slate-900 uppercase tracking-widest">Business Profile</h1>
 
-                    <div className="flex items-center gap-2">
+                    <div className="hidden md:inline flex items-center gap-2">
                         <div className={`w-1.5 h-1.5 rounded-full ${provider?.isActive ? 'bg-emerald-500 animate-pulse' : 'bg-slate-300'}`}></div>
                         <span className={`text-[9px] font-black px-2 py-0.5 rounded-md uppercase tracking-wider ${provider?.isActive ? 'bg-emerald-50 text-emerald-600' : 'bg-slate-100 text-slate-400'}`}>
                             {provider?.isActive ? "Online" : "Offline"}

@@ -152,7 +152,7 @@ export default function SimpleApplyForService() {
         </div>
       </div>
 
-      <main className="flex-1 max-w-3xl mx-auto px-6 py-12 lg:py-20">
+      <main className="flex-1 max-w-3xl mx-auto px-2 md:px-6 py-12 lg:py-20">
         <form onSubmit={submit} className="space-y-16">
           <section className="space-y-6">
             <h3 className="text-sm font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">

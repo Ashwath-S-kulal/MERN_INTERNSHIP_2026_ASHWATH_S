@@ -70,7 +70,7 @@ const ProviderAnalytics = () => {
   );
 
   return (
-    <div className="min-h-screen bg-slate-50 p-4 md:p-8 font-sans text-slate-900">
+    <div className="min-h-screen bg-slate-50 md:p-8 font-sans text-slate-900">
       <div className="max-w-7xl mx-auto space-y-6">
 
         {/* Simple Header */}
@@ -99,7 +99,7 @@ const ProviderAnalytics = () => {
             <h3 className="text-sm font-bold uppercase tracking-wider text-slate-400 mb-6 flex items-center gap-2">
               <BarChart3 size={16} /> Weekly Earnings (INR)
             </h3>
-            <div className="h-64">
+            <div className="h-64 ">
               <ResponsiveContainer width="100%" height="100%">
                 <AreaChart data={data.graphData}>
                   <defs>
@@ -166,7 +166,7 @@ const ProviderAnalytics = () => {
         <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
           <div className="p-6 border-b border-slate-100 flex justify-between items-center">
             <h3 className="text-sm font-bold uppercase tracking-wider text-slate-400">Recent Transactions</h3>
-            <span className="text-[10px] px-2 py-1 bg-slate-100 rounded text-slate-500 font-bold">Showing last {bookings.length} entries</span>
+            <span className="hidden md:inline text-[10px] px-2 py-1 bg-slate-100 rounded text-slate-500 font-bold">Showing last {bookings.length} entries</span>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm">

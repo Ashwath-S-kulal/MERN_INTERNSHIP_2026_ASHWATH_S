@@ -68,7 +68,7 @@ export const applyProvider = async (req, res) => {
 export const getProviderByUserId = async (req, res) => {
   try {
     const { id } = req.params;
-
+    console.log("Fetching provider for user ID:", id);
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return res
         .status(400)
@@ -79,6 +79,7 @@ export const getProviderByUserId = async (req, res) => {
       "user",
       "firstName lastName email phoneNo profilePic city address",
     );
+    console.log("Fetched Providers:", providers);
 
     if (!providers || providers.length === 0) {
       return res
@@ -90,6 +91,7 @@ export const getProviderByUserId = async (req, res) => {
       success: true,
       providers,
     });
+
   } catch (err) {
     console.error("Backend Error:", err.message);
     res.status(500).json({ success: false, message: err.message });
