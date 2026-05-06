@@ -85,19 +85,15 @@ export default function ServiceDetailsPage() {
             <main className="max-w-7xl mx-auto px-6 pt-10">
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
                     <div className="lg:col-span-8 space-y-6">
-                        <div className="bg-white p-4 rounded-md shadow-sm border border-slate-200">
-                            <img
-                                src={activeImg || "https://via.placeholder.com/800x400?text=No+Image+Available"}
-                                className="w-full h-[450px] object-cover rounded-md transition-all duration-500"
-                                alt="Work preview"
-                            />
-                            <div className="flex gap-3 pl-3 mt-4 overflow-x-auto no-scrollbar py-2">
+                        <div className="bg-white p-3 rounded-md border border-slate-100 shadow-sm">
+                            <div className="aspect-[16/9] rounded-md overflow-hidden bg-slate-50 mb-3">
+                                <img src={activeImg} className="w-full h-full object-cover" alt="Main" />
+                            </div>
+                            <div className="flex gap-2 overflow-x-auto no-scrollbar">
                                 {service.images?.map((img, i) => (
-                                    <img
-                                        key={i} src={img.url}
-                                        onClick={() => setActiveImg(img.url)}
-                                        className={`w-20 h-20 rounded-xl cursor-pointer object-cover border-2 transition-all ${activeImg === img.url ? 'border-indigo-600 scale-105' : 'border-transparent opacity-60'}`}
-                                    />
+                                    <button key={i} onClick={() => setActiveImg(img.url)} className={`w-14 h-14 flex-shrink-0 rounded-xl overflow-hidden border transition-all ${activeImg === img.url ? 'border-blue-500 ring-2 ring-blue-50' : 'border-transparent opacity-50'}`}>
+                                        <img src={img.url} className="w-full h-full object-cover" alt="thumb" />
+                                    </button>
                                 ))}
                             </div>
                         </div>
@@ -184,11 +180,11 @@ export default function ServiceDetailsPage() {
                                     {service.services?.[0] || "General Professional"} • {service.experience} Years Experience
                                 </p>
                                 <span className="text-xs font-bold text-white truncate max-w-[150px]">
-                                            {service.user?.email}
-                                        </span>
+                                    {service.user?.email}
+                                </span>
 
                                 <div className="space-y-4 border-t border-white/10 pt-6">
-                                  
+
                                     <div className="flex justify-between items-end">
                                         <div>
                                             <span className="text-slate-400 font-bold text-xs uppercase tracking-wider block mb-1">Rate</span>
