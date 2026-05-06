@@ -245,7 +245,7 @@ export default function ServiceDetailsPage() {
                             <h2 className="text-xl font-black text-slate-900 flex items-center gap-2">
                                 Client Reviews
                             </h2>
-                            <p className="text-[10px] font-black uppercase text-slate-400 tracking-widest mt-1">
+                            <p className="hidden sm:block text-[10px] font-black uppercase text-slate-400 tracking-widest mt-1">
                                 Verified feedback from {reviews.length} customers
                             </p>
                         </div>

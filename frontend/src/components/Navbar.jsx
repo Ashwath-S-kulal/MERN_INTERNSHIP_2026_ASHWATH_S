@@ -56,10 +56,9 @@ export default function Navbar() {
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
 
   const navLinkStyles = ({ isActive }) =>
-    `px-4 py-2 md:py-1.5 rounded-md transition-all flex items-center gap-3 md:block ${
-      isActive
-        ? "bg-blue-50 md:bg-zinc-100 text-blue-600 md:text-black"
-        : "text-zinc-600 md:text-zinc-500 hover:text-black hover:bg-zinc-50"
+    `px-4 py-2 md:py-1.5 rounded-md transition-all flex items-center gap-3 md:block ${isActive
+      ? "bg-blue-50 md:bg-zinc-100 text-blue-600 md:text-black"
+      : "text-zinc-600 md:text-zinc-500 hover:text-black hover:bg-zinc-50"
     }`;
 
   // Logic for dynamic routes based on roles
@@ -67,8 +66,8 @@ export default function Navbar() {
     user?.role === "admin"
       ? "/dashboard/request"
       : user?.role === "provider"
-      ? "/provider/dashboardpro"
-      : "/userdashboard/overview";
+        ? "/provider/dashboardpro"
+        : "/userdashboard/overview";
 
   const getRoleBasedItems = () => {
     if (user?.role === "provider") {
@@ -95,7 +94,7 @@ export default function Navbar() {
     }
     if (user?.role === "user") {
       return [
-        { name: "Apply for provider", path:"/userdashboard/applyforservice", icon: <ArrowUpRight size={18} /> },
+        { name: "Apply for provider", path: "/userdashboard/applyforservice", icon: <ArrowUpRight size={18} /> },
         { name: "Profile", path: `/userdashboard/profile/${User?._id}`, icon: <User size={20} /> },
       ];
     }
@@ -155,11 +154,11 @@ export default function Navbar() {
               </div>
             ) : (
               <div className="flex items-center gap-2">
-                <Link to="/login" className="hidden sm:block text-xs font-bold px-3 text-zinc-600 hover:text-black">
+                <Link to="/login" className=" text-xs font-bold px-3 text-zinc-600 hover:text-black">
                   Log In
                 </Link>
                 <Link to="/signup">
-                  <Button className="h-8 md:h-9 text-[11px] md:text-xs px-4 md:px-5 bg-blue-600 rounded-full">
+                  <Button className="hidden sm:block h-8 md:h-9 text-[11px] md:text-xs px-4 md:px-5 bg-blue-600 rounded-full">
                     Get Started
                   </Button>
                 </Link>
@@ -195,7 +194,7 @@ export default function Navbar() {
                 <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest px-4">
                   {user.role} Panel
                 </p>
-                
+
                 {/* Dynamically injected role-based items */}
                 {roleItems.map((item) => (
                   <NavLink

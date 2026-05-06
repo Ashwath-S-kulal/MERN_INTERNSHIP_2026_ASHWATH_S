@@ -83,7 +83,7 @@ export default function ProviderDirectory() {
   if (loading) return <div className="p-10 text-center font-medium">Loading Directory...</div>;
 
   return (
-    <div className="px-4 max-w-7xl mx-auto space-y-6">
+    <div className="px-0 md:px-4 max-w-7xl mx-auto space-y-6">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-black text-slate-900">Provider Directory</h1>
@@ -133,7 +133,7 @@ export default function ProviderDirectory() {
                       </div>
                       <div>
                         <div className="font-bold text-slate-900 leading-none mb-1">
-                          {p.user?.firstName} {p.user?.lastName}
+                          {p.user?.firstName}
                         </div>
                         <div className="text-xs text-slate-500 font-medium tracking-tight">
                           {p.title}

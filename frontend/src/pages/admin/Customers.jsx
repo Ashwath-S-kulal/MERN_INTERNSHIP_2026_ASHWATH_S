@@ -137,9 +137,9 @@ const AllUsers = () => {
                 <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100">
+            <tbody className="divide-y divide-slate-100" >
               {filtered.map((user) => (
-                <tr key={user._id} className="hover:bg-slate-50 transition-colors group">
+                <tr key={user._id} className="hover:bg-slate-50 transition-colors group"  onClick={() => handleEditClick(user)}>
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-3">
                       <img
@@ -153,7 +153,7 @@ const AllUsers = () => {
                       </div>
                     </div>
                   </td>
-                  <td className="px-6 py-4">
+                  <td className="px-6 py-4"  onClick={() => handleEditClick(user)}>
                     <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wide border ${
                       user.role === 'admin' ? 'bg-purple-50 border-purple-100 text-purple-700' : 
                       user.role === 'provider' ? 'bg-blue-50 border-blue-100 text-blue-700' : 

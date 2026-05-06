@@ -55,7 +55,7 @@ export default function ServicesPage() {
   );
 
   return (
-    <div className="max-w-screen mx-auto px-6 py-10 pt-3">
+    <div className="max-w-screen mx-auto px-0 md:px-6 py-10 pt-3">
       <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-12 gap-6">
         <div>
           <h1 className="text-3xl font-black text-slate-900 tracking-tight">Services</h1>
@@ -106,9 +106,9 @@ export default function ServicesPage() {
                     <thead>
                       <tr className="bg-slate-50/50 border-b border-slate-100">
                         <th className="px-8 py-5 text-[10px] font-black uppercase tracking-widest text-slate-400">Professional</th>
-                        <th className="px-6 py-5 text-[10px] font-black uppercase tracking-widest text-slate-400">Experience</th>
-                        <th className="px-6 py-5 text-[10px] font-black uppercase tracking-widest text-slate-400">Location</th>
-                        <th className="px-6 py-5 text-[10px] font-black uppercase tracking-widest text-slate-400">Rate</th>
+                        <th className="px-6 py-5 text-[10px] font-black uppercase tracking-widest text-slate-400 hidden md:table-cell">Experience</th>
+                        <th className="px-6 py-5 text-[10px] font-black uppercase tracking-widest text-slate-400 hidden md:table-cell">Location</th>
+                        <th className="px-6 py-5 text-[10px] font-black uppercase tracking-widest text-slate-400 hidden md:table-cell">Rate</th>
                         <th className="px-6 py-5 text-[10px] font-black uppercase tracking-widest text-slate-400 text-right">Action</th>
                       </tr>
                     </thead>
@@ -128,25 +128,25 @@ export default function ServicesPage() {
                               />
                               <div>
                                 <p className="font-bold text-slate-900 group-hover:text-indigo-600 transition-colors">{p.title}</p>
-                                <p className="text-[10px] font-bold text-slate-400 mt-1 uppercase tracking-tight">
+                                <p className="hidden sm:block text-[10px] font-bold text-slate-400 mt-1 uppercase tracking-tight">
                                   By: {p.user?.firstName} {p.user?.lastName}
                                 </p>
                               </div>
                             </div>
                           </td>
-                          <td className="px-6 py-5">
+                          <td className="px-6 py-5 hidden md:table-cell">
                             <div className="flex items-center gap-2 text-slate-600">
-                              <Clock size={14} className="text-slate-400" />
+                              <Clock size={14} className="hidden sm:block text-slate-400" />
                               <span className="text-sm font-bold">{p.experience} Years</span>
                             </div>
                           </td>
-                          <td className="px-6 py-5">
+                          <td className="px-6 py-5 hidden md:table-cell">
                             <div className="flex items-center gap-2 text-slate-600">
                               <MapPin size={14} className="text-indigo-500" />
                               <span className="text-sm font-bold">{p.city}</span>
                             </div>
                           </td>
-                          <td className="px-6 py-5">
+                          <td className="px-6 py-5  hidden md:table-cell">
                             <span className="text-lg font-black text-slate-900">₹{p.pricing.rate}</span>
                             <span className="text-[10px] text-slate-400 font-bold ml-1 italic">/{p.pricing.unit}</span>
                           </td>
