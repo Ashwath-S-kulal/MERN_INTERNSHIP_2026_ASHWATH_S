@@ -37,15 +37,27 @@ export const createReview = async (req, res) => {
 
 export const getProviderReviews = async (req, res) => {
   try {
-    const reviews = await Review.find({ provider: req.params.providerId })
+    const reviews = await Review.find({
+      provider: req.params.providerId,
+    })
       .populate("user", "firstName lastName profilePic")
-      .sort("-createdAt");
+      .sort({ createdAt: -1 });
 
-    res
-      .status(200)
-      .json({ success: true, count: reviews.length, data: reviews });
+    console.log("Provider ID:", req.params.providerId);
+    console.log("Fetched Reviews:", reviews);
+
+    res.status(200).json({
+      success: true,
+      count: reviews.length,
+      data: reviews,
+    });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.log(error);
+
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
   }
 };
 
