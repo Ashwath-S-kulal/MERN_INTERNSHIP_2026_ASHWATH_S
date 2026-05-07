@@ -18,6 +18,7 @@ import {
   Star,
   BarChart3,
   ArrowUpRight,
+  Calendar,
 } from "lucide-react";
 import { Button } from "./ui/button";
 import axios from "axios";
@@ -94,8 +95,10 @@ export default function Navbar() {
     }
     if (user?.role === "user") {
       return [
+        { name: "Overview", path: `/userdashboard/overview`, icon: <LayoutGrid size={18} /> },
+        { name: "My Bookings", path: "/userdashboard/userbookings", icon: <Calendar size={18} /> },
         { name: "Apply for provider", path: "/userdashboard/applyforservice", icon: <ArrowUpRight size={18} /> },
-        { name: "Profile", path: `/userdashboard/profile/${User?._id}`, icon: <User size={20} /> },
+        { name: "Profile", path: `/userdashboard/profile/${user?._id}`, icon: <User size={20} /> },
       ];
     }
     return [];
