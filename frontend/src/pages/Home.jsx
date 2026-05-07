@@ -61,7 +61,7 @@ const Homepage = () => {
     return () => clearInterval(interval);
   }, [fetchuserbyid]);
 
-  if (loading) return <Loader/>
+  if (loading) return <Loader />
 
 
   return (
@@ -161,7 +161,9 @@ const Homepage = () => {
               <div className="flex items-center justify-between mt-auto p-2 bg-zinc-50 rounded-2xl">
                 <div className="flex flex-col">
                   <span className="text-[10px] text-zinc-400 font-bold uppercase">Rate</span>
-                  <span className="text-base font-black text-zinc-900">₹{item?.hourlyRate || 0}/hr</span>
+                  <div className="absolute bottom-2 left-2 bg-slate-900/80 backdrop-blur-md px-3 py-1.5 rounded-xl text-white text-[10px] font-black">
+                    ₹{item.pricing?.rate} <span className="text-slate-400">/{item.pricing?.unit || 'hr'}</span>
+                  </div>
                 </div>
                 <button onClick={() => navigate(`/service/${item._id}`)}
                   className="bg-zinc-900 text-white px-5 py-2 rounded-xs text-xs font-bold hover:bg-blue-600 transition-colors">
