@@ -128,7 +128,7 @@ export default function OrderDetails() {
         try {
             const token = localStorage.getItem("accessToken");
 
-            await axios.put(`http://localhost:8000/api/booking/settle/${id}`,
+            await axios.put(`${import.meta.env.VITE_BASE_URI}/api/booking/settle/${id}`,
                 {
                     quantity: settlementValue,
                     extraCharges: extraCharges
@@ -150,7 +150,7 @@ export default function OrderDetails() {
 
     const handleConfirmCash = async () => {
         try {
-            await axios.put(`http://localhost:8000/api/booking/confirm-payment/${id}`,
+            await axios.put(`${import.meta.env.VITE_BASE_URI}/api/booking/confirm-payment/${id}`,
                 {},
                 { headers: { Authorization: `Bearer ${token}` } }
             );
