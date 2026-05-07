@@ -5,6 +5,7 @@ import { setUser } from '@/redux/userSlice';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
 import Loader from '../components/Loading';
+import Footer from '../components/Footer';
 
 const Homepage = () => {
   const dispatch = useDispatch();
@@ -202,6 +203,7 @@ const Homepage = () => {
           </div>
         </div>
       </section>
+      <Footer />
     </div>
   );
 };

@@ -2,7 +2,6 @@ import React from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 import Navbar from "./components/Navbar";
-import Footer from "./components/Footer";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Home from "./pages/Home";
 import SignUp from "./pages/SignUp";
@@ -44,7 +43,7 @@ export default function App() {
       <Routes>
 
 
-        <Route path="/" element={<><Navbar /><Home /><Footer /></>} />
+        <Route path="/" element={<><Navbar /><Home /></>} />
         <Route path="/signup" element={<><Navbar /><SignUp /></>} />
         <Route path="/login" element={<><Navbar /><Login /></>} />
         <Route path="/service" element={<ProtectedRoute><Navbar /><Service /></ProtectedRoute>} />
