@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import ReactMarkdown from "react-markdown";
-import { Bot, BotIcon, BotMessageSquare, Layout, MessageSquare, Plus, Send, Trash2, User, Wrench } from "lucide-react";
+import { Bot, BotIcon, BotMessageSquare, Layout, MessageSquare, Plus, Send, Trash2, User, Wrench, X } from "lucide-react";
 import { useSelector } from "react-redux";
 
 function AIChat() {
@@ -128,7 +128,7 @@ function AIChat() {
     };
 
     return (
-        <div className="flex h-[calc(110vh-80px)] pt-16 w-full bg-slate-50/50 backdrop-blur-xl overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.05)] border-t border-slate-200/50">
+        <div className="flex h-[calc(105vh-80px)] md:h-[calc(110vh-80px)] pt-16 w-full bg-slate-50/50 backdrop-blur-xl overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.05)] border-t border-slate-200/50">
             <aside className={` pt-18 md:pt-0 fixed inset-y-0 left-0 z-50 w-72 bg-slate-100 flex flex-col transform transition-transform duration-300 ease-in-out md:relative md:translate-x-0 md:z-auto md:bg-slate-50 md:backdrop-blur-md md:border-r md:border-slate-200/60
                      ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"}
                     `}>
@@ -142,7 +142,7 @@ function AIChat() {
                         New Chat
                     </button>
                     <button onClick={() => setIsSidebarOpen(false)} className="ml-2 p-2 text-slate-400 md:hidden">
-                        <Layout size={20} />
+                        <X size={24} />
                     </button>
                 </div>
 
@@ -155,7 +155,7 @@ function AIChat() {
                     {sessions.map((s) => (
                         <div key={s._id} className="group relative flex items-center">
                             <button
-                                onClick={() => loadSession(s._id)}
+                                onClick={() => {loadSession(s._id); setIsSidebarOpen(false);}}
                                 className={`w-full p-2.5 text-xs rounded-lg flex items-center gap-2.5 transition-all ${currentSessionId === s._id ? 'bg-indigo-50 text-indigo-600' : 'text-slate-500 hover:bg-slate-50'
                                     }`}
                             >

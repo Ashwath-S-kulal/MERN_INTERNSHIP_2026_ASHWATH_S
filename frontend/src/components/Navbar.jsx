@@ -109,8 +109,8 @@ export default function Navbar() {
 
   return (
     <div>
-      <header className="fixed top-0 left-0 right-0 z-[100] w-full h-16 bg-white/90 backdrop-blur-md border-b border-zinc-200 px-4">
-        <div className="max-w-screen mx-3 h-full flex items-center justify-between">
+      <header className="fixed top-0 left-0 right-0 z-[100] w-full h-16 bg-white/90 backdrop-blur-md border-b border-zinc-200 px-2 md:px-4">
+        <div className="max-w-screen md:mx-3 h-full flex items-center justify-between">
           <div className="flex-1 flex justify-start">
             <Link to="/" className="group flex items-center gap-2.5 outline-none">
               <div className="w-10 h-10 rounded-full flex items-center justify-center shadow-lg shadow-blue-900/20 group-hover:scale-110 transition-transform overflow-hidden">
@@ -137,7 +137,7 @@ export default function Navbar() {
           <div className="flex-1 flex items-center justify-end gap-2 md:gap-3">
             <NavLink to="/aisearch" >
             <button
-              className={`flex items-center gap-2 px-3 py-1.5 rounded-full border transition-all duration-300 
+              className={`flex items-center gap-2 px-2 md:px-3 py-2 rounded-full border transition-all duration-300 
                 
                 bg-white text-blue-600 border-blue-200 hover:bg-blue-50
               `}

@@ -87,5 +87,4 @@ app.use("/api/booking", bookingRoutes);
 app.use("/api/member", MemberRoutes);
 app.use("/api/reviews", reviewRoutes);
 app.use("/api/ai", aiRoutes);
-
 export default app;
