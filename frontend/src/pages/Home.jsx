@@ -78,13 +78,13 @@ const Homepage = () => {
               Book trusted local professionals for cleaning, plumbing, repairs, and more.
               Transparent pricing. Verified pros.
             </p>
-            <div className="bg-white p-4 rounded-2xl shadow-xl border border-gray-100 flex flex-col lg:flex-row items-center justify-between gap-6">
+            <div className="bg-white p-4 rounded-2xl shadow-xl border border-gray-100 flex flex-row items-center justify-between gap-6">
               <div className="flex flex-col sm:flex-row items-center gap-4">
                 <div className="flex -space-x-3 overflow-hidden p-1">
                   {[1, 2, 3, 4].map((i) => (
                     <img
                       key={i}
-                      className="inline-block h-10 w-10 rounded-full ring-2 ring-white object-cover"
+                      className="inline-block h-8 w-8 md:h-10 md:w-10 rounded-full ring-2 ring-white object-cover"
                       src={`https://i.pravatar.cc/150?u=${i}`}
                       alt="User"
                     />
@@ -94,13 +94,13 @@ const Homepage = () => {
                   </div>
                 </div>
 
-                <div className="text-center sm:text-left">
+                <div className="hidden md:inline text-center sm:text-left">
                   <p className="text-xs font-medium text-slate-500">Join our growing community</p>
                 </div>
               </div>
 
               <NavLink to="/service">
-                <button className="cursor-pointer w-full lg:w-auto px-10 py-3.5 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 hover:shadow-lg hover:shadow-blue-200 transition-all active:scale-95 text-sm whitespace-nowrap">
+                <button className="cursor-pointer w-full lg:w-auto px-8 md:px-10 py-3.5 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 hover:shadow-lg hover:shadow-blue-200 transition-all active:scale-95 text-sm whitespace-nowrap">
                   Browse Services
                 </button>
               </NavLink>
