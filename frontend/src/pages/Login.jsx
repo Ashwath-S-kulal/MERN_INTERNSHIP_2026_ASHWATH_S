@@ -135,18 +135,18 @@ export default function Login() {
                   <Label className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-gray-400 ml-1">Email Address</Label>
                   <div className="relative">
                     <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-300" size={16} />
-                    <Input name="email" type="email" required value={formData.email} onChange={handleChange} placeholder="youremail@gmail.com" className="pl-11 bg-white/50 border-gray-100  h-11 sm:h-12 text-sm focus:ring-pink-500 shadow-sm" />
+                    <Input name="email" type="email" required value={formData.email} onChange={handleChange} placeholder="youremail@gmail.com" className="pl-11 bg-white/50 border-gray-100  h-11 sm:h-12 text-sm focus:ring-blue-500 shadow-sm" />
                   </div>
                 </div>
                 <div className="space-y-1.5">
                   <div className="flex justify-between items-center">
                     <Label className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-gray-400 ml-1">Password</Label>
-                    <button type="button" onClick={() => setMode('forgot')} className="text-[10px] sm:text-xs font-bold text-pink-600 hover:text-pink-700 transition-colors">Forgot?</button>
+                    <button type="button" onClick={() => setMode('forgot')} className="text-[10px] sm:text-xs font-bold text-blue-600 hover:text-blue-700 transition-colors">Forgot?</button>
                   </div>
                   <div className="relative">
                     <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-300" size={16} />
-                    <Input name="password" type={showPassword ? "text" : "password"} required value={formData.password} onChange={handleChange} className="pl-11 bg-white/50 border-gray-100  h-11 sm:h-12 text-sm focus:ring-pink-500 shadow-sm" />
-                    <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-pink-600 transition-colors">
+                    <Input name="password" type={showPassword ? "text" : "password"} required value={formData.password} onChange={handleChange} className="pl-11 bg-white/50 border-gray-100  h-11 sm:h-12 text-sm focus:ring-blue-500 shadow-sm" />
+                    <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-blue-600 transition-colors">
                       {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                     </button>
                   </div>
@@ -168,7 +168,7 @@ export default function Login() {
             {mode === 'verify' && (
               <div className="space-y-3 animate-in fade-in slide-in-from-bottom-2 duration-500">
                 <Label className="block text-center text-[10px] sm:text-xs font-bold uppercase text-gray-400 tracking-widest">Security Code</Label>
-                <Input maxLength={6} className="text-center text-2xl sm:text-3xl tracking-[8px] sm:tracking-[12px] font-black h-14 sm:h-16 bg-white border-pink-100 text-pink-600 rounded-xl sm:rounded-2xl shadow-lg" value={otp} onChange={(e) => setOtp(e.target.value)} required placeholder="••••••" />
+                <Input maxLength={6} className="text-center text-2xl sm:text-3xl tracking-[8px] sm:tracking-[12px] font-black h-14 sm:h-16 bg-white border-pink-100 text-blue-600 rounded-xl sm:rounded-2xl shadow-lg" value={otp} onChange={(e) => setOtp(e.target.value)} required placeholder="••••••" />
               </div>
             )}
 
@@ -186,12 +186,12 @@ export default function Login() {
               </div>
             )}
 
-            <Button type="submit" disabled={loading} className={`w-full h-12 sm:h-14 font-bold text-base sm:text-lg shadow-lg transition-all active:scale-[0.98] ${mode === 'reset' ? 'bg-emerald-600 hover:bg-emerald-700 shadow-emerald-200' : 'bg-pink-600 hover:bg-pink-700 shadow-pink-200'}`}>
+            <Button type="submit" disabled={loading} className={`w-full h-12 sm:h-14 font-bold text-base sm:text-lg shadow-lg transition-all active:scale-[0.98] ${mode === 'reset' ? 'bg-emerald-600 hover:bg-emerald-700 shadow-emerald-200' : 'bg-blue-600 hover:bg-blue-700 shadow-blue-200'}`}>
               {loading ? <Loader className="animate-spin mr-2" size={18} /> : mode === 'login' ? "Sign In" : mode === 'forgot' ? "Send Code" : mode === 'verify' ? "Verify" : "Update"}
             </Button>
 
             {mode !== 'login' && (
-              <button type="button" onClick={() => setMode('login')} className="w-full flex items-center justify-center gap-2 text-[10px] sm:text-xs font-bold text-gray-400 hover:text-pink-600 transition-colors uppercase tracking-widest pt-2">
+              <button type="button" onClick={() => setMode('login')} className="w-full flex items-center justify-center gap-2 text-[10px] sm:text-xs font-bold text-gray-400 hover:text-blue-600 transition-colors uppercase tracking-widest pt-2">
                 <ArrowLeft size={14} /> Back to Login
               </button>
             )}
@@ -201,7 +201,7 @@ export default function Login() {
         {mode === 'login' && (
           <CardFooter className="justify-center border-t border-white/50 bg-white/30 py-4 sm:py-6">
             <p className="text-xs sm:text-sm text-gray-500">
-              New user? <Link to="/signup" className="ml-1 text-pink-600 font-black hover:underline underline-offset-4">Sign Up</Link>
+              New user? <Link to="/signup" className="ml-1 text-blue-600 font-black hover:underline underline-offset-4">Sign Up</Link>
             </p>
           </CardFooter>
         )}

@@ -174,7 +174,7 @@ export default function SignUp() {
                                         <button
                                             type="button"
                                             onClick={() => setShowPassword(!showPassword)}
-                                            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-300 hover:text-pink-500 transition-colors"
+                                            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-300 hover:text-blue-500 transition-colors"
                                         >
                                             {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                                         </button>
@@ -210,9 +210,9 @@ export default function SignUp() {
                         {/* STEP 2: OTP VERIFICATION */}
                         {step === 2 && (
                             <div className="space-y-5 animate-in slide-in-from-bottom-4 duration-500">
-                                <div className="bg-pink-50/50 p-3 sm:p-4 rounded-xl sm:rounded-2xl flex items-center justify-between border border-pink-100">
-                                    <span className="text-[9px] sm:text-[10px] uppercase font-black text-pink-400 tracking-tighter">Code Expires In</span>
-                                    <div className="flex items-center gap-2 text-pink-600">
+                                <div className="bg-blue-50/50 p-3 sm:p-4 rounded-xl sm:rounded-2xl flex items-center justify-between border border-blue-100">
+                                    <span className="text-[9px] sm:text-[10px] uppercase font-black text-blue-400 tracking-tighter">Code Expires In</span>
+                                    <div className="flex items-center gap-2 text-blue-600">
                                         <Timer size={18} className={timeLeft < 60 ? "animate-bounce" : ""} />
                                         <span className="font-mono font-bold text-base sm:text-lg">{formatTime(timeLeft)}</span>
                                     </div>
@@ -223,7 +223,7 @@ export default function SignUp() {
                                     <Input
                                         maxLength={6}
                                         placeholder="······"
-                                        className="text-center text-3xl sm:text-4xl tracking-[10px] sm:tracking-[15px] font-black h-16 sm:h-20 bg-white border-pink-100 text-pink-600 rounded-2xl sm:rounded-[2rem] shadow-lg sm:shadow-xl shadow-pink-50"
+                                        className="text-center text-3xl sm:text-4xl tracking-[10px] sm:tracking-[15px] font-black h-16 sm:h-20 bg-white border-blue-100 text-blue-600 rounded-2xl sm:rounded-[2rem] shadow-lg sm:shadow-xl shadow-blue-50"
                                         value={otp}
                                         onChange={(e) => setOtp(e.target.value)}
                                         autoFocus
@@ -238,7 +238,7 @@ export default function SignUp() {
                                             type="button"
                                             disabled={resendCooldown > 0 || resending}
                                             onClick={handleResendOTP}
-                                            className="flex items-center gap-2 text-[11px] font-bold text-pink-600 hover:text-pink-700 disabled:text-gray-400 transition-colors"
+                                            className="flex items-center gap-2 text-[11px] font-bold text-blue-600 hover:text-blue-700 disabled:text-gray-400 transition-colors"
                                         >
                                             {resending ? <Loader className="animate-spin" size={12} /> : <RotateCcw size={12} />}
                                             {resendCooldown > 0 ? `Resend in ${resendCooldown}s` : "Resend Code"}
@@ -248,7 +248,7 @@ export default function SignUp() {
                             </div>
                         )}
 
-                        <Button type="submit" disabled={loading || (step === 2 && timeLeft === 0)} className={`w-full h-12 sm:h-14 cursor-pointer font-bold text-base sm:text-lg shadow-lg transition-all active:scale-[0.98] ${step === 1 ? "bg-pink-600 hover:bg-pink-700" : "bg-emerald-600 hover:bg-emerald-700"}`}>
+                        <Button type="submit" disabled={loading || (step === 2 && timeLeft === 0)} className={`w-full h-12 sm:h-14 cursor-pointer font-bold text-base sm:text-lg shadow-lg transition-all active:scale-[0.98] ${step === 1 ? "bg-blue-600 hover:bg-pink-700" : "bg-emerald-600 hover:bg-emerald-700"}`}>
                             {loading ? <Loader className="animate-spin mr-2" /> : step === 1 ? "Get OTP Code" : "Verify & Activate"}
                         </Button>
                     </form>
@@ -256,7 +256,7 @@ export default function SignUp() {
 
                 <CardFooter className="justify-center border-t border-gray-50 sm:border-white/50 bg-gray-50/50 sm:bg-white/30 py-4 sm:pt-6">
                     <p className="text-xs sm:text-sm text-gray-500">
-                        Member already? <Link to="/login" className="ml-1 text-pink-600 font-black hover:underline">Log In</Link>
+                        Member already? <Link to="/login" className="ml-1 text-blue-600 font-black hover:underline">Log In</Link>
                     </p>
                 </CardFooter>
             </Card>

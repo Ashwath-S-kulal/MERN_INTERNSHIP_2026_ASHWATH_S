@@ -7,6 +7,7 @@
 // import bookingRoutes from "./routes/bookingRoutes.js"
 // import MemberRoutes from "./routes/memberRoute.js"
 // import reviewRoutes from "./routes/reviewRoutes.js"
+// import aiRoutes from "./routes/aiRoutes.js"
 
 // import cors from "cors";
 // dotenv.config();
@@ -31,6 +32,7 @@
 // app.use("/api/booking", bookingRoutes);
 // app.use("/api/member", MemberRoutes);
 // app.use('/api/reviews', reviewRoutes);
+// app.use("/api/ai", aiRoutes);
 
 // app.listen(PORT, () => {
 //   connectDB();

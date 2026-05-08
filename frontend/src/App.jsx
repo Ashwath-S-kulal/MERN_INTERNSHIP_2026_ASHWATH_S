@@ -34,6 +34,8 @@ import ServiceDetailsPage from "./pages/ServiceDetailsPage";
 import JobManagement from "./pages/provider/JobManagement";
 import UserOverview from "./pages/User/UserOverview";
 import ProviderAllJobs from "./pages/User/ProviderAllJobs";
+import AISearch from "./pages/AISearch";
+import InvoiceView from "./components/InvoiceView";
 
 
 export default function App() {
@@ -53,6 +55,8 @@ export default function App() {
         <Route path="/servicedetails/:id" element={<ProtectedRoute><ServiceDetailsPage /></ProtectedRoute>} />
         <Route path="/provideralljobs/:id" element={<ProtectedRoute><ProviderAllJobs /></ProtectedRoute>} />
         <Route path="/applyforservice" element={<ProtectedRoute><ApplyforService /></ProtectedRoute>} />
+        <Route path="/aisearch" element={<ProtectedRoute><Navbar /><AISearch /></ProtectedRoute>} />
+        <Route path="/invoice-view" element={<InvoiceView />} />
 
 
 

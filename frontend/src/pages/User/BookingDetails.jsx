@@ -6,7 +6,8 @@ import {
   User, ShieldCheck, CreditCard, Wrench,
   Phone, Mail, Info, AlertCircle, Loader2,
   HardHat, MessageSquare, CheckCircle2, XCircle, X, Check, Star,
-  Download
+  Download,
+  FileText
 } from "lucide-react";
 import Loader from "../../components/Loading";
 
@@ -189,7 +190,22 @@ export default function BookingDetails() {
     }
   };
 
-  if (loading) return <Loader/>
+  const handleViewInvoice = () => {
+    navigate("/invoice-view", {
+      state: {
+        booking: {
+          ...booking,
+          extraCharges: booking.extraCharges || [],
+          totalAmount: booking.totalAmount,
+          invoiceDate: new Date().toLocaleDateString('en-GB'),
+          transactionId: booking._id?.slice(-10).toUpperCase()
+        },
+        workerDetails
+      }
+    });
+  };
+
+  if (loading) return <Loader />
 
 
   if (!booking) {
@@ -502,6 +518,13 @@ export default function BookingDetails() {
                 </p>
               </div>
             )}
+
+            <button
+              onClick={handleViewInvoice}
+              className="mt-4 w-full bg-slate-800 hover:bg-slate-900 text-white py-4 rounded-2xl font-black text-xs uppercase tracking-widest flex items-center justify-center gap-3 transition-all"
+            >
+              <FileText size={18} /> Preview & Download PDF
+            </button>
           </div>
         )}
       </div>

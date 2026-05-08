@@ -5,7 +5,8 @@ import {
     ChevronLeft, CheckCircle2, Loader2, UserPlus, MapPin,
     Calendar, Clock, Timer, TrendingUp, XCircle, Wrench,
     Mail, Phone, ShieldCheck, CreditCard, Check, Circle, ArrowRight,
-    X
+    X,
+    FileText
 } from "lucide-react";
 import Loader from "../../components/Loading";
 
@@ -107,7 +108,7 @@ export default function OrderDetails() {
 
 
 
-  if (loading) return <Loader/>
+    if (loading) return <Loader />
 
 
 
@@ -178,6 +179,22 @@ export default function OrderDetails() {
         return baseTotal + extrasTotal;
     };
 
+    const handleViewInvoice = () => {
+        navigate("/invoice-view", {
+            state: {
+                booking: {
+                    ...booking,
+                    // Ensure these are present
+                    extraCharges: booking.extraCharges || [],
+                    totalAmount: booking.totalAmount,
+                    invoiceDate: new Date().toLocaleDateString('en-GB'),
+                    transactionId: booking._id?.slice(-10).toUpperCase()
+                },
+                workerDetails
+            }
+        });
+    };
+
     return (
         <div className="min-h-screen bg-[#F9FBFF] font-sans text-slate-900 pb-10">
 
@@ -204,7 +221,7 @@ export default function OrderDetails() {
                                     <div>
                                         <h1 className="text-xl font-black">{booking.user?.firstName} {booking.user?.lastName}</h1>
                                         <div className="flex gap-4 mt-1">
-                                            <a href={`tel:${booking.user?.phone}`} className="text-xs font-bold text-slate-400 hover:text-blue-600 flex items-center gap-1"><Phone size={12} /> {booking.user?.phone}</a>
+                                            <p className="text-xs font-bold text-slate-400 flex items-center gap-1"><Phone size={12} /> {booking.user?.phoneNo}</p>
                                             <p className="text-xs font-bold text-slate-400 flex items-center gap-1"><Mail size={12} /> {booking.user?.email}</p>
                                         </div>
                                     </div>
@@ -609,6 +626,7 @@ export default function OrderDetails() {
                             </div>
 
                             {booking.paymentStatus !== 'paid' ? (
+
                                 <button
                                     onClick={handleConfirmCash}
                                     className="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-5 rounded-2xl font-black text-xs uppercase tracking-[0.2em] flex items-center justify-center gap-3 transition-all shadow-lg shadow-emerald-200"
@@ -623,6 +641,12 @@ export default function OrderDetails() {
                                     <span className="text-[11px] font-black text-emerald-700 uppercase tracking-[0.2em]">Closed & Settled</span>
                                 </div>
                             )}
+                            <button
+                                onClick={handleViewInvoice}
+                                className="mt-4 w-full bg-slate-800 hover:bg-slate-900 text-white py-4 rounded-2xl font-black text-xs uppercase tracking-widest flex items-center justify-center gap-3 transition-all"
+                            >
+                                <FileText size={18} /> Preview & Download PDF
+                            </button>
                         </div>
                     )}
                 </div>
