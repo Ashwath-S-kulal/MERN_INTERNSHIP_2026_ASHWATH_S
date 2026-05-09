@@ -86,8 +86,9 @@ export default function ServiceDetails() {
       }, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      alert("✅ Service Request Sent Successfully!");
+      
       resetForm();
+      navigate("/bookingsuccess");
     } catch (err) {
       console.error(err);
       alert(err.response?.data?.message || "Request failed. Please check your connection.");
