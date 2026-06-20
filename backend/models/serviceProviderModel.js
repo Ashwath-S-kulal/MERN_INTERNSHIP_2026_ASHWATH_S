@@ -24,7 +24,7 @@ const serviceProviderSchema = new mongoose.Schema(
     category: { type: String, required: true },
 
     pricing: {
-      rate: { type: Number, required: true }, // The number (e.g., 500)
+      rate: { type: Number, required: true }, 
       unit: {
         type: String,
         required: true,
@@ -33,7 +33,7 @@ const serviceProviderSchema = new mongoose.Schema(
     },
 
     title: { type: String, required: true },
-    bio: { type: String, maxLength: 500 },
+    bio: { type: String, maxLength: 10000 },
     experience: { type: Number, required: true },
 
     serviceRadius: { type: Number, default: 10 },

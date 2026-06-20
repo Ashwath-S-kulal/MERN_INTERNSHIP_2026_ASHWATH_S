@@ -22,7 +22,7 @@ const UserDashboard = () => {
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
   const token = localStorage.getItem("accessToken");
-    const { user } = useSelector(store => store.user);
+  const { user } = useSelector(store => store.user);
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -71,10 +71,10 @@ const UserDashboard = () => {
       pending: bookings.filter(b => b.status === 'pending').length,
       completed: bookings.filter(b => b.status === 'completed').length,
       upcoming: bookings.filter(b => b.status === 'confirmed' || b.status === 'accepted').length
-    };  
-  }, [bookings]);  
+    };
+  }, [bookings]);
 
-  if (loading) return <Loader/>
+  if (loading) return <Loader />
 
 
 
@@ -87,10 +87,10 @@ const UserDashboard = () => {
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <StatCard label="All Bookings" val={stats.total} icon={<Package size={18} />} color="indigo" />
-          <StatCard label="Pending" val={stats.pending} icon={<Clock size={18} />} color="amber" />
-          <StatCard label="Confirmed" val={stats.upcoming} icon={<Calendar size={18} />} color="blue" />
-          <StatCard label="Completed" val={stats.completed} icon={<CheckCircle2 size={18} />} color="emerald" />
+          <StatCard label="All Bookings" val={stats.total} />
+          <StatCard label="Pending" val={stats.pending} />
+          <StatCard label="Confirmed" val={stats.upcoming} />
+          <StatCard label="Completed" val={stats.completed} />
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -207,18 +207,10 @@ const BookingItem = ({ booking }) => {
   );
 };
 
-const StatCard = ({ label, val, icon, color }) => {
-  const colors = {
-    indigo: "text-indigo-600 bg-indigo-50",
-    amber: "text-amber-600 bg-amber-50",
-    emerald: "text-emerald-600 bg-emerald-50",
-    blue: "text-blue-600 bg-blue-50"
-  };
+const StatCard = ({ label, val, }) => {
   return (
     <div className="bg-white p-5 rounded-2xl border border-slate-200">
-      <div className={`h-10 w-10 rounded-xl flex items-center justify-center mb-4 ${colors[color]}`}>
-        {icon}
-      </div>
+
       <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">{label}</p>
       <p className="text-2xl font-black text-slate-900 mt-1 tracking-tight">{val}</p>
     </div>

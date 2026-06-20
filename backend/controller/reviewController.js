@@ -43,8 +43,7 @@ export const getProviderReviews = async (req, res) => {
       .populate("user", "firstName lastName profilePic")
       .sort({ createdAt: -1 });
 
-    console.log("Provider ID:", req.params.providerId);
-    console.log("Fetched Reviews:", reviews);
+
 
     res.status(200).json({
       success: true,

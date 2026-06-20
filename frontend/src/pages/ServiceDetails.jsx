@@ -4,9 +4,10 @@ import axios from "axios";
 import {
   Calendar, MapPin, Star, ShieldCheck,
   Briefcase, Wrench, Navigation, Info,
-  ChevronRight, ArrowLeft, CheckCircle, Hash, Zap, Loader2
+  ChevronRight, ArrowLeft, CheckCircle, Hash, Zap, Loader2, Sparkles, Award, X
 } from "lucide-react";
 import Loader from "../components/Loading";
+import AiDescriptionInput from "@/components/GenerateDesc";
 
 export default function ServiceDetails() {
   const { id } = useParams();
@@ -24,6 +25,12 @@ export default function ServiceDetails() {
     area: "",
     pincode: ""
   });
+  const [aiData, setAiData] = useState(null);
+  const [aiLoading, setAiLoading] = useState(false);
+  const [isAiDrawerOpen, setIsAiDrawerOpen] = useState(false);
+  const [animateDrawer, setAnimateDrawer] = useState(false);
+  const [aiError, setAiError] = useState("");
+
 
   const today = new Date().toISOString().split("T")[0];
   const daysOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
@@ -86,7 +93,7 @@ export default function ServiceDetails() {
       }, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      
+
       resetForm();
       navigate("/bookingsuccess");
     } catch (err) {
@@ -97,8 +104,47 @@ export default function ServiceDetails() {
     }
   };
 
+  const handleFetchAiInsights = async () => {
+    const token = localStorage.getItem("accessToken");
+    try {
+      setAiLoading(true);
+      setAiError("");
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+
+      const res = await axios.get(`${import.meta.env.VITE_BASE_URI}/api/ai/ai-summary/${id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (res.data.success) {
+        setAiData(res.data);
+      }
+    } catch (err) {
+      console.error("Error generating AI data:", err);
+      setAiError("Could not build analytical review insights right now. Please try again.");
+    } finally {
+      setAiLoading(false);
+    }
+  };
+
+  const openAiDrawer = () => {
+    setIsAiDrawerOpen(true);
+    setTimeout(() => {
+      setAnimateDrawer(true);
+    }, 10);
+
+    if (!aiData && !aiLoading) {
+      handleFetchAiInsights();
+    }
+  };
+
+  const closeAiDrawer = () => {
+    setAnimateDrawer(false);
+    setTimeout(() => {
+      setIsAiDrawerOpen(false);
+    }, 300);
+  };
+
   if (!service) return (
-   <Loader/>
+    <Loader />
   );
 
   const averageRating = reviews.length > 0
@@ -147,7 +193,6 @@ export default function ServiceDetails() {
           </div>
 
           <div className="bg-white p-6 rounded-md border border-slate-100 shadow-sm">
-
             <div className="flex items-center justify-between mb-8">
               <div onClick={() => navigate(`/provideralljobs/${service.user._id}`)} className="flex items-center gap-4 cursor-pointer">
                 <div className="relative">
@@ -225,6 +270,7 @@ export default function ServiceDetails() {
             <p className="text-slate-600 text-[14px] leading-relaxed italic">"{service.bio}"</p>
           </div>
 
+
           <div className="bg-white p-6 rounded-md border border-slate-100 shadow-sm mx-auto mt-10">
             <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Client Feedback</h3>
             <div className="space-y-5">
@@ -275,14 +321,30 @@ export default function ServiceDetails() {
                 />
               </div>
 
-              <div className="space-y-1.5">
-                <label className="text-[10px] font-bold text-slate-400 uppercase ml-1">Describe the Problem (Optional)</label>
-                <textarea
-                  placeholder="e.g. My AC is making a loud noise..."
-                  value={problem}
-                  onChange={(e) => setProblem(e.target.value)}
-                  className="w-full bg-slate-50 border border-slate-100 p-3 rounded-xl text-[12px] font-medium h-24 resize-none outline-none focus:border-blue-400"
-                />
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <label className="text-[10px] font-bold text-slate-400 uppercase ml-1">
+                    Describe the Problem (Optional)
+                  </label>
+                    <AiDescriptionInput
+                      value={problem}
+                      onChange={setProblem}
+                    />
+                </div>
+
+                <div className="relative">  
+                  <textarea
+                    placeholder="Write Problem in Short, AI will generate a detailed description for you.."
+                    value={problem}
+                    onChange={(e) => setProblem(e.target.value)}
+                    className="w-full bg-slate-50 border border-slate-100 p-4 rounded-xl text-[12px] font-medium h-24 resize-none outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-50/50 transition-all"
+                  />
+                  {problem.length === 0 && (
+                    <span className="absolute bottom-4 right-4 text-[9px] text-slate-300 font-bold uppercase tracking-widest pointer-events-none">
+                      Max 10000 chars
+                    </span>
+                  )}
+                </div>
               </div>
 
               <div className="space-y-3 pt-2 border-t border-slate-50">
@@ -330,8 +392,244 @@ export default function ServiceDetails() {
               </button>
             </div>
           </div>
+
+
         </div>
       </div>
+
+      <button
+        onClick={isAiDrawerOpen ? closeAiDrawer : openAiDrawer}
+        className={`fixed bottom-6 right-6 z-[60] flex items-center gap-2 text-white p-4 rounded-full shadow-[0_4px_25px_rgba(37,99,235,0.35)] hover:scale-105 active:scale-95 transition-all duration-300 group ${isAiDrawerOpen ? 'bg-slate-800' : 'bg-gradient-to-r from-blue-600 to-indigo-600'
+          }`}
+        title={isAiDrawerOpen ? "Close AI Insights" : "Open AI Engine Insights"}
+      >
+        {isAiDrawerOpen ? (
+          <X size={18} />
+        ) : (
+          <>
+            <span className="max-w-xs overflow-hidden group-hover:max-w-xs transition-all duration-500 ease-out whitespace-nowrap text-[10px] font-black uppercase tracking-wider pl-0 group-hover:pl-1">
+              AI Review Engine
+            </span>
+            <Zap size={18} className="fill-white text-white animate-pulse" />
+          </>
+        )}
+      </button>
+
+      {isAiDrawerOpen && (
+        <div className="fixed inset-0 z-50 flex items-end justify-end p-4 md:p-6 pointer-events-none">
+          {/* Backdrop */}
+          <div
+            className={`absolute inset-0 bg-slate-950/20 backdrop-blur-[2px] transition-opacity duration-300 pointer-events-auto ${animateDrawer ? 'opacity-100' : 'opacity-0'
+              }`}
+            onClick={closeAiDrawer}
+          />
+
+          {/* Popup Container: Add mb-20 to push it above the button */}
+          <div
+            className={`w-full max-w-sm bg-white rounded-xl mb-16 shadow-[0_20px_50px_rgba(0,0,0,0.15)] border border-slate-100 flex flex-col max-h-[70vh] pointer-events-auto transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] overflow-hidden ${animateDrawer ? 'translate-y-0 opacity-100 scale-100' : 'translate-y-10 opacity-0 scale-95'
+              }`}
+          >
+            {/* Header */}
+            <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+              <div className="flex items-center gap-2">
+                <div className="p-1.5 bg-blue-50 text-blue-600 rounded-lg">
+                  <Sparkles size={16} />
+                </div>
+                <div>
+                  <h3 className="text-[10px] font-black text-slate-900 uppercase tracking-widest leading-none mb-0.5">Profile Insights</h3>
+                </div>
+              </div>
+              <button
+                onClick={closeAiDrawer}
+                className="p-1.5 hover:bg-slate-200 rounded-full text-slate-400 hover:text-slate-600 transition-all"
+              >
+                <X size={16} />
+              </button>
+            </div>
+
+            {/* Content - Same as before */}
+            <div className="flex-1 overflow-y-auto px-6 py-6 space-y-6">
+              <div className="bg-gradient-to-br from-slate-50 to-slate-100/50 p-4.5 rounded-md border border-slate-150 flex flex-col gap-3">
+                <div className="flex items-center gap-3">
+                  <img
+                    src={service.user?.profilePic || `https://ui-avatars.com/api/?name=${service.user?.firstName}&background=6366f1&color=fff`}
+                    className="w-11 h-11 rounded-md object-cover border border-white shadow-sm"
+                    alt="Provider Avatar"
+                  />
+                  <div>
+                    <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Provider Profile</p>
+                    <h4 className="text-sm font-black text-slate-900 tracking-tight leading-snug">
+                      {service.user?.firstName} {service.user?.lastName}
+                    </h4>
+                    <p className="text-[10px] text-slate-500 font-bold capitalize">{service.services?.[0]}</p>
+                  </div>
+                </div>
+
+                <button
+                  onClick={() => {
+                    closeAiDrawer();
+                    navigate(`/provideralljobs/${service.user._id}`);
+                  }}
+                  className="w-full flex items-center justify-center gap-2 bg-slate-900 text-white hover:bg-slate-850 text-[10px] font-black  tracking-wider py-3 px-4 rounded-md shadow-md transition-all active:scale-[0.98]"
+                >
+                  <Briefcase size={12} />
+                  Explore Portfolio &amp; All Jobs
+                </button>
+              </div>
+
+              {aiLoading && (
+                <div className="space-y-4 animate-pulse pt-2">
+                  <div className="flex items-center gap-2">
+                    <Loader2 size={16} className="text-blue-500 animate-spin" />
+                    <span className="text-[10px] font-black uppercase text-blue-600 tracking-widest">
+                      {aiData ? "Re-scanning telemetry..." : "Assembling feedback telemetry..."}
+                    </span>
+                  </div>
+                  <div className="h-32 bg-slate-100 rounded-2xl w-full"></div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="h-20 bg-slate-100 rounded-xl"></div>
+                    <div className="h-20 bg-slate-100 rounded-xl"></div>
+                  </div>
+                </div>
+              )}
+
+              {!aiLoading && aiData && (
+                <div className="space-y-6 fade-in">
+                  <div className="space-y-6">
+                    <div className="bg-white p-5 rounded-md border border-slate-100 shadow-sm flex flex-col justify-center">
+                      <div className="text-center mb-4">
+                        <span className="inline-flex items-center gap-1 text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5">
+                          <Star size={11} className="fill-amber-400 text-amber-400" /> Ratings Matrix
+                        </span>
+                        <h5 className="text-4xl font-black text-slate-900 tracking-tight leading-none">
+                          {aiData.metrics?.average || averageRating}
+                        </h5>
+                        <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mt-1">Average Performance Rating</p>
+                      </div>
+
+                      <div className="space-y-2.5">
+                        {[5, 4, 3, 2, 1].map((stars) => {
+                          const count = aiData.metrics?.distribution?.[stars] || 0;
+                          const percentage = aiData.metrics?.total > 0 ? (count / aiData.metrics.total) * 100 : 0;
+                          return (
+                            <div key={stars} className="flex items-center gap-2 text-[11px]">
+                              <span className="w-6 font-black text-slate-500 text-right">{stars}★</span>
+                              <div className="flex-1 h-2 bg-slate-100 rounded-full overflow-hidden">
+                                <div
+                                  className="h-full bg-gradient-to-r from-amber-400 to-amber-500 rounded-full transition-all duration-500"
+                                  style={{ width: `${percentage}%` }}
+                                ></div>
+                              </div>
+                              <span className="w-10 text-right font-black text-slate-400 text-[10px]">{count} count</span>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    <div className="space-y-4">
+                      <div>
+                        <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-1.5">
+                          Behavioral Trend Report
+                        </span>
+                        <p className="text-slate-600 text-[13px] leading-relaxed font-medium bg-slate-50/50 p-4 rounded-xl border border-slate-100/60 italic">
+                          "{aiData.summary}"
+                        </p>
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div className="bg-emerald-50/50 p-3.5 rounded-md border border-emerald-100/50 flex flex-col justify-between">
+                          <div>
+                            <span className="text-[8px] font-black text-emerald-600 uppercase block mb-1">
+                              Core Strength
+                            </span>
+                            <p className="text-[12px] font-extrabold text-slate-700 capitalize leading-tight">
+                              {aiData.primaryStrength || "Steady Performance"}
+                            </p>
+                          </div>
+                          <Award size={14} className="text-emerald-500 mt-2 self-end" />
+                        </div>
+
+                        <div className="bg-rose-50/50 p-3.5 rounded-md border border-rose-100/50 flex flex-col justify-between">
+                          <div>
+                            <span className="text-[8px] font-black text-rose-500 uppercase block mb-1">
+                              Target Improvement
+                            </span>
+                            <p className="text-[12px] font-extrabold text-slate-700 capitalize leading-tight">
+                              {aiData.improvementArea || "Maintain SLA"}
+                            </p>
+                          </div>
+                          <Info size={14} className="text-rose-400 mt-2 self-end" />
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="pt-4 border-t border-slate-100 space-y-3">
+                      <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest block">
+                        Assigned Profile Badges
+                      </span>
+                      {aiData.tags?.length > 0 ? (
+                        <div className="flex flex-wrap gap-2">
+                          {aiData.tags.map((tag, idx) => (
+                            <span
+                              key={idx}
+                              className="bg-indigo-50 text-indigo-700 border border-indigo-100 text-[10px] font-bold px-3 py-1.5 rounded-md uppercase tracking-wide flex items-center gap-1.5 shadow-sm"
+                            >
+                              <div className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-pulse" />
+                              {tag}
+                            </span>
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="text-[10px] text-slate-400 font-medium italic">No behavioral tags compiled</div>
+                      )}
+                    </div>
+
+                    <div className="pt-2">
+                      <button
+                        onClick={() => {
+                          closeAiDrawer();
+                        }}
+                        className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-black  tracking-widest text-[11px] py-4 rounded-sm shadow-lg shadow-indigo-500/30 transition-all active:scale-[0.98] flex items-center justify-center gap-2"
+                      >
+                        <Calendar size={14} />
+                        Book Now
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {!aiLoading && aiError && (
+                <div className="p-4 bg-rose-50 text-rose-600 border border-rose-100 rounded-xl text-xs font-semibold">
+                  {aiError}
+                </div>
+              )}
+
+              {!aiData && !aiLoading && (
+                <div className="py-12 text-center bg-slate-50/50 rounded-2xl border border-dashed border-slate-200">
+                  <Zap size={24} className="mx-auto text-slate-300 mb-3" />
+                  <h5 className="text-[11px] font-black text-slate-600 uppercase tracking-widest mb-1">Telemetry Offline</h5>
+                  <p className="text-xs text-slate-400 mb-4 px-6">Click below to query our AI analytical network database.</p>
+                  <button
+                    onClick={handleFetchAiInsights}
+                    className="inline-flex items-center gap-1.5 bg-blue-600 text-white hover:bg-blue-700 text-[10px] font-black uppercase tracking-wider py-2.5 px-4 rounded-xl transition-all"
+                  >
+                    <Zap size={11} className="fill-current" />
+                    Initialize Summary
+                  </button>
+                </div>
+              )}
+
+            </div>
+
+            {/* Footer */}
+            <div className="px-6 py-3 border-t border-slate-50 bg-slate-50/30 text-[8px] font-black text-slate-300 uppercase tracking-widest text-center">
+              ServiceMate AI Engine
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

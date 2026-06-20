@@ -5,6 +5,7 @@ import {
   ToolCase, Clock, ShieldCheck, Globe, Calendar, Camera
 } from "lucide-react";
 import logo from "../assets/logo1.png";
+import AiDescriptionInput from "@/components/GenerateDesc";
 
 export default function SimpleApplyForService() {
   const initialForm = {
@@ -238,7 +239,34 @@ export default function SimpleApplyForService() {
               <ToolCase size={16} /> 03. About You
             </h3>
             <input name="title" value={form.title} placeholder="Professional Title (e.g. Expert Home Painter)" onChange={handleChange} className="w-full h-14 px-5 bg-white border-2 border-slate-100 rounded-2xl font-bold outline-none focus:border-blue-600" required />
-            <textarea name="bio" value={form.bio} placeholder="Briefly describe your expertise..." maxLength="500" rows="3" onChange={handleChange} className="w-full p-5 bg-white border-2 border-slate-100 rounded-2xl font-medium outline-none focus:border-blue-600" />
+            <div className="space-y-2">
+              {/* Header with Label and AI Generate Button */}
+              <div className="flex items-center justify-between">
+                <label className="text-[10px] font-bold text-slate-400 uppercase ml-1">
+                  Professional Bio
+                </label>
+
+                <AiDescriptionInput
+                  value={form.bio}
+                  onChange={(val) => setForm({ ...form, bio: val })}
+                />
+              </div>
+
+              <div className="relative">
+                <textarea
+                  name="bio"
+                  value={form.bio}
+                  placeholder="Write a Short bio AI will generate a professional description for you.."
+                  rows="3"
+                  onChange={handleChange}
+                  className="w-full p-5 bg-white border-2 border-slate-100 rounded-2xl font-medium outline-none focus:border-blue-600 focus:ring-4 focus:ring-blue-50 transition-all resize-none"
+                />
+
+                <span className="absolute bottom-4 right-4 text-[9px] text-slate-300 font-bold uppercase tracking-widest pointer-events-none">
+                  {form.bio.length} / 10000
+                </span>
+              </div>
+            </div>
             <div className="flex items-center gap-3 p-5 bg-white border-2 border-slate-100 rounded-2xl">
               <Globe size={18} className="text-slate-400" />
               <input name="languages" value={form.languages} placeholder="Languages (e.g. English, Kannada)" onChange={handleChange} className="flex-1 bg-transparent font-bold outline-none" />
