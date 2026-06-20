@@ -117,8 +117,8 @@ export default function SignUp() {
     }
 
     return (
-        <div className="relative flex justify-center items-center min-h-screen sm:bg-[#fdf2f8] bg-white overflow-hidden p-4 sm:p-6 mt-0 md:mt-15 sm:pt-20 mb-0 md:mb-20">
-            <Card className="relative w-full max-w-lg border-none ">
+        <div className="relative flex justify-center items-center min-h-screen  overflow-hidden p-4 sm:p-6 mt-0 md:mt-10 sm:pt-20 mb-0 md:mb-20">
+            <Card className="relative w-full max-w-lg border shadow-md">
                 <CardHeader className="space-y-1 text-center py-6 sm:pt-10">
                   
                     <CardTitle className="text-2xl sm:text-3xl font-black tracking-tight text-gray-900">
@@ -248,7 +248,7 @@ export default function SignUp() {
                             </div>
                         )}
 
-                        <Button type="submit" disabled={loading || (step === 2 && timeLeft === 0)} className={`w-full h-12 sm:h-14 cursor-pointer font-bold text-base sm:text-lg shadow-lg transition-all active:scale-[0.98] ${step === 1 ? "bg-blue-600 hover:bg-pink-700" : "bg-emerald-600 hover:bg-emerald-700"}`}>
+                        <Button type="submit" disabled={loading || (step === 2 && timeLeft === 0)} className={`w-full h-12 sm:h-14 cursor-pointer font-bold text-base sm:text-lg shadow-lg transition-all active:scale-[0.98] ${step === 1 ? "bg-blue-600 hover:bg-blue-700" : "bg-emerald-600 hover:bg-emerald-700"}`}>
                             {loading ? <Loader className="animate-spin mr-2" /> : step === 1 ? "Get OTP Code" : "Verify & Activate"}
                         </Button>
                     </form>
