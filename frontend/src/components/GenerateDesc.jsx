@@ -11,7 +11,7 @@ export default function AiDescriptionInput({
 
             const token = localStorage.getItem("accessToken");
 
-            const res = await fetch("/api/ai/generate-description", {
+            const res = await fetch(`${import.meta.env.VITE_BASE_URI}/api/ai/generate-description`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
