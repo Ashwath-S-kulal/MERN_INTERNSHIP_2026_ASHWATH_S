@@ -34,7 +34,7 @@ export const aiChat = async (req, res) => {
     }));
 
     const completion = await client.chat.completions.create({
-      model: "llama-3.3-70b-versatile",
+      model: "openai/gpt-oss-120b",
       messages: [
         {
           role: "system",
@@ -217,7 +217,7 @@ Rules:
         { role: "system", content: systemPrompt },
         { role: "user", content: `User query: "${query}"` },
       ],
-      model: "llama-3.3-70b-versatile",
+      model: "openai/gpt-oss-120b",
       temperature: 0.1,
       response_format: { type: "json_object" },
     });
@@ -328,7 +328,7 @@ export const getAIReviewSummary = async (req, res) => {
 
     const chatCompletion = await groq.chat.completions.create({
       messages: [{ role: "user", content: prompt }],
-      model: "llama-3.3-70b-versatile",
+      model: "openai/gpt-oss-120b",
       temperature: 0.1,
       response_format: { type: "json_object" },
     });
@@ -360,7 +360,7 @@ export const genAIDesc = async (req, res) => {
   const { prompt } = req.body;
 
   const completion = await groq.chat.completions.create({
-    model: "llama-3.3-70b-versatile",
+    model: "openai/gpt-oss-120b",
     messages: [
       {
         role: "system",
