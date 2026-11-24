@@ -37,11 +37,13 @@ import ProviderAllJobs from "./pages/User/ProviderAllJobs";
 import AISearch from "./pages/AISearch";
 import InvoiceView from "./components/InvoiceView";
 import BookingSuccess from "./components/BookingSucces";
+import NetworkStatus from "./components/NetworkStatus";
 
 
 export default function App() {
   return (
     <BrowserRouter>
+    <NetworkStatus />
       <ScrollToTop />
       <Routes>
 
