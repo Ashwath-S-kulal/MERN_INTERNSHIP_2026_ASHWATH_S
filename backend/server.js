@@ -9,6 +9,7 @@
 // import reviewRoutes from "./routes/reviewRoutes.js"
 // import aiRoutes from "./routes/aiRoutes.js"
 
+
 // import cors from "cors";
 // dotenv.config();
 
@@ -58,6 +59,7 @@ import reviewRoutes from "./routes/reviewRoutes.js";
 import aiRoutes from "./routes/aiRoutes.js"
 
 import cors from "cors";
+import brevoRouter from "./routes/brevo.Route.js";
 
 dotenv.config();
 
@@ -85,5 +87,7 @@ app.use("/api/booking", bookingRoutes);
 app.use("/api/member", MemberRoutes);
 app.use("/api/reviews", reviewRoutes);
 app.use("/api/ai", aiRoutes);
+app.use("/api/cron/brevo-keepalive", brevoRouter);
+
 
 export default app;
